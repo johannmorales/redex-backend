@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 @SpringBootApplication
-@EntityScan(basePackageClasses = {
+@EntityScan(value = "org.redex.model", basePackageClasses = {
     BackendApplication.class,
     Jsr310JpaConverters.class
 })
