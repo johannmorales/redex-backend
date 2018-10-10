@@ -1,4 +1,4 @@
-package org.redex.backend.security;
+package org.redex.backend.security.jwt;
 
 import java.io.IOException;
 import javax.servlet.ServletException;

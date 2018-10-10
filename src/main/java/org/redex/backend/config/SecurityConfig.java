@@ -1,8 +1,8 @@
 package org.redex.backend.config;
 
 import org.redex.backend.security.CustomUserDetailsService;
-import org.redex.backend.security.JwtAuthenticationEntryPoint;
-import org.redex.backend.security.JwtAuthenticationFilter;
+import org.redex.backend.security.jwt.JwtAuthenticationEntryPoint;
+import org.redex.backend.security.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

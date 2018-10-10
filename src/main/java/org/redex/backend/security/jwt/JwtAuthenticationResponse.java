@@ -1,4 +1,4 @@
-package org.redex.backend.security;
+package org.redex.backend.security.jwt;
 
 public class JwtAuthenticationResponse {
     private String accessToken;

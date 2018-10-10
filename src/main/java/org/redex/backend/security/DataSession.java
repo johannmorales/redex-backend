@@ -1,10 +1,10 @@
 package org.redex.backend.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.redex.model.Colaborador;
 import org.redex.model.Oficina;
 import org.redex.model.Persona;
@@ -17,11 +17,9 @@ public class DataSession implements UserDetails {
 
     private Long id;
 
-    private String name;
-
     private String username;
 
-    private Persona perosna;
+    private Persona persona;
     
     private Oficina oficina;
     
@@ -32,33 +30,32 @@ public class DataSession implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public DataSession(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    public DataSession(Long id, String username, String password, Colaborador colaborador, Oficina oficina, Persona persona, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
-        this.name = name;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
+        this.colaborador = colaborador;
+        this.oficina = oficina;
+        this.persona = persona;
     }
 
     public static DataSession create(Usuario user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream().map(role
-                -> new SimpleGrantedAuthority(role.getCodigo().name())
-        ).collect(Collectors.toList());
+        List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority(user.getRol().getCodigo().name()));
 
         return new DataSession(
                 user.getId(),
                 user.getUsername(),
                 user.getPassword(),
+                user.getColaborador(),
+                user.getColaborador().getOficina(),
+                user.getColaborador().getPersona(),
                 authorities
         );
     }
 
     public Long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override

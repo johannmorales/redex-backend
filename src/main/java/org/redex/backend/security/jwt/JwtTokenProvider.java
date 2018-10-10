@@ -1,4 +1,4 @@
-package org.redex.backend.security;
+package org.redex.backend.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -10,6 +10,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redex.backend.security.DataSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
