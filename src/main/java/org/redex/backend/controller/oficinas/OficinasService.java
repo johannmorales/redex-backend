@@ -9,5 +9,4 @@ public interface OficinasService {
     
     public void agregarColaborador(Colaborador colaborador);
     
-    public void registar
 }

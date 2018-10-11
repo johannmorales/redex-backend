@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Repository
 @RequestMapping("continentes")
-public interface ContinenteRepository extends PagingAndSortingRepository<Continente, Long>{
+public interface ContinentesRepository extends PagingAndSortingRepository<Continente, Long>{
     
 }
