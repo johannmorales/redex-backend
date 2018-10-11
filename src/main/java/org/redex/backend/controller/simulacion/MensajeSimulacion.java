@@ -2,7 +2,7 @@ package org.redex.backend.controller.simulacion;
 
 public class MensajeSimulacion {
 
-    public enum Estado {
+    private enum Estado {
         DESCONOCIDO, EJECUTANDO, FINALIZADO
     }
 
