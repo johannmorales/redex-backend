@@ -10,5 +10,5 @@ package org.redex.backend.controller.planvuelo;
  * @author jm
  */
 public class PlanVueloController {
-    
+
 }

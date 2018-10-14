@@ -10,5 +10,5 @@ package org.redex.backend.controller.paquetes;
  * @author jm
  */
 public interface PaquetesService {
-    
+
 }

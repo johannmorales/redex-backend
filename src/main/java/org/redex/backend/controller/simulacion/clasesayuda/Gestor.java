@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import org.redex.model.Oficina;
-import org.redex.model.Paquete;
-import org.redex.model.Vuelo;
-import org.redex.model.VueloAgendado;
+import org.redex.model.envios.Paquete;
+import org.redex.model.envios.Vuelo;
+import org.redex.model.envios.VueloAgendado;
+import org.redex.model.rrhh.Oficina;
 
 public class Gestor {
 

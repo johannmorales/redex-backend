@@ -1,7 +1,7 @@
 package org.redex.backend.controller.oficinas;
 
-import org.redex.model.Colaborador;
-import org.redex.model.Oficina;
+import org.redex.model.rrhh.Colaborador;
+import org.redex.model.rrhh.Oficina;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

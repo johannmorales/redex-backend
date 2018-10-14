@@ -1,6 +1,7 @@
 package org.redex.backend.security.jwt;
 
 public class JwtAuthenticationResponse {
+
     private String accessToken;
     private String tokenType = "Bearer";
 

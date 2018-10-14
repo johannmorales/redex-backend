@@ -3,7 +3,7 @@ package org.redex.backend.controller.simulacion.clasesayuda;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.redex.model.Oficina;
+import org.redex.model.rrhh.Oficina;
 
 class GestorOficinas {
 

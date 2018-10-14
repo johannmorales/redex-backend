@@ -1,13 +1,12 @@
 package org.redex.backend.controller.simulacion.clasesayuda;
 
 import java.util.List;
-import org.redex.algorithm.algoritmo.Algoritmo;
-import org.redex.algorithm.simulacion.PathNotFoundException;
-import org.redex.algorithm.simulacion.SimulacionInfo;
-import org.redex.model.Oficina;
-import org.redex.model.Paquete;
-import org.redex.model.Vuelo;
-import org.redex.model.VueloAgendado;
+import org.redex.algorithm.Algoritmo;
+import org.redex.algorithm.PathNotFoundException;
+import org.redex.model.envios.Paquete;
+import org.redex.model.envios.Vuelo;
+import org.redex.model.envios.VueloAgendado;
+import org.redex.model.rrhh.Oficina;
 
 public class Simulacion {
 

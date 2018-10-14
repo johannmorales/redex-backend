@@ -23,7 +23,7 @@ public class AuthenticationController {
 
     @Autowired
     JwtTokenProvider tokenProvider;
-    
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 

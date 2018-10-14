@@ -14,10 +14,11 @@ import org.springframework.stereotype.Component;
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private static final Logger logger = LogManager.getLogger(JwtAuthenticationEntryPoint.class);
+
     @Override
     public void commence(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse,
-                         AuthenticationException e) throws IOException, ServletException {
+            HttpServletResponse httpServletResponse,
+            AuthenticationException e) throws IOException, ServletException {
         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,
                 "Recurso no autorizado");
     }

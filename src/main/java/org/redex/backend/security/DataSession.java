@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import org.redex.model.Colaborador;
-import org.redex.model.Oficina;
-import org.redex.model.Persona;
-import org.redex.model.Usuario;
+import org.redex.model.general.Persona;
+import org.redex.model.rrhh.Colaborador;
+import org.redex.model.rrhh.Oficina;
+import org.redex.model.seguridad.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,11 +20,11 @@ public class DataSession implements UserDetails {
     private String username;
 
     private Persona persona;
-    
+
     private Oficina oficina;
-    
+
     private Colaborador colaborador;
-    
+
     @JsonIgnore
     private String password;
 

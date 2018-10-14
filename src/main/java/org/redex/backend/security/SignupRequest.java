@@ -4,9 +4,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 
-
 public class SignupRequest {
-    
+
     @NotBlank
     @Size(min = 4, max = 40)
     private String name;
@@ -55,5 +54,5 @@ public class SignupRequest {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
 }

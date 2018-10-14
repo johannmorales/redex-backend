@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import org.redex.model.VueloAgendado;
+import org.redex.model.envios.VueloAgendado;
 
 public final class GestorVuelos {
 

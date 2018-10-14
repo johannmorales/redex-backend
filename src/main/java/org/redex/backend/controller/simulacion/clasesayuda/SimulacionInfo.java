@@ -1,9 +1,8 @@
 package org.redex.backend.controller.simulacion.clasesayuda;
 
-import org.redex.backend.controller.simulacion.clasesayuda.Accion;
 import java.time.ZonedDateTime;
 import java.util.List;
-import org.redex.model.Oficina;
+import org.redex.model.rrhh.Oficina;
 
 public class SimulacionInfo {
 

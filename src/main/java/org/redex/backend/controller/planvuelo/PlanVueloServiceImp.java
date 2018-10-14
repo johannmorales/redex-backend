@@ -1,7 +1,7 @@
 package org.redex.backend.controller.planvuelo;
 
-import org.redex.model.PlanVuelo;
-import org.redex.model.Vuelo;
+import org.redex.model.envios.PlanVuelo;
+import org.redex.model.envios.Vuelo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
