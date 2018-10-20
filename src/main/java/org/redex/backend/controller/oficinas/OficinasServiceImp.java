@@ -1,6 +1,7 @@
 package org.redex.backend.controller.oficinas;
 
 import java.io.IOException;
+import static java.lang.Character.isDigit;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,14 +75,19 @@ public class OficinasServiceImp implements OficinasService {
         //leer el archivo y procesar el archivo
         try (Stream<String> lineas = Files.lines(path)) {
             List<String> lineasList = lineas.collect(Collectors.toList());
-
+            int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
-                nuevasOficinas.add(leerOficina(linea, paises));
-
-                //si es q hay error
-                cantidadErrores = cantidadErrores + 1;
-                errores.add("La linea 27 no tiene pais");
+                if (!linea.isEmpty() || isDigit(linea.charAt(0))){
+                    String code = linea.substring(5, 9);
+                    if (code.isEmpty()){
+                        cantidadErrores = cantidadErrores + 1;
+                        errores.add("La linea "+ contLinea +" no tiene pais");
+                    } else {
+                        nuevasOficinas.add(leerOficina(code, paises));
+                    }
+                }
+                contLinea++;
             }
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
@@ -94,7 +100,7 @@ public class OficinasServiceImp implements OficinasService {
                 cantidadRegistros++;
             } catch (Exception ex) {
                 cantidadErrores++;
-                errores.add("Erorr de integridad de datos, algo asi");
+                errores.add("Erorr de integridad de datos");
             }
         }
 
@@ -110,8 +116,8 @@ public class OficinasServiceImp implements OficinasService {
 
         Oficina oficina = new Oficina();
 
-        oficina.setCodigo("PER");
-        oficina.setPais(mapPaises.get("PER"));
+        oficina.setCodigo(linea);
+        oficina.setPais(mapPaises.get(linea));
         oficina.setCapacidadActual(0);
         oficina.setCapacidadMaxima(100);
         oficina.setZonaHoraria(-5);
