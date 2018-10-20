@@ -1,4 +1,4 @@
-        package org.redex.backend.security;
+package org.redex.backend.security;
 
 import org.redex.backend.repository.UsuariosRepository;
 import org.redex.model.seguridad.Usuario;

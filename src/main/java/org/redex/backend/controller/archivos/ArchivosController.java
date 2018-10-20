@@ -34,7 +34,7 @@ public class ArchivosController {
     private ArchivosService service;
 
     @PostMapping("/upload")
-    public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {
+    public UploadFileResponse upload(@RequestParam("file") MultipartFile file) {
         Archivo archivo = service.save(file);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -47,20 +47,24 @@ public class ArchivosController {
     }
 
     @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId, HttpServletRequest request) {
+    public ResponseEntity<Resource> download(@PathVariable Long fileId, HttpServletRequest request) {
         Archivo archivo = service.find(fileId);
 
         try {
+            
            Path path = Paths.get(archivo.getDirectorio())
                 .toAbsolutePath().normalize();
 
            Path filePath = path.resolve(archivo.getNombreServidor()).normalize();
+           
            Resource resource = new UrlResource(filePath.toUri());
            
             if (!resource.exists()) {
                 throw new MyFileNotFoundException("Archivo no encontrado " + archivo.getNombreOriginal());
             }
+            
             String contentType = null;
+            
             try {
                 contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
             } catch (IOException ex) {
@@ -80,4 +84,5 @@ public class ArchivosController {
             throw new MyFileNotFoundException("Archivo no encontrado " + fileId, ex);
         }
     }
+
 }
