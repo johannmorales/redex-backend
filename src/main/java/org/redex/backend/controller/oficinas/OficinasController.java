@@ -4,6 +4,7 @@ import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.model.general.Archivo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,7 +16,7 @@ public class OficinasController {
     OficinasService oficinasService;
     
     @PostMapping("/carga")
-    public CargaDatosResponse carga(Archivo archivo) {
+    public CargaDatosResponse carga(@RequestBody Archivo archivo) {
         return oficinasService.carga(archivo);
     }
 }

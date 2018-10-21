@@ -64,6 +64,8 @@ public class OficinasServiceImp implements OficinasService {
         Path path = Paths.get(archivoBD.getDirectorio())
                 .toAbsolutePath().normalize();
 
+        Path filePath = path.resolve(archivoBD.getNombreServidor()).normalize();
+        
         //hashmap de paises por el codigo
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
@@ -73,7 +75,7 @@ public class OficinasServiceImp implements OficinasService {
         List<Oficina> nuevasOficinas = new ArrayList<>();
 
         //leer el archivo y procesar el archivo
-        try (Stream<String> lineas = Files.lines(path)) {
+        try (Stream<String> lineas = Files.lines(filePath)) {
             List<String> lineasList = lineas.collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
