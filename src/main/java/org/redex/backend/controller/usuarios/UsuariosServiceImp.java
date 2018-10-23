@@ -96,13 +96,8 @@ public class UsuariosServiceImp implements UsuariosService {
 
         Map<String, Rol> roles = rolesRepository.findAll()
                 .stream()
-<<<<<<< HEAD
                 .collect(Collectors.toMap(rol -> rol.getCodigo().name(), rol -> rol));
         
-=======
-                .collect(Collectors.toMap(rol -> rol.getNombre(), rol -> rol));
-
->>>>>>> master
         Map<String, TipoDocumentoIdentidad> tpis = tpiRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(tpi -> tpi.getSimbolo(), tpi -> tpi));
