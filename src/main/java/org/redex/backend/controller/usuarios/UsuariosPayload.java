@@ -1,4 +1,4 @@
-package org.redex.backend.controller.usuario;
+package org.redex.backend.controller.usuarios;
 
 import org.redex.model.general.Persona;
 

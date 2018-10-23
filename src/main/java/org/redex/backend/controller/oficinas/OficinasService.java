@@ -1,5 +1,6 @@
 package org.redex.backend.controller.oficinas;
 
+import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.model.general.Archivo;
 import org.redex.model.rrhh.Colaborador;
@@ -13,4 +14,6 @@ public interface OficinasService {
 
     public CargaDatosResponse carga(Archivo archivo);
 
+    public List<Oficina> all();
+    
 }
