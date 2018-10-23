@@ -1,18 +1,14 @@
 package org.redex.backend.controller.planvuelo;
 
 import java.io.IOException;
-import static java.lang.Character.isDigit;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -49,13 +45,13 @@ public class PlanVueloServiceImp implements PlanVueloService {
 
     @Autowired
     PaisesRepository paisesRepository;
-    
+
     @Autowired
     PlanVueloRepository planVueloRepository;
 
     @Autowired
     VuelosRepository vuelosRepository;
-    
+
     @Override
     @Transactional
     public CargaDatosResponse carga(Archivo archivo) {
@@ -72,36 +68,36 @@ public class PlanVueloServiceImp implements PlanVueloService {
                 .toAbsolutePath().normalize();
 
         Path filePath = path.resolve(archivoBD.getNombreServidor()).normalize();
-        
+
         //hashmap de paises por el codigo
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
-        
+
         Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
-       
+
         //para guardar las oficinas que luego iran a bd
         List<Vuelo> nuevosVuelos = new ArrayList<>();
-        
+
         PlanVuelo planVueloPasado = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
-        if (planVueloPasado != null){
+        if (planVueloPasado != null) {
             planVueloPasado.setEstado(EstadoEnum.INACTIVO);
             planVueloRepository.save(planVueloPasado);
         }
-        
+
         PlanVuelo pV = new PlanVuelo();
         pV.setEstado(EstadoEnum.ACTIVO);
-        
+
         try (Stream<String> lineas = Files.lines(filePath)) {
             List<String> lineasList = lineas.collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
                 // cambios para archivo con codigo de 3 caracteres
-                if (!linea.isEmpty() && (linea.length()== 19)){
-                    
+                if (!linea.isEmpty() && (linea.length() == 19)) {
+
                     String codeOffice1 = linea.substring(0, 3);
                     String codeOffice2 = linea.substring(4, 7);
                     String horaIni = linea.substring(8, 13);
@@ -109,17 +105,17 @@ public class PlanVueloServiceImp implements PlanVueloService {
                     Pattern p = Pattern.compile(".*([01]?[0-9]|2[0-3]):[0-5][0-9].*");
                     Matcher m1 = p.matcher(horaIni);
                     Matcher m2 = p.matcher(horaFin);
-                    if ( codeOffice1.matches("[A-Z]+") && codeOffice2.matches("[A-Z]+")
-                            && m1.matches() && m2.matches()){
+                    if (codeOffice1.matches("[A-Z]+") && codeOffice2.matches("[A-Z]+")
+                            && m1.matches() && m2.matches()) {
                         nuevosVuelos.add(leerVuelo(codeOffice1, codeOffice2,
                                 horaIni, horaFin, pV, oficinas));
-                    }else{
+                    } else {
                         cantidadErrores = cantidadErrores + 1;
-                        errores.add("La linea "+ contLinea +" tiene formato incorrecto");
+                        errores.add("La linea " + contLinea + " tiene formato incorrecto");
                     }
                 } else {
                     cantidadErrores = cantidadErrores + 1;
-                    errores.add("La linea "+ contLinea +" tiene formato incorrecto");
+                    errores.add("La linea " + contLinea + " tiene formato incorrecto");
                 }
                 contLinea++;
             }
@@ -130,13 +126,12 @@ public class PlanVueloServiceImp implements PlanVueloService {
 //                cantidadErrores++;
 //                errores.add("Erorr de integridad de datos");
 //            }
-            
+
             planVueloRepository.save(pV);
-                
-            Set<Vuelo> vuelos = new HashSet<Vuelo>(nuevosVuelos);
-            pV.setVuelos(vuelos);
-            
-            for(Vuelo vuelo: nuevosVuelos){
+
+            pV.setVuelos(nuevosVuelos);
+
+            for (Vuelo vuelo : nuevosVuelos) {
 //                try {
 //                    vuelosRepository.save(vuelo);
 //                    cantidadRegistros++;
@@ -147,7 +142,7 @@ public class PlanVueloServiceImp implements PlanVueloService {
                 vuelosRepository.save(vuelo);
                 cantidadRegistros++;
             }
-            
+
 //            try{
 //                planVueloRepository.save(planVueloPasado);
 //                planVueloRepository.save(pV);
@@ -156,11 +151,11 @@ public class PlanVueloServiceImp implements PlanVueloService {
 //                errores.add("Erorr de integridad de datos");
 //            }
             planVueloRepository.save(pV);
-            
+
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
 
@@ -175,22 +170,12 @@ public class PlanVueloServiceImp implements PlanVueloService {
     }
 
     @Override
-    public void desactivarVuelo(Vuelo vuelo) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void activarVuelo(Vuelo vuelo) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void actualizarVuelo(Vuelo vuelo) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     private Vuelo leerVuelo(String codeOffice1, String codeOffice2,
-                              String horaIni, String horaFin, PlanVuelo pV, Map<String, Oficina> mapOficinas) {
+            String horaIni, String horaFin, PlanVuelo pV, Map<String, Oficina> mapOficinas) {
         // codigo para leer una oficina de una linea del archivo 
 
         Vuelo vuelo = new Vuelo();
@@ -202,7 +187,33 @@ public class PlanVueloServiceImp implements PlanVueloService {
         System.out.println(LocalTime.parse(horaFin, dateTimeFormatter));
         vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter));
         vuelo.setEstado(EstadoEnum.ACTIVO);
-        
+        vuelo.setCapacidad(500);
+
         return vuelo;
+    }
+
+    @Override
+    public PlanVuelo findActivo() {
+        return planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
+    }
+
+    @Override
+    @Transactional
+    public void desactivarVuelo(Long id) {
+        Vuelo vuelo = vuelosRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
+
+        vuelo.setEstado(EstadoEnum.INACTIVO);
+        vuelosRepository.save(vuelo);
+    }
+
+    @Override
+    @Transactional
+    public void activarVuelo(Long id) {
+        Vuelo vuelo = vuelosRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
+
+        vuelo.setEstado(EstadoEnum.ACTIVO);
+        vuelosRepository.save(vuelo);
     }
 }

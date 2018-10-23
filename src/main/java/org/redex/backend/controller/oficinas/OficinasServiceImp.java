@@ -15,12 +15,11 @@ import java.util.stream.Stream;
 import org.redex.backend.repository.ArchivosRepository;
 import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaisesRepository;
-import org.redex.backend.zelper.exception.AppException;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.model.general.Archivo;
+import org.redex.model.general.EstadoEnum;
 import org.redex.model.general.Pais;
-import org.redex.model.general.TipoDocumentoIdentidad;
 import org.redex.model.rrhh.Colaborador;
 import org.redex.model.rrhh.Oficina;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ public class OficinasServiceImp implements OficinasService {
 
     @Autowired
     PaisesRepository paisesRepository;
-    
+
     @Override
     public void cambiarJefe(Oficina oficina, Colaborador colaborador) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -67,12 +66,12 @@ public class OficinasServiceImp implements OficinasService {
                 .toAbsolutePath().normalize();
 
         Path filePath = path.resolve(archivoBD.getNombreServidor()).normalize();
-        
+
         //hashmap de paises por el codigo
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
-              
+
         //para guardar las oficinas que luego iran a bd
         List<Oficina> nuevasOficinas = new ArrayList<>();
 
@@ -82,14 +81,14 @@ public class OficinasServiceImp implements OficinasService {
             int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
-                
-                if (!linea.isEmpty() && isDigit(linea.charAt(0))){
+
+                if (!linea.isEmpty() && isDigit(linea.charAt(0))) {
                     //archivo con codigo de 3 caracteres
                     String code = linea.substring(5, 8);
                     System.out.println(code);
-                    if (code.isEmpty()){
+                    if (code.isEmpty()) {
                         cantidadErrores = cantidadErrores + 1;
-                        errores.add("La linea "+ contLinea +" no tiene pais");
+                        errores.add("La linea " + contLinea + " no tiene pais");
                     } else {
                         nuevasOficinas.add(leerOficina(code, paises));
                     }
@@ -102,20 +101,18 @@ public class OficinasServiceImp implements OficinasService {
         System.out.println("terminó de leer");
         //guardar cada oficina en base de datos
         for (Oficina oficina : nuevasOficinas) {
-//            try {
-//                oficinasRepository.save(oficina);
-//                cantidadRegistros++;
-//            } catch (Exception ex) {
-//                cantidadErrores++;
-//                errores.add("Erorr de integridad de datos");
-//            }
-            oficinasRepository.save(oficina);
+            try {
+                oficinasRepository.save(oficina);
+                cantidadRegistros++;
+            } catch (Exception ex) {
+                cantidadErrores++;
+                errores.add("Erorr de integridad de datos");
+            }
         }
 
         // si hay algun error del que no se puede ignorar y se debe abortar todo en tonce spon 
         // throw new AppException("Excepcion muy mala _=(");
         // eso le mandara un respose al cliente de 500 internal server error, 
-        
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
 
@@ -129,8 +126,34 @@ public class OficinasServiceImp implements OficinasService {
         oficina.setCapacidadActual(0);
         oficina.setCapacidadMaxima(100);
         oficina.setZonaHoraria(-5);
-        
+        oficina.setEstado(EstadoEnum.ACTIVO);
+
         return oficina;
+    }
+
+    @Override
+    public List<Oficina> all() {
+        return oficinasRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void desactivar(Long id) {
+        Oficina o = oficinasRepository.
+                findById(id).orElseThrow(() -> new ResourceNotFoundException("Oficina", "id", id));
+
+        o.setEstado(EstadoEnum.INACTIVO);
+        oficinasRepository.save(o);
+    }
+
+    @Override
+    @Transactional
+    public void activar(Long id) {
+        Oficina o = oficinasRepository.
+                findById(id).orElseThrow(() -> new ResourceNotFoundException("Oficina", "id", id));
+
+        o.setEstado(EstadoEnum.ACTIVO);
+        oficinasRepository.save(o);
     }
 
 }

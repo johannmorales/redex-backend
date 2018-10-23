@@ -13,9 +13,11 @@ public interface PlanVueloService {
 
     void editarVuelo(Vuelo vuelo);
 
-    void desactivarVuelo(Vuelo vuelo);
-
-    void activarVuelo(Vuelo vuelo);
-
     void actualizarVuelo(Vuelo vuelo);
+
+    public PlanVuelo findActivo();
+
+    public void desactivarVuelo(Long id);
+
+    public void activarVuelo(Long id);
 }
