@@ -101,14 +101,13 @@ public class OficinasServiceImp implements OficinasService {
         System.out.println("terminó de leer");
         //guardar cada oficina en base de datos
         for (Oficina oficina : nuevasOficinas) {
-//            try {
-//                oficinasRepository.save(oficina);
-//                cantidadRegistros++;
-//            } catch (Exception ex) {
-//                cantidadErrores++;
-//                errores.add("Erorr de integridad de datos");
-//            }
-            oficinasRepository.save(oficina);
+            try {
+                oficinasRepository.save(oficina);
+                cantidadRegistros++;
+            } catch (Exception ex) {
+                cantidadErrores++;
+                errores.add("Erorr de integridad de datos");
+            }
         }
 
         // si hay algun error del que no se puede ignorar y se debe abortar todo en tonce spon 

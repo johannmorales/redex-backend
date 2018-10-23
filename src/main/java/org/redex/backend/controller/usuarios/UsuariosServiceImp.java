@@ -126,6 +126,9 @@ public class UsuariosServiceImp implements UsuariosService {
                         nuevasPersonas.add(nuevaPersona);
                         nuevosColaboradores.add(nuevoColaborador);
                         nuevosUsuarios.add(nuevoUsuario);
+                    } else {
+                        cantidadErrores = cantidadErrores + 1;
+                        errores.add("La linea " + contLinea + " no tiene todos los campos");
                     }
 
                 }

@@ -87,6 +87,9 @@ public class PersonasServiceImp implements PersonasService {
                         if (separateLine.size() == 10) {
                             Persona nuevaPersona = leePersona(separateLine, paises, tpis);
                             nuevasPersonas.add(nuevaPersona);
+                        } else{
+                            cantidadErrores = cantidadErrores + 1;
+                            errores.add("La linea " + contLinea + " no tiene todos los campos");
                         }
                 }
                 for (Persona persona : nuevasPersonas) {
