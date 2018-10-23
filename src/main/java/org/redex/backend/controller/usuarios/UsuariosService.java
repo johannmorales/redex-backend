@@ -1,17 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.redex.backend.controller.usuarios;
 
+import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.model.general.Archivo;
+import org.redex.model.seguridad.Usuario;
 
-/**
- *
- * @author Oscar
- */
 public interface UsuariosService {
     public CargaDatosResponse carga(Archivo archivo);
+
+    public List<Usuario> all();
 }

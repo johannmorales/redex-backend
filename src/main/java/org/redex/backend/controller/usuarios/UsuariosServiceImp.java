@@ -192,4 +192,9 @@ public class UsuariosServiceImp implements UsuariosService{
         u.setRol(roles.get(datos.get(9)));
         return u;
     }
+
+    @Override
+    public List<Usuario> all() {
+        return usuariosRepository.findAll();
+    }
 }

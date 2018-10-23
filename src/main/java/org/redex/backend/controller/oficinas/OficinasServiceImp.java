@@ -133,4 +133,9 @@ public class OficinasServiceImp implements OficinasService {
         return oficina;
     }
 
+    @Override
+    public List<Oficina> all() {
+        return oficinasRepository.findAll();
+    }
+
 }
