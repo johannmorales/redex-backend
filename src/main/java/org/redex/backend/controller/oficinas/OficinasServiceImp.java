@@ -20,6 +20,7 @@ import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.model.general.Archivo;
 import org.redex.model.general.Pais;
+import org.redex.model.general.TipoDocumentoIdentidad;
 import org.redex.model.rrhh.Colaborador;
 import org.redex.model.rrhh.Oficina;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class OficinasServiceImp implements OficinasService {
 
     @Autowired
     PaisesRepository paisesRepository;
-
+    
     @Override
     public void cambiarJefe(Oficina oficina, Colaborador colaborador) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -71,7 +72,7 @@ public class OficinasServiceImp implements OficinasService {
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
-
+              
         //para guardar las oficinas que luego iran a bd
         List<Oficina> nuevasOficinas = new ArrayList<>();
 

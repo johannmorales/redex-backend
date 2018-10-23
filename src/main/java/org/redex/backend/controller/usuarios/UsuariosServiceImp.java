@@ -24,14 +24,20 @@ import org.redex.backend.repository.ColaboradoresRepository;
 import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.repository.PersonaRepository;
+import org.redex.backend.repository.RolesRepository;
+import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
 import org.redex.backend.repository.UsuariosRepository;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.model.general.Archivo;
+import org.redex.model.general.EstadoEnum;
 import org.redex.model.general.Pais;
 import org.redex.model.general.Persona;
+import org.redex.model.general.TipoDocumentoIdentidad;
+import org.redex.model.rrhh.CargoEnum;
 import org.redex.model.rrhh.Colaborador;
 import org.redex.model.rrhh.Oficina;
+import org.redex.model.seguridad.Rol;
 import org.redex.model.seguridad.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,6 +68,12 @@ public class UsuariosServiceImp implements UsuariosService{
     @Autowired
     UsuariosRepository usuariosRepository;
     
+    @Autowired
+    TipoDocumentoIdentidadRepository tpiRepository;
+    
+    @Autowired
+    RolesRepository rolesRepository;
+    
     @Override
     @Transactional
     public CargaDatosResponse carga(Archivo archivo) {
@@ -84,6 +96,18 @@ public class UsuariosServiceImp implements UsuariosService{
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
 
+        Map<String, Rol> roles = rolesRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(rol -> rol.getNombre(), rol -> rol));
+        
+        Map<String, TipoDocumentoIdentidad> tpis = tpiRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(tpi -> tpi.getSimbolo(), tpi -> tpi));
+        
+        Map<String, Oficina> oficinas = oficinasRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
+        
         //para guardar las oficinas que luego iran a bd
         List<Persona> nuevasPersonas = new ArrayList<>();
         List<Colaborador> nuevosColaboradores = new ArrayList<>();
@@ -94,14 +118,18 @@ public class UsuariosServiceImp implements UsuariosService{
             int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
-                 if (!linea.isEmpty()){
-                     List<String> separateLine = Arrays.asList(linea.split(","));
-                     Persona nuevaPersona = leePersona();
-                     Colaborador nuevoColaborador = leeColaborador();
-                     Usuario nuevoUsuario = leeUsuario();
-                     nuevasPersonas.add(nuevaPersona);
-                     nuevosColaboradores.add(nuevoColaborador);
-                     nuevosUsuarios.add(nuevoUsuario);
+                if (!linea.isEmpty()){
+                     
+                    List<String> separateLine = Arrays.asList(linea.split(","));
+                    if (separateLine.size()==14){
+                        Persona nuevaPersona = leePersona(separateLine, paises, tpis);
+                        Colaborador nuevoColaborador = leeColaborador(separateLine, nuevaPersona, oficinas);
+                        Usuario nuevoUsuario = leeUsuario(separateLine, nuevoColaborador, roles);
+                        nuevasPersonas.add(nuevaPersona);
+                        nuevosColaboradores.add(nuevoColaborador);
+                        nuevosUsuarios.add(nuevoUsuario);
+                    }
+                    
                  }
             }
             
@@ -124,18 +152,44 @@ public class UsuariosServiceImp implements UsuariosService{
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
     
-    private Persona leePersona(){
+    private Persona leePersona(List<String> datos, Map<String, Pais> mapPaises,
+            Map<String, TipoDocumentoIdentidad> tpis){
+        
         Persona p = new Persona();
+        p.setNombres(datos.get(0));
+        p.setPaterno(datos.get(1));
+        p.setMaterno(datos.get(2));
+        p.setTelefono(datos.get(3));
+        p.setEmail(datos.get(4));
+        p.setCelular(datos.get(5));
+        p.setPais(mapPaises.get(datos.get(6)));
+        p.setTipoDocumentoIdentidad(tpis.get(datos.get(7)));
+        p.setNumeroDocumentoIdentidad(datos.get(8));
+        
         return p;
     }
     
-    private Colaborador leeColaborador(){
+    private Colaborador leeColaborador(List<String> datos, Persona p, 
+            Map<String, Oficina> oficinas){
         Colaborador c = new Colaborador();
+        c.setPersona(p);
+        c.setCargo(CargoEnum.valueOf(datos.get(9)));
+        c.setEstado(EstadoEnum.valueOf(datos.get(10)));
+        c.setOficina(oficinas.get(datos.get(11)));
+        c.setCelular(p.getCelular());
+        c.setEmail(p.getEmail());
+        c.setTelefono(p.getTelefono());
+        
         return c;
     }
     
-    private Usuario leeUsuario(){
+    private Usuario leeUsuario(List<String> datos, Colaborador c, Map<String, Rol> roles){
         Usuario u = new Usuario();
+        u.setColaborador(c);
+        u.setEstado(EstadoEnum.ACTIVO);
+        u.setUsername(datos.get(12));
+        u.setPassword(datos.get(13));
+        u.setRol(roles.get(datos.get(9)));
         return u;
     }
 }
