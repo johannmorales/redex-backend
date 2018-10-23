@@ -144,7 +144,6 @@ public class PlanVueloServiceImp implements PlanVueloService {
 //                    cantidadErrores++;
 //                    errores.add("Erorr de integridad de datos");
 //                }
-                System.out.println(vuelo.getHoraFin());
                 vuelosRepository.save(vuelo);
                 cantidadRegistros++;
             }

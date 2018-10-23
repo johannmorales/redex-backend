@@ -5,10 +5,13 @@
  */
 package org.redex.backend.controller.usuarios;
 
+import org.redex.backend.zelper.response.CargaDatosResponse;
+import org.redex.model.general.Archivo;
+
 /**
  *
  * @author Oscar
  */
 public interface UsuariosService {
-    
+    public CargaDatosResponse carga(Archivo archivo);
 }
