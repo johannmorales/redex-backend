@@ -1,4 +1,9 @@
-package org.redex.backend.controller.oficinas;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package org.redex.backend.controller.usuarios;
 
 import java.io.IOException;
 import static java.lang.Character.isDigit;
@@ -6,30 +11,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.redex.backend.controller.oficinas.OficinasServiceImp;
 import org.redex.backend.repository.ArchivosRepository;
+import org.redex.backend.repository.ColaboradoresRepository;
 import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaisesRepository;
-import org.redex.backend.zelper.exception.AppException;
+import org.redex.backend.repository.PersonaRepository;
+import org.redex.backend.repository.UsuariosRepository;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.model.general.Archivo;
 import org.redex.model.general.Pais;
+import org.redex.model.general.Persona;
 import org.redex.model.rrhh.Colaborador;
 import org.redex.model.rrhh.Oficina;
+import org.redex.model.seguridad.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ *
+ * @author Oscar
+ */
 @Service
 @Transactional(readOnly = true)
-public class OficinasServiceImp implements OficinasService {
-
+public class UsuariosServiceImp implements UsuariosService{
     @Autowired
     OficinasRepository oficinasRepository;
 
@@ -38,25 +52,23 @@ public class OficinasServiceImp implements OficinasService {
 
     @Autowired
     PaisesRepository paisesRepository;
-
-    @Override
-    public void cambiarJefe(Oficina oficina, Colaborador colaborador) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void agregarColaborador(Colaborador colaborador) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+    
+    @Autowired
+    PersonaRepository personaRepository;
+    
+    @Autowired
+    ColaboradoresRepository colaboradoresRepository;
+    
+    @Autowired
+    UsuariosRepository usuariosRepository;
+    
     @Override
     @Transactional
     public CargaDatosResponse carga(Archivo archivo) {
-
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
-
+        
         //buscar el archivo en BD, si no esta lanza una expcepcion que hara que se le responda a cliente con un 404 not found
         Archivo archivoBD = archivosRepository.findById(archivo.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Archivo no encontrado"));
@@ -73,63 +85,57 @@ public class OficinasServiceImp implements OficinasService {
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
 
         //para guardar las oficinas que luego iran a bd
-        List<Oficina> nuevasOficinas = new ArrayList<>();
-
-        //leer el archivo y procesar el archivo
+        List<Persona> nuevasPersonas = new ArrayList<>();
+        List<Colaborador> nuevosColaboradores = new ArrayList<>();
+        List<Usuario> nuevosUsuarios = new ArrayList<>();
+        
         try (Stream<String> lineas = Files.lines(filePath)) {
             List<String> lineasList = lineas.collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
-                
-                if (!linea.isEmpty() && isDigit(linea.charAt(0))){
-                    //archivo con codigo de 3 caracteres
-                    String code = linea.substring(5, 8);
-                    System.out.println(code);
-                    if (code.isEmpty()){
-                        cantidadErrores = cantidadErrores + 1;
-                        errores.add("La linea "+ contLinea +" no tiene pais");
-                    } else {
-                        nuevasOficinas.add(leerOficina(code, paises));
-                    }
-                }
-                contLinea++;
+                 if (!linea.isEmpty()){
+                     List<String> separateLine = Arrays.asList(linea.split(","));
+                     Persona nuevaPersona = leePersona();
+                     Colaborador nuevoColaborador = leeColaborador();
+                     Usuario nuevoUsuario = leeUsuario();
+                     nuevasPersonas.add(nuevaPersona);
+                     nuevosColaboradores.add(nuevoColaborador);
+                     nuevosUsuarios.add(nuevoUsuario);
+                 }
             }
+            
+            for (Persona persona: nuevasPersonas){
+                personaRepository.save(persona);
+            }
+            
+            for (Colaborador colaborador: nuevosColaboradores){
+                colaboradoresRepository.save(colaborador);
+            }
+            
+            for (Usuario usuario: nuevosUsuarios){
+                usuariosRepository.save(usuario);
+            }
+            
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("terminó de leer");
-        //guardar cada oficina en base de datos
-        for (Oficina oficina : nuevasOficinas) {
-//            try {
-//                oficinasRepository.save(oficina);
-//                cantidadRegistros++;
-//            } catch (Exception ex) {
-//                cantidadErrores++;
-//                errores.add("Erorr de integridad de datos");
-//            }
-            oficinasRepository.save(oficina);
-        }
-
-        // si hay algun error del que no se puede ignorar y se debe abortar todo en tonce spon 
-        // throw new AppException("Excepcion muy mala _=(");
-        // eso le mandara un respose al cliente de 500 internal server error, 
         
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
-
-    private Oficina leerOficina(String linea, Map<String, Pais> mapPaises) {
-        // codigo para leer una oficina de una linea del archivo 
-
-        Oficina oficina = new Oficina();
-
-        oficina.setCodigo(linea);
-        oficina.setPais(mapPaises.get(linea));
-        oficina.setCapacidadActual(0);
-        oficina.setCapacidadMaxima(100);
-        oficina.setZonaHoraria(-5);
-        
-        return oficina;
+    
+    private Persona leePersona(){
+        Persona p = new Persona();
+        return p;
     }
-
+    
+    private Colaborador leeColaborador(){
+        Colaborador c = new Colaborador();
+        return c;
+    }
+    
+    private Usuario leeUsuario(){
+        Usuario u = new Usuario();
+        return u;
+    }
 }
