@@ -7,7 +7,7 @@ import org.redex.model.general.Archivo;
 
 public interface PlanVueloService {
 
-    public CargaDatosResponse cargar(Archivo archivo);
+    public CargaDatosResponse carga(Archivo archivo);
 
     void guardar(PlanVuelo planVuelo);
 

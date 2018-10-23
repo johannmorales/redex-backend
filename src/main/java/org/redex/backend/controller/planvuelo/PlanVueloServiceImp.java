@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +57,8 @@ public class PlanVueloServiceImp implements PlanVueloService {
     VuelosRepository vuelosRepository;
     
     @Override
-    public CargaDatosResponse cargar(Archivo archivo) {
+    @Transactional
+    public CargaDatosResponse carga(Archivo archivo) {
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
@@ -84,7 +86,10 @@ public class PlanVueloServiceImp implements PlanVueloService {
         List<Vuelo> nuevosVuelos = new ArrayList<>();
         
         PlanVuelo planVueloPasado = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
-        planVueloPasado.setEstado(EstadoEnum.INACTIVO);
+        if (planVueloPasado != null){
+            planVueloPasado.setEstado(EstadoEnum.INACTIVO);
+            planVueloRepository.save(planVueloPasado);
+        }
         
         PlanVuelo pV = new PlanVuelo();
         pV.setEstado(EstadoEnum.ACTIVO);
@@ -94,11 +99,13 @@ public class PlanVueloServiceImp implements PlanVueloService {
             int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
-                if (!linea.isEmpty() || (linea.length()== 21)){
-                    String codeOffice1 = linea.substring(0, 4);
-                    String codeOffice2 = linea.substring(5, 9);
-                    String horaIni = linea.substring(10, 15);
-                    String horaFin = linea.substring(16, 21);
+                // cambios para archivo con codigo de 3 caracteres
+                if (!linea.isEmpty() && (linea.length()== 19)){
+                    
+                    String codeOffice1 = linea.substring(0, 3);
+                    String codeOffice2 = linea.substring(4, 7);
+                    String horaIni = linea.substring(8, 13);
+                    String horaFin = linea.substring(14);
                     Pattern p = Pattern.compile(".*([01]?[0-9]|2[0-3]):[0-5][0-9].*");
                     Matcher m1 = p.matcher(horaIni);
                     Matcher m2 = p.matcher(horaFin);
@@ -116,27 +123,40 @@ public class PlanVueloServiceImp implements PlanVueloService {
                 }
                 contLinea++;
             }
+//            try{
+//                planVueloRepository.save(planVueloPasado);
+//                planVueloRepository.save(pV);
+//            } catch (Exception ex) {
+//                cantidadErrores++;
+//                errores.add("Erorr de integridad de datos");
+//            }
             
+            planVueloRepository.save(pV);
+                
             Set<Vuelo> vuelos = new HashSet<Vuelo>(nuevosVuelos);
             pV.setVuelos(vuelos);
             
             for(Vuelo vuelo: nuevosVuelos){
-                try {
-                    vuelosRepository.save(vuelo);
-                    cantidadRegistros++;
-                } catch (Exception ex) {
-                    cantidadErrores++;
-                    errores.add("Erorr de integridad de datos");
-                }
+//                try {
+//                    vuelosRepository.save(vuelo);
+//                    cantidadRegistros++;
+//                } catch (Exception ex) {
+//                    cantidadErrores++;
+//                    errores.add("Erorr de integridad de datos");
+//                }
+                System.out.println(vuelo.getHoraFin());
+                vuelosRepository.save(vuelo);
+                cantidadRegistros++;
             }
             
-            try{
-                planVueloRepository.save(planVueloPasado);
-                planVueloRepository.save(pV);
-            } catch (Exception ex) {
-                cantidadErrores++;
-                errores.add("Erorr de integridad de datos");
-            }
+//            try{
+//                planVueloRepository.save(planVueloPasado);
+//                planVueloRepository.save(pV);
+//            } catch (Exception ex) {
+//                cantidadErrores++;
+//                errores.add("Erorr de integridad de datos");
+//            }
+            planVueloRepository.save(pV);
             
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
@@ -175,12 +195,14 @@ public class PlanVueloServiceImp implements PlanVueloService {
         // codigo para leer una oficina de una linea del archivo 
 
         Vuelo vuelo = new Vuelo();
-        
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
         vuelo.setPlanVuelo(pV);
         vuelo.setOficinaOrigen(mapOficinas.get(codeOffice1));
         vuelo.setOficinaDestino(mapOficinas.get(codeOffice2));
-        vuelo.setHoraInicio(LocalTime.parse(horaIni));
-        vuelo.setHoraFin(LocalTime.parse(horaFin));
+        vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter));
+        System.out.println(LocalTime.parse(horaFin, dateTimeFormatter));
+        vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter));
+        vuelo.setEstado(EstadoEnum.ACTIVO);
         
         return vuelo;
     }

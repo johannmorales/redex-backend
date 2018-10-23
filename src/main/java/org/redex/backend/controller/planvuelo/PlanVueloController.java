@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RestController
+@RequestMapping("/vuelos")
 public class PlanVueloController {
     
     @Autowired
@@ -15,6 +17,6 @@ public class PlanVueloController {
     
     @PostMapping("/carga")
     public CargaDatosResponse carga(@RequestBody Archivo archivo) {
-        return planVueloService.cargar(archivo);
+        return planVueloService.carga(archivo);
     }
 }

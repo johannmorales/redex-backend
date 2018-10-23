@@ -50,6 +50,7 @@ public class OficinasServiceImp implements OficinasService {
     }
 
     @Override
+    @Transactional
     public CargaDatosResponse carga(Archivo archivo) {
 
         Integer cantidadRegistros = 0;
@@ -80,8 +81,11 @@ public class OficinasServiceImp implements OficinasService {
             int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
-                if (!linea.isEmpty() || isDigit(linea.charAt(0))){
-                    String code = linea.substring(5, 9);
+                
+                if (!linea.isEmpty() && isDigit(linea.charAt(0))){
+                    //archivo con codigo de 3 caracteres
+                    String code = linea.substring(5, 8);
+                    System.out.println(code);
                     if (code.isEmpty()){
                         cantidadErrores = cantidadErrores + 1;
                         errores.add("La linea "+ contLinea +" no tiene pais");
@@ -94,16 +98,17 @@ public class OficinasServiceImp implements OficinasService {
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        System.out.println("terminó de leer");
         //guardar cada oficina en base de datos
         for (Oficina oficina : nuevasOficinas) {
-            try {
-                oficinasRepository.save(oficina);
-                cantidadRegistros++;
-            } catch (Exception ex) {
-                cantidadErrores++;
-                errores.add("Erorr de integridad de datos");
-            }
+//            try {
+//                oficinasRepository.save(oficina);
+//                cantidadRegistros++;
+//            } catch (Exception ex) {
+//                cantidadErrores++;
+//                errores.add("Erorr de integridad de datos");
+//            }
+            oficinasRepository.save(oficina);
         }
 
         // si hay algun error del que no se puede ignorar y se debe abortar todo en tonce spon 
@@ -123,7 +128,7 @@ public class OficinasServiceImp implements OficinasService {
         oficina.setCapacidadActual(0);
         oficina.setCapacidadMaxima(100);
         oficina.setZonaHoraria(-5);
-
+        
         return oficina;
     }
 
