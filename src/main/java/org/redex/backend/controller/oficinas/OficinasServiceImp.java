@@ -126,6 +126,7 @@ public class OficinasServiceImp implements OficinasService {
         oficina.setCapacidadActual(0);
         oficina.setCapacidadMaxima(100);
         oficina.setZonaHoraria(-5);
+        oficina.setEstado(EstadoEnum.ACTIVO);
 
         return oficina;
     }

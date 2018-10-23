@@ -187,6 +187,7 @@ public class PlanVueloServiceImp implements PlanVueloService {
         System.out.println(LocalTime.parse(horaFin, dateTimeFormatter));
         vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter));
         vuelo.setEstado(EstadoEnum.ACTIVO);
+        vuelo.setCapacidad(500);
 
         return vuelo;
     }
