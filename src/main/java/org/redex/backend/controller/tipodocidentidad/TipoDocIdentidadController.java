@@ -13,11 +13,11 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 @RestController
 @RequestMapping("tipodocidentidad")
 public class TipoDocIdentidadController {
-    
+
     @Autowired
     TipoDocIdentidadService service;
-    
-     @GetMapping
+
+    @GetMapping
     public ArrayNode list() {
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
         List<TipoDocumentoIdentidad> list = service.all();
@@ -26,8 +26,7 @@ public class TipoDocIdentidadController {
                 "*",
                 "pais.id",
                 "pais.codigo",
-                "pais.nombre",
-            }));
+                "pais.nombre",}));
         }
         return arr;
     }
