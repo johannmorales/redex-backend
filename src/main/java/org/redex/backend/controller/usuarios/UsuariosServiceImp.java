@@ -44,13 +44,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- *
- * @author Oscar
- */
 @Service
 @Transactional(readOnly = true)
-public class UsuariosServiceImp implements UsuariosService{
+public class UsuariosServiceImp implements UsuariosService {
+
     @Autowired
     OficinasRepository oficinasRepository;
 
@@ -59,29 +56,29 @@ public class UsuariosServiceImp implements UsuariosService{
 
     @Autowired
     PaisesRepository paisesRepository;
-    
+
     @Autowired
     PersonaRepository personaRepository;
-    
+
     @Autowired
     ColaboradoresRepository colaboradoresRepository;
-    
+
     @Autowired
     UsuariosRepository usuariosRepository;
-    
+
     @Autowired
     TipoDocumentoIdentidadRepository tpiRepository;
-    
+
     @Autowired
     RolesRepository rolesRepository;
-    
+
     @Override
     @Transactional
     public CargaDatosResponse carga(Archivo archivo) {
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
-        
+
         //buscar el archivo en BD, si no esta lanza una expcepcion que hara que se le responda a cliente con un 404 not found
         Archivo archivoBD = archivosRepository.findById(archivo.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Archivo no encontrado"));
@@ -91,7 +88,7 @@ public class UsuariosServiceImp implements UsuariosService{
                 .toAbsolutePath().normalize();
 
         Path filePath = path.resolve(archivoBD.getNombreServidor()).normalize();
-        
+
         //hashmap de paises por el codigo
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
@@ -99,30 +96,35 @@ public class UsuariosServiceImp implements UsuariosService{
 
         Map<String, Rol> roles = rolesRepository.findAll()
                 .stream()
+<<<<<<< HEAD
                 .collect(Collectors.toMap(rol -> rol.getCodigo().name(), rol -> rol));
         
+=======
+                .collect(Collectors.toMap(rol -> rol.getNombre(), rol -> rol));
+
+>>>>>>> master
         Map<String, TipoDocumentoIdentidad> tpis = tpiRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(tpi -> tpi.getSimbolo(), tpi -> tpi));
-        
+
         Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
-        
+
         //para guardar las oficinas que luego iran a bd
         List<Persona> nuevasPersonas = new ArrayList<>();
         List<Colaborador> nuevosColaboradores = new ArrayList<>();
         List<Usuario> nuevosUsuarios = new ArrayList<>();
-        
+
         try (Stream<String> lineas = Files.lines(filePath)) {
             List<String> lineasList = lineas.collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
-                if (!linea.isEmpty()){
-                     
+                if (!linea.isEmpty()) {
+
                     List<String> separateLine = Arrays.asList(linea.split(","));
-                    if (separateLine.size()==14){
+                    if (separateLine.size() == 14) {
                         Persona nuevaPersona = leePersona(separateLine, paises, tpis);
                         Colaborador nuevoColaborador = leeColaborador(separateLine, nuevaPersona, oficinas);
                         Usuario nuevoUsuario = leeUsuario(separateLine, nuevoColaborador, roles);
@@ -130,32 +132,32 @@ public class UsuariosServiceImp implements UsuariosService{
                         nuevosColaboradores.add(nuevoColaborador);
                         nuevosUsuarios.add(nuevoUsuario);
                     }
-                    
-                 }
+
+                }
             }
-            
-            for (Persona persona: nuevasPersonas){
+
+            for (Persona persona : nuevasPersonas) {
                 personaRepository.save(persona);
             }
-            
-            for (Colaborador colaborador: nuevosColaboradores){
+
+            for (Colaborador colaborador : nuevosColaboradores) {
                 colaboradoresRepository.save(colaborador);
             }
-            
-            for (Usuario usuario: nuevosUsuarios){
+
+            for (Usuario usuario : nuevosUsuarios) {
                 usuariosRepository.save(usuario);
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
-    
+
     private Persona leePersona(List<String> datos, Map<String, Pais> mapPaises,
-            Map<String, TipoDocumentoIdentidad> tpis){
-        
+            Map<String, TipoDocumentoIdentidad> tpis) {
+
         Persona p = new Persona();
         p.setNombres(datos.get(0));
         p.setPaterno(datos.get(1));
@@ -166,12 +168,12 @@ public class UsuariosServiceImp implements UsuariosService{
         p.setPais(mapPaises.get(datos.get(6)));
         p.setTipoDocumentoIdentidad(tpis.get(datos.get(7)));
         p.setNumeroDocumentoIdentidad(datos.get(8));
-        
+
         return p;
     }
-    
-    private Colaborador leeColaborador(List<String> datos, Persona p, 
-            Map<String, Oficina> oficinas){
+
+    private Colaborador leeColaborador(List<String> datos, Persona p,
+            Map<String, Oficina> oficinas) {
         Colaborador c = new Colaborador();
         c.setPersona(p);
         c.setCargo(CargoEnum.valueOf(datos.get(9)));
@@ -180,11 +182,11 @@ public class UsuariosServiceImp implements UsuariosService{
         c.setCelular(p.getCelular());
         c.setEmail(p.getEmail());
         c.setTelefono(p.getTelefono());
-        
+
         return c;
     }
-    
-    private Usuario leeUsuario(List<String> datos, Colaborador c, Map<String, Rol> roles){
+
+    private Usuario leeUsuario(List<String> datos, Colaborador c, Map<String, Rol> roles) {
         Usuario u = new Usuario();
         u.setColaborador(c);
         u.setEstado(EstadoEnum.ACTIVO);
@@ -196,4 +198,29 @@ public class UsuariosServiceImp implements UsuariosService{
         u.setRol(roles.get(datos.get(9)));
         return u;
     }
+
+    @Override
+    public List<Usuario> all() {
+        return usuariosRepository.findAll();
+    }
+
+    @Transactional
+    public void crearUsuario(UsuariosPayload usuario) {
+
+    }
+
+    @Transactional
+    public void activar(UsuariosPayload usuario) {
+    }
+
+    @Transactional
+    public void desactivar(UsuariosPayload usuario) {
+
+    }
+
+    @Transactional
+    public void restablecerContraseña(UsuariosPayload usuario) {
+
+    }
+
 }
