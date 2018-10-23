@@ -15,5 +15,9 @@ public interface OficinasService {
     public CargaDatosResponse carga(Archivo archivo);
 
     public List<Oficina> all();
+
+    public void desactivar(Long id);
+
+    public void activar(Long id);
     
 }

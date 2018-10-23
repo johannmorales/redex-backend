@@ -29,6 +29,7 @@ public class UsuariosController {
             arr.add(JsonHelper.createJson(usuario, JsonNodeFactory.instance, new String[]{
                 "id",
                 "username",
+                "estado",
                 "colaborador.id",
                 "colaborador.persona.id",
                 "colaborador.persona.nombres",
