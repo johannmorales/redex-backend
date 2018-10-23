@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.redex.backend.controller.oficinas.OficinasServiceImp;
 import org.redex.backend.repository.ArchivosRepository;
 import org.redex.backend.repository.ColaboradoresRepository;
@@ -98,7 +99,7 @@ public class UsuariosServiceImp implements UsuariosService{
 
         Map<String, Rol> roles = rolesRepository.findAll()
                 .stream()
-                .collect(Collectors.toMap(rol -> rol.getNombre(), rol -> rol));
+                .collect(Collectors.toMap(rol -> rol.getCodigo().name(), rol -> rol));
         
         Map<String, TipoDocumentoIdentidad> tpis = tpiRepository.findAll()
                 .stream()
@@ -188,7 +189,10 @@ public class UsuariosServiceImp implements UsuariosService{
         u.setColaborador(c);
         u.setEstado(EstadoEnum.ACTIVO);
         u.setUsername(datos.get(12));
-        u.setPassword(datos.get(13));
+        String password = DigestUtils.sha256Hex(datos.get(13));
+        u.setPassword(password);
+        System.out.println(datos.get(9));
+        System.out.println(roles.get(datos.get(9)));
         u.setRol(roles.get(datos.get(9)));
         return u;
     }
