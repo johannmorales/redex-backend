@@ -98,6 +98,13 @@
             <artifactId>excel-io</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.albatrosscloud</groupId>
+            <artifactId>zelpers</artifactId>
+            <version>0.1.60</version>
+        </dependency>
+        
+        
     </dependencies>
 
     <build>
