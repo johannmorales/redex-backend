@@ -3,11 +3,11 @@ package org.redex.backend.controller.planvuelo;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.envios.PlanVuelo;
 import org.redex.backend.model.envios.Vuelo;
-import org.redex.backend.model.general.Archivo;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface PlanVueloService {
 
-    public CargaDatosResponse carga(Archivo archivo);
+    public CargaDatosResponse carga(MultipartFile file);
 
     void guardar(PlanVuelo planVuelo);
 

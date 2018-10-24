@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.envios.PlanVuelo;
-import org.redex.backend.model.general.Archivo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 @RestController
@@ -19,16 +19,16 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 public class PlanVueloController {
 
     @Autowired
-    PlanVueloService planVueloService;
+    PlanVueloService service;
 
     @PostMapping("/carga")
-    public CargaDatosResponse carga(@RequestBody Archivo archivo) {
-        return planVueloService.carga(archivo);
+    public CargaDatosResponse carga(@RequestParam("file") MultipartFile file) {
+        return service.carga(file);
     }
 
     @GetMapping
     public ObjectNode list() {
-        PlanVuelo pv = planVueloService.findActivo();
+        PlanVuelo pv = service.findActivo();
 
         return JsonHelper.createJson(pv, JsonNodeFactory.instance, new String[]{
             "id",
@@ -48,15 +48,15 @@ public class PlanVueloController {
 
         });
     }
-    
+
     @PostMapping("/vuelos/{id}/desactivar")
-    public void desactivarVuelo(@PathVariable Long id){
-        planVueloService.desactivarVuelo(id);
+    public void desactivarVuelo(@PathVariable Long id) {
+        service.desactivarVuelo(id);
     }
 
     @PostMapping("/vuelos/{id}/activar")
-    public void activarVuelo(@PathVariable Long id){
-        planVueloService.activarVuelo(id);
+    public void activarVuelo(@PathVariable Long id) {
+        service.activarVuelo(id);
     }
 
 }
