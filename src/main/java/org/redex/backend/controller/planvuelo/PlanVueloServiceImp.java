@@ -19,11 +19,11 @@ import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.redex.model.envios.PlanVuelo;
-import org.redex.model.envios.Vuelo;
-import org.redex.model.general.Archivo;
-import org.redex.model.general.Pais;
-import org.redex.model.rrhh.Oficina;
+import org.redex.backend.model.envios.PlanVuelo;
+import org.redex.backend.model.envios.Vuelo;
+import org.redex.backend.model.general.Archivo;
+import org.redex.backend.model.general.Pais;
+import org.redex.backend.model.rrhh.Oficina;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosRepository;
-import org.redex.model.general.EstadoEnum;
+import org.redex.backend.model.general.EstadoEnum;
 
 @Service
 @Transactional(readOnly = true)

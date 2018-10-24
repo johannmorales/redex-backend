@@ -1,9 +1,9 @@
 package org.redex.backend.controller.planvuelo;
 
 import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.redex.model.envios.PlanVuelo;
-import org.redex.model.envios.Vuelo;
-import org.redex.model.general.Archivo;
+import org.redex.backend.model.envios.PlanVuelo;
+import org.redex.backend.model.envios.Vuelo;
+import org.redex.backend.model.general.Archivo;
 
 public interface PlanVueloService {
 

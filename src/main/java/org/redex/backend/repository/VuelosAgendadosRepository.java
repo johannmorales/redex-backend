@@ -1,6 +1,6 @@
 package org.redex.backend.repository;
 
-import org.redex.model.envios.VueloAgendado;
+import org.redex.backend.model.envios.VueloAgendado;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

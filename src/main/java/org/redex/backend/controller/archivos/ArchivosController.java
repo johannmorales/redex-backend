@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redex.backend.zelper.exception.MyFileNotFoundException;
-import org.redex.model.general.Archivo;
+import org.redex.backend.model.general.Archivo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;

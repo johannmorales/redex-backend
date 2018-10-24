@@ -1,6 +1,6 @@
 package org.redex.backend.repository;
 
-import org.redex.model.general.Continente;
+import org.redex.backend.model.general.Continente;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 

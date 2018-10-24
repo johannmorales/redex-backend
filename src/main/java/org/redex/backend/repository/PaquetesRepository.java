@@ -1,6 +1,6 @@
 package org.redex.backend.repository;
 
-import org.redex.model.envios.Paquete;
+import org.redex.backend.model.envios.Paquete;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

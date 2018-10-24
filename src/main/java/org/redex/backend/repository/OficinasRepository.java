@@ -1,6 +1,6 @@
 package org.redex.backend.repository;
 
-import org.redex.model.rrhh.Oficina;
+import org.redex.backend.model.rrhh.Oficina;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

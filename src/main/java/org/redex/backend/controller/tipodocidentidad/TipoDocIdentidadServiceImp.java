@@ -2,7 +2,7 @@ package org.redex.backend.controller.tipodocidentidad;
 
 import java.util.List;
 import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
-import org.redex.model.general.TipoDocumentoIdentidad;
+import org.redex.backend.model.general.TipoDocumentoIdentidad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
 package org.redex.backend.controller.usuarios;
 
-import org.redex.model.general.Persona;
+import org.redex.backend.model.general.Persona;
 
 
 public class UsuariosPayload {

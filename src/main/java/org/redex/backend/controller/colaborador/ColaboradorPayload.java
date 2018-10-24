@@ -1,7 +1,7 @@
 package org.redex.backend.controller.colaborador;
 
-import org.redex.model.general.Persona;
-import org.redex.model.rrhh.Oficina;
+import org.redex.backend.model.general.Persona;
+import org.redex.backend.model.rrhh.Oficina;
 
 public class ColaboradorPayload {
     private Persona persona;

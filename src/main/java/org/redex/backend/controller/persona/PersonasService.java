@@ -2,8 +2,8 @@ package org.redex.backend.controller.persona;
 
 import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.redex.model.general.Archivo;
-import org.redex.model.general.Persona;
+import org.redex.backend.model.general.Archivo;
+import org.redex.backend.model.general.Persona;
 
 public interface PersonasService {
 

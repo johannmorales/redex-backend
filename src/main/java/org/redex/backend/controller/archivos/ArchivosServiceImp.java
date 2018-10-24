@@ -16,7 +16,7 @@ import org.redex.backend.config.FileConfig;
 import org.redex.backend.repository.ArchivosRepository;
 import org.redex.backend.zelper.exception.FileStorageException;
 import org.redex.backend.zelper.exception.MyFileNotFoundException;
-import org.redex.model.general.Archivo;
+import org.redex.backend.model.general.Archivo;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service

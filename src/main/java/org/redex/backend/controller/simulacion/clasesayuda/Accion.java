@@ -1,9 +1,9 @@
 package org.redex.backend.controller.simulacion.clasesayuda;
 
 import java.time.ZonedDateTime;
-import org.redex.model.envios.Paquete;
-import org.redex.model.envios.VueloAgendado;
-import org.redex.model.rrhh.Oficina;
+import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
 
 public class Accion {
 

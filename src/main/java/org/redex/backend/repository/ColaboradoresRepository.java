@@ -1,6 +1,6 @@
 package org.redex.backend.repository;
 
-import org.redex.model.rrhh.Colaborador;
+import org.redex.backend.model.rrhh.Colaborador;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

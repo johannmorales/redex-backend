@@ -1,6 +1,6 @@
 package org.redex.backend.controller.archivos;
 
-import org.redex.model.general.Archivo;
+import org.redex.backend.model.general.Archivo;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 

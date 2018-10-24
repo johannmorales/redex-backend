@@ -1,7 +1,7 @@
 package org.redex.backend.controller.paises;
 
 import java.util.List;
-import org.redex.model.general.Pais;
+import org.redex.backend.model.general.Pais;
 
 public interface PaisesService {
 

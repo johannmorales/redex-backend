@@ -3,7 +3,7 @@ package org.redex.backend.controller.paises;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.List;
-import org.redex.model.general.Pais;
+import org.redex.backend.model.general.Pais;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
