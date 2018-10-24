@@ -11,7 +11,7 @@ public interface PaisesRepository extends JpaRepository<Pais, Long> {
 
     List<Pais> findTop15ByNombreContaining(String nombre);
 
-    @Query("select from Pais p where p.nombre like %:nombre% or p.codigo like %:nombre%")
+    @Query("select p from Pais p where p.nombre like %:nombre% or p.codigo like %:nombre%")
     List<Pais> allByNombre(String nombre);
     
 }
