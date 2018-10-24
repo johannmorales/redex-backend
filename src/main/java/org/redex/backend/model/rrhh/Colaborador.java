@@ -6,7 +6,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Persona;
-import org.redex.backend.model.seguridad.Usuario;
 
 @Entity
 @Table(name = "colaborador")
@@ -16,7 +15,6 @@ public class Colaborador implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
    
-    @MapsId
     @OneToOne
     @JoinColumn(name = "id_persona", nullable = false)
     private Persona persona;
