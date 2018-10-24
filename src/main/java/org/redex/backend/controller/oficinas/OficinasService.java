@@ -2,9 +2,9 @@ package org.redex.backend.controller.oficinas;
 
 import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.redex.backend.model.general.Archivo;
 import org.redex.backend.model.rrhh.Colaborador;
 import org.redex.backend.model.rrhh.Oficina;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface OficinasService {
 
@@ -12,7 +12,7 @@ public interface OficinasService {
 
     public void agregarColaborador(Colaborador colaborador);
 
-    public CargaDatosResponse carga(Archivo archivo);
+    public CargaDatosResponse carga(MultipartFile file);
 
     public List<Oficina> all();
 

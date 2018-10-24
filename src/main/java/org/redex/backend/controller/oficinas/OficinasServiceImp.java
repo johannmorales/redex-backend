@@ -1,23 +1,23 @@
 package org.redex.backend.controller.oficinas;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import static java.lang.Character.isDigit;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.redex.backend.repository.ArchivosRepository;
 import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.redex.backend.model.general.Archivo;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.rrhh.Colaborador;
@@ -25,6 +25,7 @@ import org.redex.backend.model.rrhh.Oficina;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -51,46 +52,37 @@ public class OficinasServiceImp implements OficinasService {
 
     @Override
     @Transactional
-    public CargaDatosResponse carga(Archivo archivo) {
+    public CargaDatosResponse carga(MultipartFile file) {
 
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
 
-        //buscar el archivo en BD, si no esta lanza una expcepcion que hara que se le responda a cliente con un 404 not found
-        Archivo archivoBD = archivosRepository.findById(archivo.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Archivo no encontrado"));
+        Set<String> paisesConOficina = oficinasRepository.findAll()
+                .stream()
+                .map(oficina -> oficina.getPais().getCodigo())
+                .collect(Collectors.toSet());
 
-        //obtener la ruta del archivo en el servidor
-        Path path = Paths.get(archivoBD.getDirectorio())
-                .toAbsolutePath().normalize();
-
-        Path filePath = path.resolve(archivoBD.getNombreServidor()).normalize();
-
-        //hashmap de paises por el codigo
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
 
-        //para guardar las oficinas que luego iran a bd
         List<Oficina> nuevasOficinas = new ArrayList<>();
 
-        //leer el archivo y procesar el archivo
-        try (Stream<String> lineas = Files.lines(filePath)) {
-            List<String> lineasList = lineas.collect(Collectors.toList());
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
+            List<String> lineasList = reader.lines().collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
-                // si le vas a poner validacoines aqui deberias controlarlas
-
                 if (!linea.isEmpty() && isDigit(linea.charAt(0))) {
-                    //archivo con codigo de 4 caracteres
                     String code = linea.substring(5, 9);
-                    System.out.println(code);
                     if (code.isEmpty()) {
                         cantidadErrores = cantidadErrores + 1;
                         errores.add("La linea " + contLinea + " no tiene pais");
                     } else {
-                        nuevasOficinas.add(leerOficina(code, paises));
+                        Oficina oficinaNueva = leerOficina(code, paises);
+                        if (!paisesConOficina.contains(oficinaNueva.getPais().getCodigo())) {
+                            nuevasOficinas.add(oficinaNueva);
+                        }
                     }
                 }
                 contLinea++;
@@ -98,8 +90,7 @@ public class OficinasServiceImp implements OficinasService {
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("terminó de leer");
-        //guardar cada oficina en base de datos
+
         for (Oficina oficina : nuevasOficinas) {
             try {
                 oficinasRepository.save(oficina);
@@ -110,17 +101,11 @@ public class OficinasServiceImp implements OficinasService {
             }
         }
 
-        // si hay algun error del que no se puede ignorar y se debe abortar todo en tonce spon 
-        // throw new AppException("Excepcion muy mala _=(");
-        // eso le mandara un respose al cliente de 500 internal server error, 
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
 
     private Oficina leerOficina(String linea, Map<String, Pais> mapPaises) {
-        // codigo para leer una oficina de una linea del archivo 
-
         Oficina oficina = new Oficina();
-
         oficina.setCodigo(linea);
         oficina.setPais(mapPaises.get(linea));
         oficina.setCapacidadActual(0);
