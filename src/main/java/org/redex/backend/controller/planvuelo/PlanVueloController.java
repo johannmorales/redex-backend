@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 @RestController
-@RequestMapping("/vuelos")
+@RequestMapping("/planvuelo")
 public class PlanVueloController {
 
     @Autowired
