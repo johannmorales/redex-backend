@@ -83,8 +83,8 @@ public class OficinasServiceImp implements OficinasService {
                 // si le vas a poner validacoines aqui deberias controlarlas
 
                 if (!linea.isEmpty() && isDigit(linea.charAt(0))) {
-                    //archivo con codigo de 3 caracteres
-                    String code = linea.substring(5, 8);
+                    //archivo con codigo de 4 caracteres
+                    String code = linea.substring(5, 9);
                     System.out.println(code);
                     if (code.isEmpty()) {
                         cantidadErrores = cantidadErrores + 1;
