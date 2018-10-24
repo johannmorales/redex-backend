@@ -96,12 +96,12 @@ public class PlanVueloServiceImp implements PlanVueloService {
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas
                 // cambios para archivo con codigo de 3 caracteres
-                if (!linea.isEmpty() && (linea.length() == 19)) {
+                if (!linea.isEmpty() && (linea.length() == 21)) {
 
-                    String codeOffice1 = linea.substring(0, 3);
-                    String codeOffice2 = linea.substring(4, 7);
-                    String horaIni = linea.substring(8, 13);
-                    String horaFin = linea.substring(14);
+                    String codeOffice1 = linea.substring(0, 4);
+                    String codeOffice2 = linea.substring(5, 9);
+                    String horaIni = linea.substring(10, 15);
+                    String horaFin = linea.substring(16);
                     Pattern p = Pattern.compile(".*([01]?[0-9]|2[0-3]):[0-5][0-9].*");
                     Matcher m1 = p.matcher(horaIni);
                     Matcher m2 = p.matcher(horaFin);
