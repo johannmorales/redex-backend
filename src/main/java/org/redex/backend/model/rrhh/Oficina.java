@@ -3,6 +3,8 @@ package org.redex.backend.model.rrhh;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,6 +39,7 @@ public class Oficina implements Serializable {
     @JoinColumn(name = "id_pais", nullable = false)
     private Pais pais;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoEnum estado;
 
