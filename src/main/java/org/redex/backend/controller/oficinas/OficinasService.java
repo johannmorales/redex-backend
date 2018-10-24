@@ -19,5 +19,7 @@ public interface OficinasService {
     public void desactivar(Long id);
 
     public void activar(Long id);
+
+    public Oficina find(Long id);
     
 }

@@ -2,6 +2,7 @@ package org.redex.backend.controller.oficinas;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.rrhh.Oficina;
@@ -41,6 +42,21 @@ public class OficinasController {
         return arr;
     }
 
+    @GetMapping("/{id}")
+    public ObjectNode find(@PathVariable Long id) {
+        Oficina oficina = service.find(id);
+
+        return JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+            "id",
+            "pais.id",
+            "pais.codigo",
+            "pais.nombre",
+            "capacidadActual",
+            "capacidadMaxima",
+            "codigo"
+        });
+    }
+
     @PostMapping("/carga")
     public CargaDatosResponse carga(@RequestParam("file") MultipartFile file) {
         return service.carga(file);
@@ -48,12 +64,12 @@ public class OficinasController {
 
     @PostMapping("{id}/desactivar")
     public void desactivar(@PathVariable Long id) {
-         service.desactivar(id);
+        service.desactivar(id);
     }
 
     @PostMapping("{id}/activar")
     public void acrivar(@PathVariable Long id) {
-         service.activar(id);
+        service.activar(id);
     }
 
 }

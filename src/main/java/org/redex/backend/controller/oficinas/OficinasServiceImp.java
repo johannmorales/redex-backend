@@ -141,4 +141,10 @@ public class OficinasServiceImp implements OficinasService {
         oficinasRepository.save(o);
     }
 
+    @Override
+    public Oficina find(Long id) {
+        return oficinasRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Oficina", "id", id));
+    }
+
 }
