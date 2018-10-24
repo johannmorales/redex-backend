@@ -32,8 +32,8 @@ public class PaisesController {
         return arr;
     }
     
-    @GetMapping
-    public ArrayNode allByNombre(@RequestParam String nombre) {
+    @GetMapping("search")
+    public ArrayNode search(@RequestParam String nombre) {
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
         List<Pais> list = service.allByNombre(nombre);
         for (Pais item : list) {
