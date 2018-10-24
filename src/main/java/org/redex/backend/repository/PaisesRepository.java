@@ -3,11 +3,15 @@ package org.redex.backend.repository;
 import java.util.List;
 import org.redex.backend.model.general.Pais;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaisesRepository extends JpaRepository<Pais, Long> {
 
     List<Pais> findTop15ByNombreContaining(String nombre);
+
+    @Query("select from Pais p where p.nombre like %:nombre% or p.codigo like %:nombre%")
+    List<Pais> allByNombre(String nombre);
     
 }

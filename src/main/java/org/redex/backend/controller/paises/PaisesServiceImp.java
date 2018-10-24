@@ -18,5 +18,10 @@ public class PaisesServiceImp implements PaisesService {
     public List<Pais> all() {
         return paisesRepository.findAll();
     }
+
+    @Override
+    public List<Pais> allByNombre(String nombre) {
+        return paisesRepository.allByNombre(nombre);
+    }
     
 }

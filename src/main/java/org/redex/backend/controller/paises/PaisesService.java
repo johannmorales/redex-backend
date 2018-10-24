@@ -6,5 +6,7 @@ import org.redex.backend.model.general.Pais;
 public interface PaisesService {
 
     public List<Pais> all();
+
+    public List<Pais> allByNombre(String nombre);
     
 }
