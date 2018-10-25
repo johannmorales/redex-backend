@@ -104,10 +104,10 @@ public class Vuelo implements Serializable {
 
     public String getDuracion() {
         Duration d;
-        if (this.horaFin.isAfter(this.horaInicio)) {
+        if (horaFin.isAfter(horaInicio)) {
             d = Duration.between(horaInicio, horaFin);
         } else {
-            d = Duration.between(horaFin, horaInicio);
+            d = Duration.between(horaInicio, LocalTime.MIDNIGHT).plus(Duration.between(LocalTime.MIDNIGHT, horaFin));
         }
 
         return String.format("%02dh %02dm", d.getSeconds() / 3600, (d.getSeconds() % 3600) / 60);
