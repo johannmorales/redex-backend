@@ -107,7 +107,7 @@ public class Vuelo implements Serializable {
         if (horaFin.isAfter(horaInicio)) {
             d = Duration.between(horaInicio, horaFin);
         } else {
-            d = Duration.between(horaInicio, LocalTime.MIDNIGHT).plus(Duration.between(LocalTime.MIDNIGHT, horaFin));
+            d = Duration.between(horaInicio, LocalTime.MAX).plus(Duration.between(LocalTime.MIDNIGHT, horaFin));
         }
 
         return String.format("%02dh %02dm", d.getSeconds() / 3600, (d.getSeconds() % 3600) / 60);
