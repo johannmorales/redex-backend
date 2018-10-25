@@ -5,8 +5,12 @@
  */
 package org.redex.backend.controller.usuarios;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import static java.lang.Character.isDigit;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,6 +47,7 @@ import org.redex.backend.model.seguridad.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -74,20 +79,10 @@ public class UsuariosServiceImp implements UsuariosService {
 
     @Override
     @Transactional
-    public CargaDatosResponse carga(Archivo archivo) {
+    public CargaDatosResponse carga(MultipartFile file) {
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
-
-        //buscar el archivo en BD, si no esta lanza una expcepcion que hara que se le responda a cliente con un 404 not found
-        Archivo archivoBD = archivosRepository.findById(archivo.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Archivo no encontrado"));
-
-        //obtener la ruta del archivo en el servidor
-        Path path = Paths.get(archivoBD.getDirectorio())
-                .toAbsolutePath().normalize();
-
-        Path filePath = path.resolve(archivoBD.getNombreServidor()).normalize();
 
         //hashmap de paises por el codigo
         Map<String, Pais> paises = paisesRepository.findAll()
@@ -97,7 +92,7 @@ public class UsuariosServiceImp implements UsuariosService {
         Map<String, Rol> roles = rolesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(rol -> rol.getCodigo().name(), rol -> rol));
-        
+
         Map<String, TipoDocumentoIdentidad> tpis = tpiRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(tpi -> tpi.getSimbolo(), tpi -> tpi));
@@ -111,8 +106,8 @@ public class UsuariosServiceImp implements UsuariosService {
         List<Colaborador> nuevosColaboradores = new ArrayList<>();
         List<Usuario> nuevosUsuarios = new ArrayList<>();
 
-        try (Stream<String> lineas = Files.lines(filePath)) {
-            List<String> lineasList = lineas.collect(Collectors.toList());
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
+            List<String> lineasList = reader.lines().collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
                 // si le vas a poner validacoines aqui deberias controlarlas

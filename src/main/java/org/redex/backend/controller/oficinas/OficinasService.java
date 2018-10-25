@@ -21,5 +21,9 @@ public interface OficinasService {
     public void activar(Long id);
 
     public Oficina find(Long id);
+
+    public void save(Oficina oficina);
+
+    public void update(Oficina oficina);
     
 }

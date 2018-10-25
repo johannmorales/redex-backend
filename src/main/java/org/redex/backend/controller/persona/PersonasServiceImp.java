@@ -1,9 +1,10 @@
 package org.redex.backend.controller.persona;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,99 +12,85 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.redex.backend.controller.oficinas.OficinasServiceImp;
 import org.redex.backend.repository.ArchivosRepository;
 import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.repository.PersonaRepository;
 import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
-import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.redex.backend.model.general.Archivo;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.general.TipoDocumentoIdentidad;
-import org.redex.backend.model.seguridad.Rol;
+import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
 public class PersonasServiceImp implements PersonasService {
-    
+
     @Autowired
     PersonaRepository personaRepository;
 
     @Autowired
     ArchivosRepository archivosRepository;
-    
+
     @Autowired
     PaisesRepository paisesRepository;
 
     @Autowired
     TipoDocumentoIdentidadRepository tpiRepository;
-    
+
     @Override
     public List<Persona> all() {
         return personaRepository.findAll();
     }
-    
+
     @Override
     @Transactional
-    public CargaDatosResponse carga(Archivo archivo) {
+    public CargaDatosResponse carga(MultipartFile file) {
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
 
-        //buscar el archivo en BD, si no esta lanza una expcepcion que hara que se le responda a cliente con un 404 not found
-        Archivo archivoBD = archivosRepository.findById(archivo.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Archivo no encontrado"));
-
-        //obtener la ruta del archivo en el servidor
-        Path path = Paths.get(archivoBD.getDirectorio())
-                .toAbsolutePath().normalize();
-
-        Path filePath = path.resolve(archivoBD.getNombreServidor()).normalize();
-        
-       Map<String, Pais> paises = paisesRepository.findAll()
+        Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
 
-        
         Map<String, TipoDocumentoIdentidad> tpis = tpiRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(tpi -> tpi.getSimbolo(), tpi -> tpi));
-        
+
         List<Persona> nuevasPersonas = new ArrayList<>();
-        
-        try (Stream<String> lineas = Files.lines(filePath)) {
-            
-            List<String> lineasList = lineas.collect(Collectors.toList());
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
+            List<String> lineasList = reader.lines().collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
                 if (!linea.isEmpty()) {
                     List<String> separateLine = Arrays.asList(linea.split(","));
-                        if (separateLine.size() == 10) {
-                            Persona nuevaPersona = leePersona(separateLine, paises, tpis);
-                            nuevasPersonas.add(nuevaPersona);
-                        } else{
-                            cantidadErrores = cantidadErrores + 1;
-                            errores.add("La linea " + contLinea + " no tiene todos los campos");
-                        }
+                    if (separateLine.size() == 10) {
+                        Persona nuevaPersona = leePersona(separateLine, paises, tpis);
+                        nuevasPersonas.add(nuevaPersona);
+                    } else {
+                        cantidadErrores = cantidadErrores + 1;
+                        errores.add("La linea " + contLinea + " no tiene todos los campos");
+                    }
                 }
                 for (Persona persona : nuevasPersonas) {
                     personaRepository.save(persona);
                 }
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
-    
+
     private Persona leePersona(List<String> datos, Map<String, Pais> mapPaises,
             Map<String, TipoDocumentoIdentidad> tpis) {
 
@@ -119,5 +106,11 @@ public class PersonasServiceImp implements PersonasService {
         p.setNumeroDocumentoIdentidad(datos.get(8));
 
         return p;
+    }
+
+    @Override
+    public Persona find(Long id) {
+        return personaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Persona", "id", id));
     }
 }

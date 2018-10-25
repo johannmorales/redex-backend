@@ -147,4 +147,24 @@ public class OficinasServiceImp implements OficinasService {
                 .orElseThrow(() -> new ResourceNotFoundException("Oficina", "id", id));
     }
 
+    @Override
+    public void save(Oficina oficina) {
+        
+        // agrego data para inicializar si es que es necesario
+        oficina.setCapacidadActual(0);
+        
+        oficinasRepository.save(oficina);
+    }
+
+    @Override
+    public void update(Oficina oficina) {
+        Oficina oficinaBD = oficinasRepository.findById(oficina.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Oficina", "id", oficina.getId()));
+                
+        // aqui solo actualizo los campos que son actualizzables (por ejemplo solo la capacidadMaxima
+        
+        oficinaBD.setCapacidadMaxima(oficina.getCapacidadMaxima());
+        oficinasRepository.save(oficinaBD);
+    }
+
 }

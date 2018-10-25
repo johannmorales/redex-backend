@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +43,11 @@ public class OficinasController {
         return arr;
     }
 
+    @PostMapping("/carga")
+    public CargaDatosResponse carga(@RequestParam("file") MultipartFile file) {
+        return service.carga(file);
+    }
+
     @GetMapping("/{id}")
     public ObjectNode find(@PathVariable Long id) {
         Oficina oficina = service.find(id);
@@ -57,11 +63,6 @@ public class OficinasController {
         });
     }
 
-    @PostMapping("/carga")
-    public CargaDatosResponse carga(@RequestParam("file") MultipartFile file) {
-        return service.carga(file);
-    }
-
     @PostMapping("{id}/desactivar")
     public void desactivar(@PathVariable Long id) {
         service.desactivar(id);
@@ -70,6 +71,15 @@ public class OficinasController {
     @PostMapping("{id}/activar")
     public void acrivar(@PathVariable Long id) {
         service.activar(id);
+    }
+
+    @PostMapping("/save")
+    public void save(@RequestBody Oficina oficina) {
+        if (oficina.getId() != null) {
+            service.save(oficina);
+        } else {
+            service.update(oficina);
+        }
     }
 
 }

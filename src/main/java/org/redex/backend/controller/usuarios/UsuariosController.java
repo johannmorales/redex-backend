@@ -4,14 +4,15 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.redex.backend.model.general.Archivo;
 import org.redex.backend.model.seguridad.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 @RestController
@@ -19,12 +20,12 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 public class UsuariosController {
 
     @Autowired
-    UsuariosService usuariosService;
+    UsuariosService service;
 
     @GetMapping
     public ArrayNode list() {
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        List<Usuario> usuarios = usuariosService.all();
+        List<Usuario> usuarios = service.all();
         for (Usuario usuario : usuarios) {
             arr.add(JsonHelper.createJson(usuario, JsonNodeFactory.instance, new String[]{
                 "id",
@@ -49,15 +50,14 @@ public class UsuariosController {
     }
 
     @PostMapping("/carga")
-    public CargaDatosResponse carga(@RequestBody Archivo archivo) {
-        return usuariosService.carga(archivo);
+    public CargaDatosResponse carga(@RequestParam("file") MultipartFile file) {
+        return service.carga(file);
     }
-
     
     // johana!!
     // el metodo save lo llamas con localhost:5000/usuarios/save
     @PostMapping("/save")
     public void carga(@RequestBody UsuariosPayload payload) {
-        usuariosService.crearUsuario(payload);
+        service.crearUsuario(payload);
     }
 }
