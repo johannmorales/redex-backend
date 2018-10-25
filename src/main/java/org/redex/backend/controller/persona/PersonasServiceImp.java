@@ -71,7 +71,7 @@ public class PersonasServiceImp implements PersonasService {
             for (String linea : lineasList) {
                 if (!linea.isEmpty()) {
                     List<String> separateLine = Arrays.asList(linea.split(","));
-                    if (separateLine.size() == 10) {
+                    if (separateLine.size() == 9) {
                         Persona nuevaPersona = leePersona(separateLine, paises, tpis);
                         nuevasPersonas.add(nuevaPersona);
                     } else {
