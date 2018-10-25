@@ -2,6 +2,7 @@ package org.redex.backend.model.envios;
 
 import org.redex.backend.model.rrhh.Oficina;
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import javax.persistence.Column;
@@ -48,7 +49,7 @@ public class Vuelo implements Serializable {
 
     @Column(nullable = false)
     private Integer capacidad;
-    
+
     public Long getId() {
         return id;
     }
@@ -101,6 +102,17 @@ public class Vuelo implements Serializable {
         return getHoraInicio().isBefore(getHoraFin());
     }
 
+    public String getDuracion() {
+        Duration d;
+        if (this.horaFin.isAfter(this.horaInicio)) {
+            d = Duration.between(horaInicio, horaFin);
+        } else {
+            d = Duration.between(horaFin, horaInicio);
+        }
+
+        return String.format("%02dh %02dm", d.getSeconds() / 3600, (d.getSeconds() % 3600) / 60);
+    }
+
     public String getHoraInicioString() {
         return DateTimeFormatter.ofPattern("HH:mm").format(getHoraInicio());
     }
@@ -125,7 +137,7 @@ public class Vuelo implements Serializable {
     public void setEstado(EstadoEnum estado) {
         this.estado = estado;
     }
-    
+
     public Integer getCapacidad() {
         return capacidad;
     }

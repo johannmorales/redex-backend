@@ -44,7 +44,8 @@ public class PlanVueloController {
             "vuelos.horaInicioString",
             "vuelos.horaFinString",
             "vuelos.estado",
-            "vuelos.capacidad"
+            "vuelos.capacidad",
+            "vuelos.duracion"
 
         });
     }
