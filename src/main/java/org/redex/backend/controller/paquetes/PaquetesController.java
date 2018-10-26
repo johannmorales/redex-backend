@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 @RestController
-@RequestMapping("/paquetes")
+@RequestMapping("paquetes")
 public class PaquetesController {
 
     @Autowired
@@ -44,7 +44,7 @@ public class PaquetesController {
                 "oficinaDestino.codigo",
                 "oficinaDestino.pais.id",
                 "oficinaDestino.pais.nombre",
-                "codigoRastreo"
+                "codigoRastreo"    
             }));
         }
 
