@@ -44,7 +44,9 @@ public class PaquetesController {
                 "oficinaDestino.codigo",
                 "oficinaDestino.pais.id",
                 "oficinaDestino.pais.nombre",
-                "codigoRastreo"    
+                "codigoRastreo",
+                "estado",
+                "fechaIngresoString"
             }));
         }
 

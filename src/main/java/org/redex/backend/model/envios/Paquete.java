@@ -17,7 +17,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import org.hibernate.annotations.NaturalId;
 import org.redex.backend.model.AppConstants;
 import org.redex.backend.model.auditoria.ModificacionAuditable;
 
@@ -48,16 +47,16 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private PaqueteEstadoEnum estado;
-    
+
     @Column(nullable = false)
     private ZonedDateTime fechaIngreso;
-    
+
     @Column(nullable = false)
     private ZonedDateTime fechaSalida;
-    
+
     @Column(nullable = false, unique = true)
     private String codigoRastreo;
-    
+
     public Long getId() {
         return id;
     }
@@ -152,4 +151,7 @@ public class Paquete extends ModificacionAuditable implements Serializable {
         this.codigoRastreo = codigoRastreo;
     }
 
+    public String getFechaIngresoString() {
+        return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(fechaIngreso);
+    }
 }
