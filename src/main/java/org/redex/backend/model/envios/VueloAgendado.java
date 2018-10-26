@@ -152,6 +152,13 @@ public class VueloAgendado implements Serializable {
                 DateTimeFormatter.ofPattern("dd/MM HH:mm").format(getFechaFin()));
     }
 
+    public String getFechaInicioString(){
+        return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(fechaInicio);
+    }
+      public String getFechaFinString(){
+        return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(fechaInicio);
+    }
+      
     public void agregarPaquete() {
         this.setCapacidadActual((Integer) (this.getCapacidadActual() + 1));
     }

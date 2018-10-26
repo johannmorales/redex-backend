@@ -7,4 +7,6 @@ public interface PaquetesService {
 
     public List<Paquete> list();
 
+    public Paquete find(Long id);
+
 }

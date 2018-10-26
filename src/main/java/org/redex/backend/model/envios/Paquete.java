@@ -9,14 +9,19 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import org.redex.backend.model.AppConstants;
 import org.redex.backend.model.auditoria.ModificacionAuditable;
 
@@ -57,6 +62,10 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     @Column(nullable = false, unique = true)
     private String codigoRastreo;
 
+    @OrderBy("orden ASC")
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "paquete", fetch = FetchType.LAZY)
+    private List<PaqueteRuta> paqueteRutas;
+    
     public Long getId() {
         return id;
     }
@@ -152,6 +161,14 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     }
 
     public String getFechaIngresoString() {
-        return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(fechaIngreso);
+        return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(getFechaIngreso());
+    }
+
+    public List<PaqueteRuta> getPaqueteRutas() {
+        return paqueteRutas;
+    }
+
+    public void setPaqueteRutas(List<PaqueteRuta> paqueteRutas) {
+        this.paqueteRutas = paqueteRutas;
     }
 }
