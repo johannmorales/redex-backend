@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -63,9 +62,6 @@ public class PaquetesServiceImp implements PaquetesService {
                 .orElseThrow(() -> new ResourceNotFoundException("Paquete", "id", id));
     }
     
-    Map<String, Oficina> oficinas = oficinasRepository.findAll()
-                .stream()
-                .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
 
     @Override
     @Transactional
@@ -74,11 +70,10 @@ public class PaquetesServiceImp implements PaquetesService {
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
 
-        Set<String> paisesConOficina = oficinasRepository.findAll()
+         Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
-                .map(oficina -> oficina.getPais().getCodigo())
-                .collect(Collectors.toSet());
-
+                .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
+         
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
