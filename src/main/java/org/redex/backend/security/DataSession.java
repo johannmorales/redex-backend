@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.rrhh.Colaborador;
 import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.model.seguridad.RolEnum;
 import org.redex.backend.model.seguridad.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +24,8 @@ public class DataSession implements UserDetails {
 
     private Oficina oficina;
 
+    private RolEnum rol;
+    
     private Colaborador colaborador;
 
     @JsonIgnore
@@ -30,7 +33,7 @@ public class DataSession implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public DataSession(Long id, String username, String password, Colaborador colaborador, Oficina oficina, Persona persona, Collection<? extends GrantedAuthority> authorities) {
+    public DataSession(Long id, String username, String password, Colaborador colaborador, Oficina oficina, Persona persona, RolEnum rol, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -38,6 +41,7 @@ public class DataSession implements UserDetails {
         this.colaborador = colaborador;
         this.oficina = oficina;
         this.persona = persona;
+        this.rol = rol;
     }
 
     public static DataSession create(Usuario user) {
@@ -50,6 +54,7 @@ public class DataSession implements UserDetails {
                 user.getColaborador(),
                 user.getColaborador().getOficina(),
                 user.getColaborador().getPersona(),
+                user.getRol().getCodigo(),
                 authorities
         );
     }
@@ -102,13 +107,61 @@ public class DataSession implements UserDetails {
             return false;
         }
         DataSession that = (DataSession) o;
-        return Objects.equals(id, that.id);
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id);
+        return Objects.hash(getId());
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Persona getPersona() {
+        return persona;
+    }
+
+    public void setPersona(Persona persona) {
+        this.persona = persona;
+    }
+
+    public Oficina getOficina() {
+        return oficina;
+    }
+
+    public void setOficina(Oficina oficina) {
+        this.oficina = oficina;
+    }
+
+    public Colaborador getColaborador() {
+        return colaborador;
+    }
+
+    public void setColaborador(Colaborador colaborador) {
+        this.colaborador = colaborador;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
+    }
+
+    public RolEnum getRol() {
+        return rol;
+    }
+
+    public void setRol(RolEnum rol) {
+        this.rol = rol;
     }
 
 }

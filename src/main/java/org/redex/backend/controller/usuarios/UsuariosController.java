@@ -2,9 +2,12 @@ package org.redex.backend.controller.usuarios;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.seguridad.Usuario;
+import org.redex.backend.security.CurrentUser;
+import org.redex.backend.security.DataSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,5 +62,15 @@ public class UsuariosController {
     @PostMapping("/save")
     public void carga(@RequestBody UsuariosPayload payload) {
         service.crearUsuario(payload);
+    }
+    
+    @GetMapping("/yo")
+    public ObjectNode yo(@CurrentUser DataSession ds){
+        return JsonHelper.createJson(ds, JsonNodeFactory.instance,new String[]{
+            "colaborador.oficina.codigo",
+            "persona.nombreCompleto",
+            "username",
+            "rol"
+        });
     }
 }
