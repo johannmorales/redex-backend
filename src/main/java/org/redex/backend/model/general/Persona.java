@@ -55,6 +55,14 @@ public class Persona {
         this.pais = pais;
     }
 
+    
+    public String getNombreCompleto(){
+        return String.format("%s %s%s",
+                this.nombres == null ? "" : this.nombres,
+                this.paterno == null ? "" : this.paterno + " ",
+                this.materno == null ? "" : this.materno);
+    }
+    
     public String getNumeroDocumentoIdentidad() {
         return numeroDocumentoIdentidad;
     }

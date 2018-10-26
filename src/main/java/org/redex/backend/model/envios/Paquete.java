@@ -55,7 +55,6 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     @Column(nullable = false)
     private ZonedDateTime fechaSalida;
     
-    @NaturalId
     @Column(nullable = false, unique = true)
     private String codigoRastreo;
     
