@@ -1,16 +1,29 @@
 package org.redex.backend.controller.simulacion;
 
+import org.redex.backend.zelper.response.CargaDatosResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("simulaciones")
 public class SimulacionController {
 
+    @Autowired
+    SimulacionService service;
+    
     @RequestMapping("/{id}/estado")
     public void greeting(@RequestParam Long id) {
 
+    }
+    
+    @PostMapping("/{id}/paquetes/carga")
+     public CargaDatosResponse carga(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        return service.cargaPaquetes(id, file);
     }
 
 }
