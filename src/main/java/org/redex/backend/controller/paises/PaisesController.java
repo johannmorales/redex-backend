@@ -33,9 +33,9 @@ public class PaisesController {
     }
     
     @GetMapping("search")
-    public ArrayNode search(@RequestParam String nombre) {
+    public ArrayNode search(@RequestParam String q) {
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        List<Pais> list = service.allByNombre(nombre);
+        List<Pais> list = service.allByNombre(q);
         for (Pais item : list) {
             arr.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
@@ -45,7 +45,5 @@ public class PaisesController {
         }
         return arr;
     }
-    
-    
     
 }

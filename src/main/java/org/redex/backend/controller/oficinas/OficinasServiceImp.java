@@ -173,7 +173,7 @@ public class OficinasServiceImp implements OficinasService {
 
     @Override
     public Page<Oficina> allByCrimson(CrimsonTableRequest request) {
-        return oficinasRepository.findAll(PageRequest.of(request.getCurrent(), request.getPageSize()));
+        return oficinasRepository.customPaginatedSearch(request.getSearch(), PageRequest.of(request.getCurrent(), request.getPageSize()));
     }
 
     @Override
