@@ -37,22 +37,6 @@ public class PlanVueloController {
         Page<Vuelo> oficinas = service.allByCrimson(request);
         return CrimsonTableResponse.of(oficinas, new String[]{
             "id",
-            "pais.id",
-            "pais.codigo",
-            "pais.nombre",
-            "capacidadActual",
-            "capacidadMaxima",
-            "estado",
-            "codigo"
-        });
-    }
-
-    @GetMapping("all")
-    public ObjectNode all() {
-        PlanVuelo pv = service.findActivo();
-
-        return JsonHelper.createJson(pv, JsonNodeFactory.instance, new String[]{
-            "id",
             "oficinaOrigen.id",
             "oficinaOrigen.codigo",
             "oficinaOrigen.pais.id",
@@ -66,6 +50,30 @@ public class PlanVueloController {
             "estado",
             "capacidad",
             "duracion"
+        });
+    }
+
+    @GetMapping("all")
+    public ObjectNode all() {
+        PlanVuelo pv = service.findActivo();
+
+        return JsonHelper.createJson(pv, JsonNodeFactory.instance, new String[]{
+            "id",
+            "vuelos.id",
+            "vuelos.oficinaOrigen.id",
+            "vuelos.oficinaOrigen.codigo",
+            "vuelos.oficinaOrigen.pais.id",
+            "vuelos.oficinaOrigen.pais.nombre",
+            "vuelos.oficinaDestino.id",
+            "vuelos.oficinaDestino.pais.id",
+            "vuelos.oficinaDestino.pais.nombre",
+            "vuelos.oficinaDestino.codigo",
+            "vuelos.horaInicioString",
+            "vuelos.horaFinString",
+            "vuelos.estado",
+            "vuelos.capacidad",
+            "vuelos.duracion"
+
         });
     }
 
