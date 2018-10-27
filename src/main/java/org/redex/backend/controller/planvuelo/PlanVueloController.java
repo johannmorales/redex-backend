@@ -6,7 +6,6 @@ import javax.validation.Valid;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.envios.PlanVuelo;
 import org.redex.backend.model.envios.Vuelo;
-import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.springframework.beans.factory.annotation.Autowired;

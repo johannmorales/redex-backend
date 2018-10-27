@@ -6,6 +6,7 @@ import org.redex.backend.repository.RolesRepository;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,10 +16,10 @@ public class RolesServiceImp implements RolesService {
 
     @Autowired
     RolesRepository rolesRepository;
-    
+
     @Override
     public Page<Rol> crimsonList(CrimsonTableRequest request) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return rolesRepository.findAll(PageRequest.of(request.getCurrent(), request.getPageSize()));
     }
 
     @Override
