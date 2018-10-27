@@ -97,7 +97,7 @@ public class PaquetesServiceImp implements PaquetesService {
             for (String linea : lineasList) {
                 if (!linea.isEmpty()) {
                     List<String> separateLine = Arrays.asList(linea.split("-"));
-                    if (separateLine.size() == 4) {
+                    if (separateLine.size() == 22) {
                         Paquete nuevoP = leePaquete(separateLine, paises, nuevasPersonas, oficinas,personas, tpis);
                         nuevosPaquetes.add(nuevoP);
                     } else {
