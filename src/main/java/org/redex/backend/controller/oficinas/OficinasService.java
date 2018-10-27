@@ -4,6 +4,8 @@ import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.rrhh.Colaborador;
 import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface OficinasService {
@@ -25,5 +27,7 @@ public interface OficinasService {
     public void save(Oficina oficina);
 
     public void update(Oficina oficina);
+
+    public Page<Oficina> allByCrimson(CrimsonTableRequest request);
     
 }

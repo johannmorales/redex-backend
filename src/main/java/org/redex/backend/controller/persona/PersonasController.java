@@ -4,9 +4,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import javax.validation.Valid;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.general.Persona;
+import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,26 +29,22 @@ public class PersonasController {
     PersonasService service;
 
     @GetMapping
-    public ArrayNode list() {
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        List<Persona> list = service.all();
-        for (Persona item : list) {
-            arr.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "id",
-                "nombres",
-                "paterno",
-                "materno",
-                "email",
-                "telefono",
-                "celular",
-                "pais.id",
-                "tipoDocumentoIdentidad.*",
-                "numeroDocumentoIdentidad",
-                "pais.codigo",
-                "pais.nombre"
-            }));
-        }
-        return arr;
+    public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request) {
+        Page<Persona> list = service.allByCrimson(request);
+        return CrimsonTableResponse.of(list, new String[]{
+            "id",
+            "nombres",
+            "paterno",
+            "materno",
+            "email",
+            "telefono",
+            "celular",
+            "pais.id",
+            "tipoDocumentoIdentidad.*",
+            "numeroDocumentoIdentidad",
+            "pais.codigo",
+            "pais.nombre"
+        });
     }
 
     @PostMapping("/carga")

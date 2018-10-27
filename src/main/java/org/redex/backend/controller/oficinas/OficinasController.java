@@ -3,10 +3,13 @@ package org.redex.backend.controller.oficinas;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.List;
+import javax.validation.Valid;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,22 +28,18 @@ public class OficinasController {
     OficinasService service;
 
     @GetMapping
-    public ArrayNode list() {
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        List<Oficina> oficinas = service.all();
-        for (Oficina oficina : oficinas) {
-            arr.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
-                "id",
-                "pais.id",
-                "pais.codigo",
-                "pais.nombre",
-                "capacidadActual",
-                "capacidadMaxima",
-                "estado",
-                "codigo"
-            }));
-        }
-        return arr;
+    public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request) {
+        Page<Oficina> oficinas = service.allByCrimson(request);
+        return CrimsonTableResponse.of(oficinas, new String[]{
+            "id",
+            "pais.id",
+            "pais.codigo",
+            "pais.nombre",
+            "capacidadActual",
+            "capacidadMaxima",
+            "estado",
+            "codigo"
+        });
     }
 
     @PostMapping("/carga")

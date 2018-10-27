@@ -21,8 +21,11 @@ import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.general.TipoDocumentoIdentidad;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,11 +45,6 @@ public class PersonasServiceImp implements PersonasService {
 
     @Autowired
     TipoDocumentoIdentidadRepository tpiRepository;
-
-    @Override
-    public List<Persona> all() {
-        return personaRepository.findAll();
-    }
 
     @Override
     @Transactional
@@ -113,4 +111,10 @@ public class PersonasServiceImp implements PersonasService {
         return personaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Persona", "id", id));
     }
+
+    @Override
+    public Page<Persona> allByCrimson(CrimsonTableRequest request) {
+        return personaRepository.findAll(PageRequest.of(request.getCurrent(), request.getPageSize()));
+    }
+
 }

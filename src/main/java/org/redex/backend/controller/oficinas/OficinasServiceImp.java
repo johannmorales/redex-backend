@@ -22,7 +22,10 @@ import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.rrhh.Colaborador;
 import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -166,6 +169,11 @@ public class OficinasServiceImp implements OficinasService {
         
         oficinaBD.setCapacidadMaxima(oficina.getCapacidadMaxima());
         oficinasRepository.save(oficinaBD);
+    }
+
+    @Override
+    public Page<Oficina> allByCrimson(CrimsonTableRequest request) {
+        return oficinasRepository.findAll(PageRequest.of(request.getCurrent(), request.getPageSize()));
     }
 
 }
