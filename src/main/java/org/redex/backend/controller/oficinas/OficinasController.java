@@ -3,6 +3,7 @@ package org.redex.backend.controller.oficinas;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
 import javax.validation.Valid;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.rrhh.Oficina;
@@ -79,6 +80,22 @@ public class OficinasController {
         } else {
             service.update(oficina);
         }
+    }
+    
+    @GetMapping("/search")
+    public ArrayNode search(@RequestParam String q){
+        List<Oficina> list = service.search(q);
+        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : list) {
+            arr.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+                "id",
+                "codigo",
+                "pais.id",
+                "pais.nombre"
+            }));
+        }
+        
+        return arr;
     }
 
 }

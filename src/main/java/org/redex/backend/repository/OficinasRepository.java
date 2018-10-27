@@ -18,4 +18,7 @@ public interface OficinasRepository extends JpaRepository<Oficina, Long> {
     
     public List<Oficina> findAllByEstado(EstadoEnum estado);
     
+    @Query("select o from Oficina o join o.pais p where o.codigo like %:q% or p.codigo like %:q% or p.nombre like %:q%") 
+    public List<Oficina> customSearch(@Param(value = "q") String q);
+    
 }

@@ -29,5 +29,7 @@ public interface OficinasService {
     public void update(Oficina oficina);
 
     public Page<Oficina> allByCrimson(CrimsonTableRequest request);
+
+    public List<Oficina> search(String q);
     
 }

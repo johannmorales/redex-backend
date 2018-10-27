@@ -1,6 +1,8 @@
 package org.redex.backend.zelper.crimsontable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotNull;
+import org.springframework.data.domain.PageRequest;
 
 public class CrimsonTableRequest {
 
@@ -34,6 +36,11 @@ public class CrimsonTableRequest {
 
     public void setSearch(String search) {
         this.search = search;
+    }
+    
+    @JsonIgnore
+    public PageRequest createPagination() {
+        return PageRequest.of(current, pageSize);
     }
 
 }

@@ -176,4 +176,9 @@ public class OficinasServiceImp implements OficinasService {
         return oficinasRepository.findAll(PageRequest.of(request.getCurrent(), request.getPageSize()));
     }
 
+    @Override
+    public List<Oficina> search(String q) {
+        return oficinasRepository.customSearch(q);
+    }
+
 }

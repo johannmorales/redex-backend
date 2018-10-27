@@ -30,6 +30,9 @@ import java.util.regex.Matcher;
 import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosRepository;
 import org.redex.backend.model.general.EstadoEnum;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -73,7 +76,7 @@ public class PlanVueloServiceImp implements PlanVueloService {
         PlanVuelo pV = new PlanVuelo();
         pV.setEstado(EstadoEnum.ACTIVO);
 
-         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
             List<String> lineasList = reader.lines().collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
@@ -198,6 +201,17 @@ public class PlanVueloServiceImp implements PlanVueloService {
 
         vuelo.setEstado(EstadoEnum.ACTIVO);
         vuelosRepository.save(vuelo);
+    }
+
+    @Override
+    public Page<Vuelo> allByCrimson(CrimsonTableRequest request) {
+        PlanVuelo pv = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
+        
+        if(pv == null){
+            return Page.empty();
+        }
+        
+        return vuelosRepository.findAllByPlanVuelo(pv, request.createPagination());
     }
 
 }
