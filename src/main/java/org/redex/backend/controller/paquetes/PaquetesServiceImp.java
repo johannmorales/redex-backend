@@ -129,7 +129,7 @@ public class PaquetesServiceImp implements PaquetesService {
         p.setEstado(PaqueteEstadoEnum.REGISTRADO);
         p.setFechaIngreso(ZonedDateTime.parse(datos.get(1).substring(0, 4)+"-"+
                 datos.get(1).substring(4, 6)+"-"+datos.get(1).substring(6, 8)+
-                "T"+datos.get(2).substring(0, 2)+":"+datos.get(2).substring(2)));
+                "T"+datos.get(2).substring(0, 2)+datos.get(2).substring(2)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         Persona pO = personas.get(datos.get(12));
