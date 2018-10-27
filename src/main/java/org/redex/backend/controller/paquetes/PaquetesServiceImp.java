@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -125,12 +129,16 @@ public class PaquetesServiceImp implements PaquetesService {
             Map<String, Persona> personas, Map<String, TipoDocumentoIdentidad> tpis){
         Paquete p = new Paquete();
         
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime date = LocalDateTime.parse(datos.get(1).substring(0, 4)+"-"+
+                datos.get(1).substring(4, 6)+"-"+datos.get(1).substring(6, 8)+
+                " "+datos.get(2).substring(0, 2)+datos.get(2).substring(2), formatter);
+        date = date.plus(-5, ChronoUnit.HOURS);
+        System.out.println(ZonedDateTime.of(date, ZoneId.of("UTC")));
+        
         p.setCodigoRastreo(datos.get(0));
         p.setEstado(PaqueteEstadoEnum.REGISTRADO);
-        p.setFechaIngreso(ZonedDateTime.parse(datos.get(1).substring(0, 4)+"-"+
-                datos.get(1).substring(4, 6)+"-"+datos.get(1).substring(6, 8)+
-                "T"+datos.get(2).substring(0, 2)+datos.get(2).substring(2)));
-        p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
+        p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")));
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         Persona pO = personas.get(datos.get(12));
         if (pO == null){
