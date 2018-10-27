@@ -1,7 +1,16 @@
 package org.redex.backend.controller.simulacion;
 
+import static org.apache.poi.hssf.usermodel.HeaderFooter.page;
+import org.redex.backend.model.simulacion.Simulacion;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
+import org.redex.backend.zelper.response.ApplicationResponse;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,15 +24,41 @@ public class SimulacionController {
 
     @Autowired
     SimulacionService service;
-    
+
     @RequestMapping("/{id}/estado")
     public void greeting(@RequestParam Long id) {
 
     }
-    
+
+    @PostMapping()
+    public ResponseEntity<?>  crear() {
+        Simulacion s = service.crear();
+        return ResponseEntity.ok(ApplicationResponse.of("Simulacion creada", s));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> borrar(@PathVariable Long id) {
+        service.eliminar(id);
+        return ResponseEntity.ok(ApplicationResponse.of("Simulacion eliminada"));
+    }
+
     @PostMapping("/{id}/paquetes/carga")
-     public CargaDatosResponse carga(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+    public CargaDatosResponse carga(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         return service.cargaPaquetes(id, file);
+    }
+    
+    @GetMapping
+    public CrimsonTableResponse crimsonList(CrimsonTableRequest request){
+        Page<Simulacion> list = service.crimsonList(request);
+        
+        return CrimsonTableResponse.of(list, new String[]{
+            "id",
+            "estado",
+            "cantidadPaquetes",
+            "cantidadPaquetesEntregados",
+            "cantidadOficinas",
+            "cantidadVuelos"
+        });
     }
 
 }
