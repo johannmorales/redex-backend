@@ -110,11 +110,9 @@ public class PaquetesServiceImp implements PaquetesService {
                     }
                 }
                 
-                nuevasPersonas.forEach((persona) -> {
-                    personaRepository.save(persona);
-                });
-                
                 nuevosPaquetes.forEach((paquete) -> {
+                    System.out.println(paquete.getPersonaOrigen().getId());
+                    System.out.println(paquete.getPersonaDestino().getId());
                     paquetesRepository.save(paquete);
                 });
             }
@@ -153,10 +151,11 @@ public class PaquetesServiceImp implements PaquetesService {
             pO.setPais(mapPaises.get(datos.get(10)));
             pO.setTipoDocumentoIdentidad(tpis.get(datos.get(11)));
             pO.setNumeroDocumentoIdentidad(datos.get(12));
-            nuevasPersonas.add(pO);
+            personaRepository.save(pO);
+            System.out.println("creando nuevo cliente ID:"+pO.getId());
         }
         p.setPersonaOrigen(pO);
-        Persona pD = personas.get(datos.get(12));
+        Persona pD = personas.get(datos.get(21));
         if (pD == null){
             pD = new Persona();
             pD.setNombres(datos.get(13));
@@ -168,7 +167,8 @@ public class PaquetesServiceImp implements PaquetesService {
             pD.setPais(mapPaises.get(datos.get(19)));
             pD.setTipoDocumentoIdentidad(tpis.get(datos.get(20)));
             pD.setNumeroDocumentoIdentidad(datos.get(21));
-            nuevasPersonas.add(pD);
+            personaRepository.save(pD);
+            System.out.println("creando nuevo cliente ID:"+pD.getId());
         }
         p.setPersonaDestino(pD);
         return p;
