@@ -53,21 +53,19 @@ public class PlanVueloController {
 
         return JsonHelper.createJson(pv, JsonNodeFactory.instance, new String[]{
             "id",
-            "vuelos.id",
-            "vuelos.oficinaOrigen.id",
-            "vuelos.oficinaOrigen.codigo",
-            "vuelos.oficinaOrigen.pais.id",
-            "vuelos.oficinaOrigen.pais.nombre",
-            "vuelos.oficinaDestino.id",
-            "vuelos.oficinaDestino.pais.id",
-            "vuelos.oficinaDestino.pais.nombre",
-            "vuelos.oficinaDestino.codigo",
-            "vuelos.horaInicioString",
-            "vuelos.horaFinString",
-            "vuelos.estado",
-            "vuelos.capacidad",
-            "vuelos.duracion"
-
+            "oficinaOrigen.id",
+            "oficinaOrigen.codigo",
+            "oficinaOrigen.pais.id",
+            "oficinaOrigen.pais.nombre",
+            "oficinaDestino.id",
+            "oficinaDestino.pais.id",
+            "oficinaDestino.pais.nombre",
+            "oficinaDestino.codigo",
+            "horaInicioString",
+            "horaFinString",
+            "estado",
+            "capacidad",
+            "duracion"
         });
     }
 
