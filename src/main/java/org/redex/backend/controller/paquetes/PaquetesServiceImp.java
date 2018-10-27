@@ -134,7 +134,7 @@ public class PaquetesServiceImp implements PaquetesService {
                 datos.get(1).substring(4, 6)+"-"+datos.get(1).substring(6, 8)+
                 " "+datos.get(2).substring(0, 2)+datos.get(2).substring(2), formatter);
         date = date.plus(-5, ChronoUnit.HOURS);
-        System.out.println(ZonedDateTime.of(date, ZoneId.of("UTC")));
+        System.out.println(datos.get(0).substring(0,4));
         
         p.setCodigoRastreo(datos.get(0));
         p.setEstado(PaqueteEstadoEnum.REGISTRADO);
