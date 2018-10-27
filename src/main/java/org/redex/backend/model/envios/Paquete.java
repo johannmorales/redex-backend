@@ -56,7 +56,7 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     @Column(nullable = false)
     private ZonedDateTime fechaIngreso;
 
-    @Column(nullable = false)
+    @Column
     private ZonedDateTime fechaSalida;
 
     @Column(nullable = false, unique = true)
