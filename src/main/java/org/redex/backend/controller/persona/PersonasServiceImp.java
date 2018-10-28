@@ -114,7 +114,7 @@ public class PersonasServiceImp implements PersonasService {
 
     @Override
     public Page<Persona> allByCrimson(CrimsonTableRequest request) {
-        return personaRepository.findAll(PageRequest.of(request.getCurrent(), request.getPageSize()));
+        return personaRepository.crimsonList(request.getSearch(), PageRequest.of(request.getCurrent(), request.getPageSize()));
     }
 
 }
