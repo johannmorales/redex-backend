@@ -4,6 +4,7 @@ import java.util.List;
 import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.model.general.Pais;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public class PaisesServiceImp implements PaisesService {
 
     @Override
     public List<Pais> allByNombre(String nombre) {
-        return paisesRepository.allByNombre(nombre);
+        return paisesRepository.allByNombre(nombre, PageRequest.of(0, 5));
     }
     
 }

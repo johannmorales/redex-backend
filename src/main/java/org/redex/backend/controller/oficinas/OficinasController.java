@@ -11,6 +11,7 @@ import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,18 +50,9 @@ public class OficinasController {
     }
 
     @GetMapping("/{id}")
-    public ObjectNode find(@PathVariable Long id) {
+    public ResponseEntity<?> find(@PathVariable Long id) {
         Oficina oficina = service.find(id);
-
-        return JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
-            "id",
-            "pais.id",
-            "pais.codigo",
-            "pais.nombre",
-            "capacidadActual",
-            "capacidadMaxima",
-            "codigo"
-        });
+        return ResponseEntity.ok(OficinaWrapper.of(oficina));
     }
 
     @PostMapping("{id}/desactivar")
