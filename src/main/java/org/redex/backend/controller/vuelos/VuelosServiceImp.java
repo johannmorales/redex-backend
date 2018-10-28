@@ -1,6 +1,5 @@
 package org.redex.backend.controller.vuelos;
 
-import org.redex.backend.controller.planvuelo.VueloWrapper;
 import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.repository.VuelosRepository;
@@ -17,20 +16,22 @@ public class VuelosServiceImp implements VuelosService {
     VuelosRepository vuelosRepository;
 
     @Override
-    public Vuelo save(VueloWrapper wrapper) {
-        Vuelo v = wrapper.build();
+    @Transactional
+    public Vuelo save(Vuelo wrapper) {
+        Vuelo v = wrapper;
         v.setEstado(EstadoEnum.ACTIVO);
         vuelosRepository.save(v);
-        
+
         return v;
     }
 
     @Override
-    public Vuelo update(VueloWrapper wrapper) {
-        Vuelo vueloBD = vuelosRepository.findById(wrapper.id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vuelo", "id", wrapper.id));
+    @Transactional
+    public Vuelo update(Vuelo wrapper) {
+        Vuelo vueloBD = vuelosRepository.findById(wrapper.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Vuelo", "id", wrapper.getId()));
 
-        Vuelo form = wrapper.build();
+        Vuelo form = wrapper;
 
         vueloBD.setOficinaDestino(form.getOficinaDestino());
         vueloBD.setOficinaOrigen(form.getOficinaOrigen());
@@ -39,7 +40,7 @@ public class VuelosServiceImp implements VuelosService {
         vueloBD.setCapacidad(form.getCapacidad());
 
         vuelosRepository.save(vueloBD);
-        
+
         return vueloBD;
     }
 

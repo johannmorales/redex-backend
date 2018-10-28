@@ -35,7 +35,8 @@ public interface VuelosRepository extends JpaRepository<Vuelo, Long> {
             + "    concat(oop.nombre, ' a ',odp.nombre) like %:q% or "
             + "    oo.codigo like %:q% or "
             + "    od.codigo like %:q% "
-            + "  )")
+            + "  ) "
+            + "  order by v.id desc")
     Page<Vuelo> crimsonList(@Param("pvuelo") PlanVuelo pv, @Param("q") String q, Pageable pageable);
     
 }
