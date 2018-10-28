@@ -31,6 +31,14 @@ public class SimulacionVuelo implements Serializable {
 
     @Column(nullable = false)
     private Integer capacidad;
+    
+    @ManyToOne
+    @JoinColumn(name = "id_oficina_origen", nullable = false)
+    private SimulacionOficina oficinaOrigen;
+
+    @ManyToOne
+    @JoinColumn(name = "id_oficina_destino", nullable = false)
+    private SimulacionOficina oficinaDestino;
 
     public Long getId() {
         return id;
@@ -72,4 +80,20 @@ public class SimulacionVuelo implements Serializable {
         this.capacidad = capacidad;
     }
 
+    public SimulacionOficina getOficinaOrigen() {
+        return oficinaOrigen;
+    }
+
+    public void setOficinaOrigen(SimulacionOficina oficinaOrigen) {
+        this.oficinaOrigen = oficinaOrigen;
+    }
+
+    public SimulacionOficina getOficinaDestino() {
+        return oficinaDestino;
+    }
+
+    public void setOficinaDestino(SimulacionOficina oficinaDestino) {
+        this.oficinaDestino = oficinaDestino;
+    }
+    
 }

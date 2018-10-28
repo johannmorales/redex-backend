@@ -43,8 +43,18 @@ public class SimulacionController {
     }
 
     @PostMapping("/{id}/paquetes/carga")
-    public CargaDatosResponse carga(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+    public CargaDatosResponse cargaPaquetes(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         return service.cargaPaquetes(id, file);
+    }
+    
+    @PostMapping("/{id}/vuelos/carga")
+    public CargaDatosResponse cargaVuelos(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        return service.cargaVuelos(id, file);
+    }
+    
+    @PostMapping("/{id}/oficinas/carga")
+    public CargaDatosResponse cargaOficinas(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        return service.cargaOficinas(id, file);
     }
     
     @GetMapping
