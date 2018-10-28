@@ -29,7 +29,13 @@ import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.redex.backend.model.simulacion.Simulacion;
 import org.redex.backend.model.simulacion.SimulacionEstadoEnum;
+import org.redex.backend.model.simulacion.SimulacionOficina;
+import org.redex.backend.model.simulacion.SimulacionPaquete;
+import org.redex.backend.repository.SimulacionOficinasRepository;
+import org.redex.backend.repository.SimulacionPaquetesRepository;
+import org.redex.backend.repository.SimulacionRepository;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -41,21 +47,27 @@ import org.springframework.web.multipart.MultipartFile;
 public class SimulacionServiceImp implements SimulacionService {
 
     @Autowired
-    OficinasRepository oficinasRepository;
+    SimulacionOficinasRepository oficinasRepository;
+    
+    @Autowired
+    SimulacionRepository simulacionRepository;
+    
+    @Autowired
+    SimulacionPaquetesRepository paquetesRepository;
     
     @Override
     public CargaDatosResponse cargaPaquetes(Long id, MultipartFile file) {
-        //Simulacion simu = simuRepo.findById(id).orElseThrow .... 
+        Simulacion simu = simulacionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Simulacion", "id", id));
         
         //simuPaquete.setSimulacion(simu)
-        Map<String, Oficina> oficinas = oficinasRepository.findAll()
+        Map<String, SimulacionOficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
         
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
-        List<Paquete> nuevosPaquetes = new ArrayList<>();
+        List<SimulacionPaquete> nuevosPaquetes = new ArrayList<>();
         
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
             
@@ -65,7 +77,8 @@ public class SimulacionServiceImp implements SimulacionService {
                 if (!linea.isEmpty()) {
                     List<String> separateLine = Arrays.asList(linea.split("-"));
                     if (separateLine.size() == 22) {
-                        Paquete nuevoP = leePaquete(separateLine, oficinas);
+                        SimulacionPaquete nuevoP = leePaquete(separateLine, oficinas);
+                        nuevoP.setSimulacion(simu);
                         nuevosPaquetes.add(nuevoP);
                     } else {
                         cantidadErrores = cantidadErrores + 1;
@@ -84,18 +97,15 @@ public class SimulacionServiceImp implements SimulacionService {
         
     }
 
-    private Paquete leePaquete( List<String> datos,Map<String, Oficina> oficinas){
-        Paquete p = new Paquete();
+    private SimulacionPaquete leePaquete( List<String> datos,Map<String, SimulacionOficina> oficinas){
+        SimulacionPaquete p = new SimulacionPaquete();
         
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime date = LocalDateTime.parse(datos.get(1).substring(0, 4)+"-"+
                 datos.get(1).substring(4, 6)+"-"+datos.get(1).substring(6, 8)+
                 " "+datos.get(2).substring(0, 2)+datos.get(2).substring(2), formatter);
         date = date.plus(-5, ChronoUnit.HOURS);
-        System.out.println(datos.get(0).substring(0,4));
         
-        p.setCodigoRastreo(datos.get(0));
-        p.setEstado(PaqueteEstadoEnum.REGISTRADO);
         p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")));
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0,4)));
