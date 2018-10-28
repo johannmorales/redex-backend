@@ -55,6 +55,14 @@ public class Oficina implements Serializable {
     @Column(nullable = false)
     private Integer zonaHoraria;
 
+    
+    public Oficina() {
+    }
+
+    public Oficina(Long id){
+        this.id = id;
+    }
+    
     public double getPorcentajeUsado() {
         return getCapacidadActual() / getCapacidadMaxima() * 100;
     }
