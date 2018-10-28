@@ -15,7 +15,7 @@ public class OficinaWrapper {
     public static OficinaWrapper of(Oficina oficina){
         OficinaWrapper wrapper = new OficinaWrapper();
         
-        wrapper.id = null;
+        wrapper.id = oficina.getId();
         wrapper.capacidad = oficina.getCapacidadMaxima();
         wrapper.pais = oficina.getPais().getId();
         wrapper.codigo = oficina.getCodigo();
