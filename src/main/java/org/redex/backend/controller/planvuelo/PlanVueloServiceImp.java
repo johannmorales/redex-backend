@@ -210,7 +210,7 @@ public class PlanVueloServiceImp implements PlanVueloService {
             return Page.empty();
         }
         
-        return vuelosRepository.findAllByPlanVuelo(pv, request.createPagination());
+        return vuelosRepository.crimsonList(pv, request.getSearch(), request.createPagination());
     }
 
 }
