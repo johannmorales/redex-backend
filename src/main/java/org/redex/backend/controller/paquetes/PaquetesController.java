@@ -7,9 +7,11 @@ import java.util.List;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -105,6 +107,12 @@ public class PaquetesController {
     @PostMapping("/carga")
     public CargaDatosResponse carga(@RequestParam("file") MultipartFile file) {
         return service.carga(file);
+    }
+    
+    @PostMapping("/save")
+    public ResponseEntity<?> save(@RequestBody Paquete paquete){
+        service.save(paquete);
+        return ResponseEntity.ok(paquete);
     }
 
 }

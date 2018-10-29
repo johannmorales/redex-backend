@@ -1,6 +1,5 @@
-package org.redex.backend.controller.persona;
+package org.redex.backend.controller.personas;
 
-import java.util.List;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
@@ -14,5 +13,7 @@ public interface PersonasService {
     public Persona find(Long id);
 
     public Page<Persona> allByCrimson(CrimsonTableRequest request);
+
+    public void save(Persona persona);
     
 }

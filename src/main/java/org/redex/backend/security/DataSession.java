@@ -8,7 +8,7 @@ import java.util.Objects;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.rrhh.Colaborador;
 import org.redex.backend.model.rrhh.Oficina;
-import org.redex.backend.model.seguridad.RolEnum;
+import org.redex.backend.model.seguridad.Rol;
 import org.redex.backend.model.seguridad.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,7 +24,7 @@ public class DataSession implements UserDetails {
 
     private Oficina oficina;
 
-    private RolEnum rol;
+    private Rol rol;
     
     private Colaborador colaborador;
 
@@ -33,7 +33,7 @@ public class DataSession implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public DataSession(Long id, String username, String password, Colaborador colaborador, Oficina oficina, Persona persona, RolEnum rol, Collection<? extends GrantedAuthority> authorities) {
+    public DataSession(Long id, String username, String password, Colaborador colaborador, Oficina oficina, Persona persona, Rol rol, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -54,7 +54,7 @@ public class DataSession implements UserDetails {
                 user.getColaborador(),
                 user.getColaborador().getOficina(),
                 user.getColaborador().getPersona(),
-                user.getRol().getCodigo(),
+                user.getRol(),
                 authorities
         );
     }
@@ -156,11 +156,11 @@ public class DataSession implements UserDetails {
         this.authorities = authorities;
     }
 
-    public RolEnum getRol() {
+    public Rol getRol() {
         return rol;
     }
 
-    public void setRol(RolEnum rol) {
+    public void setRol(Rol rol) {
         this.rol = rol;
     }
 

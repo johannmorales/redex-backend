@@ -173,5 +173,12 @@ public class PaquetesServiceImp implements PaquetesService {
         p.setPersonaDestino(pD);
         return p;
     }
+
+    @Override
+    public void save(Paquete paquete) {
+        Paquete p = new Paquete();
+        
+        paquetesRepository.save(p);
+    }
     
 }

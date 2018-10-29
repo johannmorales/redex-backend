@@ -33,6 +33,7 @@ import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.model.seguridad.Rol;
 import org.redex.backend.model.seguridad.Usuario;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -193,15 +194,6 @@ public class UsuariosServiceImp implements UsuariosService {
     }
 
     @Transactional
-    public void activar(UsuariosPayload usuario) {
-    }
-
-    @Transactional
-    public void desactivar(UsuariosPayload usuario) {
-
-    }
-
-    @Transactional
     public void restablecerContraseña(UsuariosPayload usuario) {
 
     }
@@ -209,6 +201,25 @@ public class UsuariosServiceImp implements UsuariosService {
     @Override
     public Page<Usuario> crimsonList(CrimsonTableRequest request) {
         return usuariosRepository.crimsonList(request.getSearch(), request.createPagination());
+    }
+
+    @Override
+    @Transactional
+    public void desactivar(Long id) {
+        Usuario u = usuariosRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
+        u.setEstado(EstadoEnum.INACTIVO);
+        usuariosRepository.save(u);
+    }
+
+    @Override
+    @Transactional
+    public void activar(Long id) {
+        Usuario u = usuariosRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
+
+        u.setEstado(EstadoEnum.ACTIVO);
+        usuariosRepository.save(u);
     }
 
 }

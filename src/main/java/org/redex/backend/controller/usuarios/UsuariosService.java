@@ -15,12 +15,12 @@ public interface UsuariosService {
 
     public void crearUsuario(UsuariosPayload usuario);
 
-    public void activar(UsuariosPayload usuario);
-
-    public void desactivar(UsuariosPayload usuario);
-
     public void restablecerContraseña(UsuariosPayload usuario);
 
     public Page<Usuario> crimsonList(CrimsonTableRequest request);
+
+    public void desactivar(Long id);
+
+    public void activar(Long id);
 
 }

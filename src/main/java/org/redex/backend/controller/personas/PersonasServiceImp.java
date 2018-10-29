@@ -1,4 +1,4 @@
-package org.redex.backend.controller.persona;
+package org.redex.backend.controller.personas;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -115,6 +115,13 @@ public class PersonasServiceImp implements PersonasService {
     @Override
     public Page<Persona> allByCrimson(CrimsonTableRequest request) {
         return personaRepository.crimsonList(request.getSearch(), PageRequest.of(request.getCurrent(), request.getPageSize()));
+    }
+
+    @Override
+    public void save(Persona persona) {
+        Persona p = new Persona();
+        
+        personaRepository.save(p);
     }
 
 }

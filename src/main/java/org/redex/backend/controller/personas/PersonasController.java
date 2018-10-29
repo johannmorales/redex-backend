@@ -1,20 +1,19 @@
-package org.redex.backend.controller.persona;
+package org.redex.backend.controller.personas;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.List;
 import javax.validation.Valid;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.general.Persona;
-import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,6 +69,13 @@ public class PersonasController {
             "pais.codigo",
             "pais.nombre"
         });
+    }
+    
+    public ResponseEntity<?> save(@RequestBody Persona persona){
+        service.save(persona);
+        return ResponseEntity.ok(JsonHelper.createJson(this, JsonNodeFactory.instance, new String[]{
+            "id"
+        }));
     }
 
 }

@@ -9,9 +9,12 @@ import org.redex.backend.security.CurrentUser;
 import org.redex.backend.security.DataSession;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
+import org.redex.backend.zelper.response.ApplicationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,6 +59,18 @@ public class UsuariosController {
         return service.carga(file);
     }
 
+    @PostMapping("{id}/desactivar")
+    public ResponseEntity<?> desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+        return ResponseEntity.ok(ApplicationResponse.of("Usuario desactivado"));
+    }
+
+    @PostMapping("{id}/activar")
+    public ResponseEntity<?> acrivar(@PathVariable Long id) {
+        service.activar(id);
+        return ResponseEntity.ok(ApplicationResponse.of("Usuario activado"));
+    }
+
     // johana!!
     // el metodo save lo llamas con localhost:5000/usuarios/save
     @PostMapping("/save")
@@ -67,9 +82,11 @@ public class UsuariosController {
     public ObjectNode yo(@CurrentUser DataSession ds) {
         return JsonHelper.createJson(ds, JsonNodeFactory.instance, new String[]{
             "colaborador.oficina.codigo",
-            "persona.nombreCompleto",
+            "persona.nombreCorto",
             "username",
-            "rol"
+            "rol.id",
+            "rol.nombre",
+            "rol.codigo"
         });
     }
 }

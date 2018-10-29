@@ -1,4 +1,4 @@
-package org.redex.backend.controller.persona;
+package org.redex.backend.controller.personas;
 
 public class PersonasPayload {
 

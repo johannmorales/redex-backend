@@ -12,5 +12,7 @@ public interface PaquetesService {
     public Paquete find(Long id);
 
     public CargaDatosResponse carga(MultipartFile file);
+
+    public void save(Paquete paquete);
     
 }
