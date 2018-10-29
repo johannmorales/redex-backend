@@ -3,7 +3,6 @@ package org.redex.backend.model.general;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.persistence.*;
 import java.io.Serializable;
-import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Immutable;
 
 @Entity
@@ -20,7 +19,6 @@ public class Pais implements Serializable {
     private Long id;
 
     @ManyToOne
-    @JsonInclude
     @JoinColumn(name = "id_continente")
     private Continente continente;
 
@@ -29,6 +27,9 @@ public class Pais implements Serializable {
 
     @Column
     private String codigo;
+
+    @Column
+    private String codigoIso;
 
     public Pais() {
     }
@@ -67,6 +68,14 @@ public class Pais implements Serializable {
 
     public void setContinente(Continente continente) {
         this.continente = continente;
+    }
+
+    public String getCodigoIso() {
+        return codigoIso;
+    }
+
+    public void setCodigoIso(String codigoIso) {
+        this.codigoIso = codigoIso;
     }
 
 }

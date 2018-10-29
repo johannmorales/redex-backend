@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-
 public interface PlanVueloRepository extends JpaRepository<PlanVuelo, Long>{
+
     PlanVuelo findByEstado(EstadoEnum estado);
+
 }
