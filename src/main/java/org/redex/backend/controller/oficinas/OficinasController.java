@@ -52,7 +52,12 @@ public class OficinasController {
     @GetMapping("/{id}")
     public ResponseEntity<?> find(@PathVariable Long id) {
         Oficina oficina = service.find(id);
-        return ResponseEntity.ok(OficinaWrapper.of(oficina));
+        return ResponseEntity.ok(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+            "id",
+            "codigo",
+            "pais.id",
+            "pais.nombre"
+        }));
     }
 
     @PostMapping("{id}/desactivar")
