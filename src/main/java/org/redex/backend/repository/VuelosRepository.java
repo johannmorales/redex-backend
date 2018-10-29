@@ -1,7 +1,9 @@
 package org.redex.backend.repository;
 
+import java.util.List;
 import org.redex.backend.model.envios.PlanVuelo;
 import org.redex.backend.model.envios.Vuelo;
+import org.redex.backend.model.general.EstadoEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,5 +40,7 @@ public interface VuelosRepository extends JpaRepository<Vuelo, Long> {
             + "  ) "
             + "  order by v.id desc")
     Page<Vuelo> crimsonList(@Param("pvuelo") PlanVuelo pv, @Param("q") String q, Pageable pageable);
+
+    public List<Vuelo> findAllByPlanVueloAndEstado(PlanVuelo pv, EstadoEnum estadoEnum);
     
 }

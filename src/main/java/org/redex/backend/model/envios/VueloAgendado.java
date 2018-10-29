@@ -2,6 +2,8 @@ package org.redex.backend.model.envios;
 
 import org.redex.backend.model.rrhh.Oficina;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -49,6 +51,27 @@ public class VueloAgendado implements Serializable {
 
     public VueloAgendado(Long id) {
         this.id = id;
+    }
+
+    public static VueloAgendado of(Vuelo vuelo, LocalDate date) {
+        VueloAgendado va = new VueloAgendado();
+
+        ZonedDateTime fechaInicioLimpia = date.atStartOfDay(ZoneId.of("UTC"));
+
+        ZonedDateTime fechaFinLimpia = vuelo.esDeUnDia() ? ZonedDateTime.from(fechaInicioLimpia) : fechaInicioLimpia.plus(1L, ChronoUnit.DAYS);
+
+        fechaInicioLimpia = fechaInicioLimpia.with(vuelo.getHoraInicio());
+        fechaFinLimpia = fechaFinLimpia.with(vuelo.getHoraFin());
+
+        va.fechaInicio = fechaInicioLimpia;
+        va.fechaFin = fechaFinLimpia;
+
+        va.capacidadActual = 0;
+        va.capacidadMaxima = vuelo.getCapacidad();
+        va.estado = VueloAgendadoEstadoEnum.CREADO;
+        va.vuelo = vuelo;
+
+        return va;
     }
 
     public VueloAgendado(Vuelo vuelo, ZonedDateTime fechaInicio) {
@@ -152,13 +175,14 @@ public class VueloAgendado implements Serializable {
                 DateTimeFormatter.ofPattern("dd/MM HH:mm").format(getFechaFin()));
     }
 
-    public String getFechaInicioString(){
+    public String getFechaInicioString() {
         return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(fechaInicio);
     }
-      public String getFechaFinString(){
-        return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(fechaInicio);
+
+    public String getFechaFinString() {
+        return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(fechaFin);
     }
-      
+
     public void agregarPaquete() {
         this.setCapacidadActual((Integer) (this.getCapacidadActual() + 1));
     }
