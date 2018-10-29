@@ -9,6 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 public interface SimulacionService {
 
     public CargaDatosResponse cargaPaquetes(Long id, MultipartFile file);
+    
+    public CargaDatosResponse cargaVuelos(Long id, MultipartFile file);
+    
+    public CargaDatosResponse cargaOficinas(Long id, MultipartFile file);
 
     public Simulacion crear();
 
