@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface SimulacionAccionRepository extends JpaRepository<SimulacionAccion, Long> {
     
     List<SimulacionAccion> findAllBySimulacion(Simulacion simulacion);
-    
+        
 }

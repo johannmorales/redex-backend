@@ -1,19 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.redex.backend.controller.usuarios;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import static java.lang.Character.isDigit;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +12,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.redex.backend.controller.oficinas.OficinasServiceImp;
 import org.redex.backend.repository.ArchivosRepository;
@@ -32,9 +22,7 @@ import org.redex.backend.repository.PersonaRepository;
 import org.redex.backend.repository.RolesRepository;
 import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
 import org.redex.backend.repository.UsuariosRepository;
-import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.redex.backend.model.general.Archivo;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.general.Persona;
@@ -44,7 +32,9 @@ import org.redex.backend.model.rrhh.Colaborador;
 import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.model.seguridad.Rol;
 import org.redex.backend.model.seguridad.Usuario;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -214,6 +204,11 @@ public class UsuariosServiceImp implements UsuariosService {
     @Transactional
     public void restablecerContraseña(UsuariosPayload usuario) {
 
+    }
+
+    @Override
+    public Page<Usuario> crimsonList(CrimsonTableRequest request) {
+        return usuariosRepository.crimsonList(request.getSearch(), request.createPagination());
     }
 
 }
