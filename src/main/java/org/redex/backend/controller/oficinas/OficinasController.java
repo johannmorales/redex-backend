@@ -56,7 +56,8 @@ public class OficinasController {
             "id",
             "codigo",
             "pais.id",
-            "pais.nombre"
+            "pais.nombre",
+            "capacidadMaxima"
         }));
     }
 
