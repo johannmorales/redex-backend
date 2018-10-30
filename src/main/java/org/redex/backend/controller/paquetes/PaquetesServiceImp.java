@@ -31,12 +31,12 @@ import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.repository.PaquetesRepository;
 import org.redex.backend.repository.PersonaRepository;
 import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
+import org.redex.backend.repository.VuelosAgendadosRepository;
 import org.redex.backend.repository.VuelosRepository;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,6 +64,9 @@ public class PaquetesServiceImp implements PaquetesService {
     @Autowired
     TipoDocumentoIdentidadRepository tpiRepository;
 
+    @Autowired
+    VuelosAgendadosRepository vuelosAgendadosRepository;
+    
     @Override
     public List<Paquete> list() {
         return paquetesRepository.findAll();
@@ -199,14 +202,14 @@ public class PaquetesServiceImp implements PaquetesService {
     }
 
     public void generarRuta(Paquete p) {
-        logger.info("  {} {} {} {} {} ", p.getCodigoRastreo(), p.getOficinaDestino().getId(), p.getOficinaDestino().getCodigo(), p.getOficinaOrigen().getId(), p.getOficinaOrigen().getCodigo());
         Evolutivo e = new Evolutivo();
 
         List<Oficina> oficinas = oficinasRepository.findAll();
         List<Vuelo> vuelos = vuelosRepository.findAll();
-        List<VueloAgendado> vuelosAgendados = new ArrayList<>();
+        List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAll();
 
         List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelos, oficinas);
+        
         for (VueloAgendado vva : va) {
             logger.info("{}", vva.getCodigo());
         }

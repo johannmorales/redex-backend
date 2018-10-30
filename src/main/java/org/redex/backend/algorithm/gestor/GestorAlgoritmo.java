@@ -32,7 +32,7 @@ public class GestorAlgoritmo {
         this.variacionCapacidadAlmacen = new TreeMap<>();
         this.oficinas = new ArrayList<>(oficinas);
         this.procesarVariacionEnCapacidades(planeados);
-        this.crearVuelosAgendadosFaltantes(dias, ahora, planeados, vuelos);
+        //this.crearVuelosAgendadosFaltantes(dias, ahora, planeados, vuelos);
     }
     
     public List<VueloAgendado> obtenerValidos(Oficina oficina, ZonedDateTime momento) {
