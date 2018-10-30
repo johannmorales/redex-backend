@@ -20,6 +20,8 @@ import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
+import org.redex.backend.model.envios.PaqueteRuta;
+import org.redex.backend.model.envios.RutaEstadoEnum;
 import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.envios.VueloAgendadoEstadoEnum;
@@ -29,6 +31,7 @@ import org.redex.backend.model.general.TipoDocumentoIdentidad;
 import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaisesRepository;
+import org.redex.backend.repository.PaqueteRutaRepository;
 import org.redex.backend.repository.PaquetesRepository;
 import org.redex.backend.repository.PersonaRepository;
 import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
@@ -67,6 +70,9 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Autowired
     VuelosAgendadosRepository vuelosAgendadosRepository;
+    
+    @Autowired
+    PaqueteRutaRepository paqueteRutaRepository;
     
     @Override
     public List<Paquete> list() {
@@ -211,9 +217,22 @@ public class PaquetesServiceImp implements PaquetesService {
 
         List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelos, oficinas);
         
+        int aux = 1;
         for (VueloAgendado vva : va) {
+            
+            PaqueteRuta pR = new PaqueteRuta();
+            pR.setPaquete(p);
+            pR.setVueloAgendado(vva);
+            if (aux == 1){
+                pR.setEstado(RutaEstadoEnum.ACTIVO);
+            } else {
+                pR.setEstado(RutaEstadoEnum.PENDIENTE);
+            }
+            pR.setOrden(aux);
+            aux++;
+            paqueteRutaRepository.save(pR);
             logger.info("{}", vva.getCodigo());
         }
     }
-
+    
 }
