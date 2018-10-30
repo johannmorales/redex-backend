@@ -81,7 +81,7 @@ public class PersonasController {
     }
 
     @GetMapping("/find")
-    public ResponseEntity<?> find(FindPersonaRequest request) {
+    public ResponseEntity<?> find(@RequestBody FindPersonaRequest request) {
         Persona persona = service.findByDocumento(request.tipoDocumentoIdentidad, request.numeroDocumentoIdentidad);
 
         if (persona != null) {
