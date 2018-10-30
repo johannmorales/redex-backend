@@ -112,7 +112,7 @@ public class PaquetesController {
     @PostMapping("/save")
     public ResponseEntity<?> save(@RequestBody Paquete paquete){
         service.save(paquete);
-        return ResponseEntity.ok(paquete);
+        return ResponseEntity.ok("Paquete guardado");
     }
 
 }

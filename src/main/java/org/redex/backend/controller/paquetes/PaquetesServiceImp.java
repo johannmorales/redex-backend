@@ -14,12 +14,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.redex.backend.controller.oficinas.OficinasServiceImp;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.evolutivo.Evolutivo;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
+import org.redex.backend.model.envios.Vuelo;
+import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.general.TipoDocumentoIdentidad;
@@ -29,6 +31,7 @@ import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.repository.PaquetesRepository;
 import org.redex.backend.repository.PersonaRepository;
 import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
+import org.redex.backend.repository.VuelosRepository;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @Transactional(readOnly = true)
 public class PaquetesServiceImp implements PaquetesService {
+
+    private static final Logger logger = LogManager.getLogger(PaquetesServiceImp.class);
 
     @Autowired
     PaquetesRepository paquetesRepository;
@@ -51,6 +56,9 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Autowired
     PersonaRepository personaRepository;
+
+    @Autowired
+    VuelosRepository vuelosRepository;
 
     @Autowired
     TipoDocumentoIdentidadRepository tpiRepository;
@@ -115,7 +123,6 @@ public class PaquetesServiceImp implements PaquetesService {
                 });
             }
         } catch (IOException ex) {
-            Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
@@ -173,11 +180,25 @@ public class PaquetesServiceImp implements PaquetesService {
     }
 
     @Override
+    @Transactional
     public void save(Paquete paquete) {
-        paquete.setCodigoRastreo("asdasdasdasdasdsadsad");
+        paquete.setCodigoRastreo(String.format("%012d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.REGISTRADO);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")));
         paquetesRepository.save(paquete);
+
+        paquete = paquetesRepository.getOne(paquete.getId());
+        
+        Evolutivo e = new Evolutivo();
+
+        List<Oficina> oficinas = oficinasRepository.findAll();
+        List<Vuelo> vuelos = vuelosRepository.findAll();
+        List<VueloAgendado> vuelosAgendados = new ArrayList<>();
+
+        List<VueloAgendado> va = e.run(paquete, vuelosAgendados, vuelos, oficinas);
+        for (VueloAgendado vva : va) {
+            logger.info("{}", vva.getCodigo());
+        }
     }
 
 }
