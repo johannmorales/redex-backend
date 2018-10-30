@@ -217,13 +217,13 @@ public class PaquetesServiceImp implements PaquetesService {
 
         List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelos, oficinas);
         
-        int aux = 1;
+        int aux = 0;
         for (VueloAgendado vva : va) {
             
             PaqueteRuta pR = new PaqueteRuta();
             pR.setPaquete(p);
             pR.setVueloAgendado(vva);
-            if (aux == 1){
+            if (aux == 0){
                 pR.setEstado(RutaEstadoEnum.ACTIVO);
             } else {
                 pR.setEstado(RutaEstadoEnum.PENDIENTE);
