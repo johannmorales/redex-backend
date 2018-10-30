@@ -31,10 +31,10 @@ public class Pais implements Serializable {
     @Column
     private String codigoIso;
 
-    @Column
+    @Column(precision = 4)
     private BigDecimal latitud;
 
-    @Column
+    @Column(precision = 4)
     private BigDecimal altitud;
 
     public Pais() {
