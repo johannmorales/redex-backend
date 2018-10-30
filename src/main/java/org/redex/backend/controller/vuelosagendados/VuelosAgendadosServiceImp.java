@@ -1,6 +1,7 @@
 package org.redex.backend.controller.vuelosagendados;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,6 +55,7 @@ public class VuelosAgendadosServiceImp implements VuelosAgendadosService {
         while(!payload.inicio.isAfter(payload.fin)){
             for (Vuelo vuelo : vuelos) {
                   VueloAgendado va = VueloAgendado.of(vuelo, payload.inicio);
+                  
                   vuelosAgendadosRepository.save(va);
                   cont++;
             }

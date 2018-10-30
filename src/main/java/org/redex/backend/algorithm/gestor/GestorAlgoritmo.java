@@ -32,6 +32,11 @@ public class GestorAlgoritmo {
         this.variacionCapacidadAlmacen = new TreeMap<>();
         this.oficinas = new ArrayList<>(oficinas);
         this.procesarVariacionEnCapacidades(planeados);
+        
+        for (VueloAgendado planeado : planeados) {
+            this.agregarVueloAgendado(planeado);
+        }
+        
         //this.crearVuelosAgendadosFaltantes(dias, ahora, planeados, vuelos);
     }
     

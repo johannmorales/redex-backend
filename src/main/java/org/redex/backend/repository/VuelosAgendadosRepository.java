@@ -1,8 +1,11 @@
 package org.redex.backend.repository;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.envios.VueloAgendadoEstadoEnum;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,7 +20,6 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
     @Query("UPDATE VueloAgendado va set va.capacidadActual = va.capacidadActual + 1 where va.id = :#{#vueloAgendado.id}")
     public void incrementarCapacidadActual(@Param("vueloAgendado") VueloAgendado vueloAgendado);
 
-    
     @Query(""
             + "select va from VueloAgendado va "
             + "  join va.vuelo v "
@@ -42,5 +44,7 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             + "  ) "
             + "  order by va.id desc")
     public Page<VueloAgendado> crimsonList(@Param("q") String q, Pageable pageable);
+
+    public List<VueloAgendado> findAllByFechaInicioAfter(ZonedDateTime fechaInicio);
 
 }

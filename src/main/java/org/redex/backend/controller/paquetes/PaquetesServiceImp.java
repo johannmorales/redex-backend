@@ -22,6 +22,7 @@ import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
 import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.envios.VueloAgendadoEstadoEnum;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.general.TipoDocumentoIdentidad;
@@ -206,7 +207,7 @@ public class PaquetesServiceImp implements PaquetesService {
 
         List<Oficina> oficinas = oficinasRepository.findAll();
         List<Vuelo> vuelos = vuelosRepository.findAll();
-        List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAll();
+        List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAllByFechaInicioAfter(ZonedDateTime.now(ZoneId.of("UTC")));
 
         List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelos, oficinas);
         
