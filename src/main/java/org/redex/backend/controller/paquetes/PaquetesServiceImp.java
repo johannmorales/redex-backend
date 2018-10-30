@@ -219,7 +219,7 @@ public class PaquetesServiceImp implements PaquetesService {
         
         int aux = 0;
         for (VueloAgendado vva : va) {
-            
+            vuelosAgendadosRepository.incrementarCapacidadActual(vva);
             PaqueteRuta pR = new PaqueteRuta();
             pR.setPaquete(p);
             pR.setVueloAgendado(vva);
