@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.validation.Valid;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.general.Persona;
+import org.redex.backend.model.general.TipoDocumentoIdentidad;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,12 +71,30 @@ public class PersonasController {
             "pais.nombre"
         });
     }
-    
-    public ResponseEntity<?> save(@RequestBody Persona persona){
+
+    @PostMapping("/save")
+    public ResponseEntity<?> save(@RequestBody Persona persona) {
         service.save(persona);
         return ResponseEntity.ok(JsonHelper.createJson(this, JsonNodeFactory.instance, new String[]{
             "id"
         }));
     }
 
+    @GetMapping("/find")
+    public ResponseEntity<?> find(FindPersonaRequest request) {
+        Persona persona = service.findByDocumento(request.tipoDocumentoIdentidad, request.numeroDocumentoIdentidad);
+
+        if (persona != null) {
+            return ResponseEntity.ok(JsonHelper.createJson(persona, JsonNodeFactory.instance, new String[]{
+                "id",
+                "nombreCompleto",
+                "nombreCorto"
+            }));
+        } else {
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.set("id", null);
+            return ResponseEntity.ok(node);
+        }
+
+    }
 }

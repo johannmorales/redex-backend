@@ -23,6 +23,7 @@ import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.rrhh.Colaborador;
 import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,7 +54,6 @@ public class OficinasServiceImp implements OficinasService {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    
     @Override
     @Transactional
     public CargaDatosResponse carga(MultipartFile file) {
@@ -153,10 +153,20 @@ public class OficinasServiceImp implements OficinasService {
 
     @Override
     public void save(Oficina oficina) {
-        
-        // agrego data para inicializar si es que es necesario
+        Oficina o = oficinasRepository.findByPais(oficina.getPais());
+        if (o != null) {
+            throw new AppException("El pais seleccionado ya cuenta con una oficina");
+        }
+
+        o = oficinasRepository.findByCodigo(oficina.getCodigo());
+
+        if (o != null) {
+            throw new AppException("El codigo seleccionado ya se encuentra en uso");
+        }
+
+        oficina.setZonaHoraria(10);
         oficina.setCapacidadActual(0);
-        
+        oficina.setEstado(EstadoEnum.ACTIVO);
         oficinasRepository.save(oficina);
     }
 
@@ -164,9 +174,9 @@ public class OficinasServiceImp implements OficinasService {
     public void update(Oficina oficina) {
         Oficina oficinaBD = oficinasRepository.findById(oficina.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Oficina", "id", oficina.getId()));
-                
-        // aqui solo actualizo los campos que son actualizzables (por ejemplo solo la capacidadMaxima
-        
+
+        oficinaBD.setCodigo(oficina.getCodigo());
+        oficinaBD.setPais(oficina.getPais());
         oficinaBD.setCapacidadMaxima(oficina.getCapacidadMaxima());
         oficinasRepository.save(oficinaBD);
     }

@@ -23,6 +23,13 @@ public class TipoDocumentoIdentidad implements Serializable {
     @Column
     private String simbolo;
 
+    public TipoDocumentoIdentidad() {
+    }
+
+    public TipoDocumentoIdentidad(Long id) {
+        this.id = id;
+    }
+    
     public Long getId() {
         return id;
     }

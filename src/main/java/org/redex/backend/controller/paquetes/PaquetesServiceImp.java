@@ -42,19 +42,19 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Autowired
     PaquetesRepository paquetesRepository;
-    
+
     @Autowired
     PaisesRepository paisesRepository;
-    
+
     @Autowired
     OficinasRepository oficinasRepository;
-    
+
     @Autowired
     PersonaRepository personaRepository;
-    
+
     @Autowired
     TipoDocumentoIdentidadRepository tpiRepository;
-    
+
     @Override
     public List<Paquete> list() {
         return paquetesRepository.findAll();
@@ -65,7 +65,6 @@ public class PaquetesServiceImp implements PaquetesService {
         return paquetesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Paquete", "id", id));
     }
-    
 
     @Override
     @Transactional
@@ -74,10 +73,10 @@ public class PaquetesServiceImp implements PaquetesService {
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
 
-         Map<String, Oficina> oficinas = oficinasRepository.findAll()
+        Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
-         
+
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
@@ -85,31 +84,30 @@ public class PaquetesServiceImp implements PaquetesService {
         Map<String, Persona> personas = personaRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(persona -> persona.getNumeroDocumentoIdentidad(), persona -> persona));
-        
+
         Map<String, TipoDocumentoIdentidad> tpis = tpiRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(tpi -> tpi.getSimbolo(), tpi -> tpi));
-        
+
         List<Paquete> nuevosPaquetes = new ArrayList<>();
         List<Persona> nuevasPersonas = new ArrayList<>();
 
-        
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
-            
+
             List<String> lineasList = reader.lines().collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
                 if (!linea.isEmpty()) {
                     List<String> separateLine = Arrays.asList(linea.split("-"));
                     if (separateLine.size() == 22) {
-                        Paquete nuevoP = leePaquete(separateLine, paises, nuevasPersonas, oficinas,personas, tpis);
+                        Paquete nuevoP = leePaquete(separateLine, paises, nuevasPersonas, oficinas, personas, tpis);
                         nuevosPaquetes.add(nuevoP);
                     } else {
                         cantidadErrores = cantidadErrores + 1;
                         errores.add("La linea " + contLinea + " no tiene todos los campos");
                     }
                 }
-                
+
                 nuevosPaquetes.forEach((paquete) -> {
                     System.out.println(paquete.getPersonaOrigen().getId());
                     System.out.println(paquete.getPersonaDestino().getId());
@@ -118,29 +116,29 @@ public class PaquetesServiceImp implements PaquetesService {
             }
         } catch (IOException ex) {
             Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
-        }    
+        }
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
-    
-    private Paquete leePaquete( List<String> datos, Map<String, Pais> mapPaises ,
-            List<Persona> nuevasPersonas,Map<String, Oficina> oficinas,
-            Map<String, Persona> personas, Map<String, TipoDocumentoIdentidad> tpis){
+
+    private Paquete leePaquete(List<String> datos, Map<String, Pais> mapPaises,
+            List<Persona> nuevasPersonas, Map<String, Oficina> oficinas,
+            Map<String, Persona> personas, Map<String, TipoDocumentoIdentidad> tpis) {
         Paquete p = new Paquete();
-        
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime date = LocalDateTime.parse(datos.get(1).substring(0, 4)+"-"+
-                datos.get(1).substring(4, 6)+"-"+datos.get(1).substring(6, 8)+
-                " "+datos.get(2).substring(0, 2)+datos.get(2).substring(2), formatter);
+        LocalDateTime date = LocalDateTime.parse(datos.get(1).substring(0, 4) + "-"
+                + datos.get(1).substring(4, 6) + "-" + datos.get(1).substring(6, 8)
+                + " " + datos.get(2).substring(0, 2) + datos.get(2).substring(2), formatter);
         date = date.plus(-5, ChronoUnit.HOURS);
-        System.out.println(datos.get(0).substring(0,4));
-        
+        System.out.println(datos.get(0).substring(0, 4));
+
         p.setCodigoRastreo(datos.get(0));
         p.setEstado(PaqueteEstadoEnum.REGISTRADO);
         p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")));
         p.setOficinaDestino(oficinas.get(datos.get(3)));
-        p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0,4)));
+        p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
         Persona pO = personas.get(datos.get(12));
-        if (pO == null){
+        if (pO == null) {
             pO = new Persona();
             pO.setNombres(datos.get(4));
             pO.setPaterno(datos.get(5));
@@ -152,11 +150,11 @@ public class PaquetesServiceImp implements PaquetesService {
             pO.setTipoDocumentoIdentidad(tpis.get(datos.get(11)));
             pO.setNumeroDocumentoIdentidad(datos.get(12));
             personaRepository.save(pO);
-            System.out.println("creando nuevo cliente ID:"+pO.getId());
+            System.out.println("creando nuevo cliente ID:" + pO.getId());
         }
         p.setPersonaOrigen(pO);
         Persona pD = personas.get(datos.get(21));
-        if (pD == null){
+        if (pD == null) {
             pD = new Persona();
             pD.setNombres(datos.get(13));
             pD.setPaterno(datos.get(14));
@@ -168,7 +166,7 @@ public class PaquetesServiceImp implements PaquetesService {
             pD.setTipoDocumentoIdentidad(tpis.get(datos.get(20)));
             pD.setNumeroDocumentoIdentidad(datos.get(21));
             personaRepository.save(pD);
-            System.out.println("creando nuevo cliente ID:"+pD.getId());
+            System.out.println("creando nuevo cliente ID:" + pD.getId());
         }
         p.setPersonaDestino(pD);
         return p;
@@ -176,9 +174,10 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Override
     public void save(Paquete paquete) {
-        Paquete p = new Paquete();
-        
-        paquetesRepository.save(p);
+        paquete.setCodigoRastreo("asdasdasdasdasdsadsad");
+        paquete.setEstado(PaqueteEstadoEnum.REGISTRADO);
+        paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")));
+        paquetesRepository.save(paquete);
     }
-    
+
 }

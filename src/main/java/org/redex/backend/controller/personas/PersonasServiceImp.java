@@ -124,4 +124,9 @@ public class PersonasServiceImp implements PersonasService {
         personaRepository.save(p);
     }
 
+    @Override
+    public Persona findByDocumento(TipoDocumentoIdentidad tipoDocumentoIdentidad, String numeroDocumentoIdentidad) {
+        return personaRepository.findByTipoDocumentoIdentidadAndNumeroDocumentoIdentidad(tipoDocumentoIdentidad, numeroDocumentoIdentidad);
+    }
+
 }

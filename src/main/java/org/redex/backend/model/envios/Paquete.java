@@ -110,11 +110,13 @@ public class Paquete extends ModificacionAuditable implements Serializable {
         this.personaDestino = personaDestino;
     }
 
+    @Deprecated
     public ZonedDateTime getFechaRegistro() {
         Instant i = super.getInstanteRegistro();
         return i.atZone(ZoneId.of(AppConstants.UTC));
     }
 
+    @Deprecated
     public void setFechaRegistro(ZonedDateTime momento) {
         super.setInstanteRegistro(momento.toInstant());
     }

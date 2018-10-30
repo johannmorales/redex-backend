@@ -2,6 +2,7 @@ package org.redex.backend.repository;
 
 import java.util.List;
 import org.redex.backend.model.general.EstadoEnum;
+import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.rrhh.Oficina;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,5 +26,9 @@ public interface OficinasRepository extends JpaRepository<Oficina, Long> {
 
     @Query("select o from Oficina o join o.pais p where o.codigo like %:q% or p.codigo like %:q% or p.nombre like %:q%")
     Page<Oficina> customPaginatedSearch(@Param(value = "q") String q, Pageable pageable);
+
+    public Oficina findByPais(Pais pais);
+
+    public Oficina findByCodigo(String codigo);
 
 }
