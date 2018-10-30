@@ -36,6 +36,7 @@ import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -187,6 +188,8 @@ public class PaquetesServiceImp implements PaquetesService {
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")));
         paquetesRepository.save(paquete);
 
+        paquetesRepository.flush();
+        
         paquete = paquetesRepository.getOne(paquete.getId());
         
         Evolutivo e = new Evolutivo();
@@ -200,5 +203,5 @@ public class PaquetesServiceImp implements PaquetesService {
             logger.info("{}", vva.getCodigo());
         }
     }
-
+   
 }
