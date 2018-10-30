@@ -183,20 +183,24 @@ public class PaquetesServiceImp implements PaquetesService {
     @Override
     @Transactional
     public void save(Paquete paquete) {
-        paquete.setCodigoRastreo(String.format("%012d", System.currentTimeMillis()));
+        paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.REGISTRADO);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")));
-        paquetesRepository.save(paquete);
 
-        this.generarRuta(paquete.getId());
+        Oficina oo = oficinasRepository.getOne(paquete.getOficinaOrigen().getId());
+        Oficina od = oficinasRepository.getOne(paquete.getOficinaDestino().getId());
+
+        paquete.setOficinaDestino(od);
+        paquete.setOficinaOrigen(oo);
+
+        paquetesRepository.save(paquete);
+        
+        this.generarRuta(paquete);
     }
-    
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void generarRuta(Long id){
-        logger.info("EL ID ES {}", id);
-        Paquete p = paquetesRepository.getOne(id);
-        logger.info("  {} {} {} ", p.getCodigoRastreo(), p.getOficinaDestino().getCodigo(), p.getOficinaOrigen().getCodigo());
-         Evolutivo e = new Evolutivo();
+
+    public void generarRuta(Paquete p) {
+        logger.info("  {} {} {} {} {} ", p.getCodigoRastreo(), p.getOficinaDestino().getId(), p.getOficinaDestino().getCodigo(), p.getOficinaOrigen().getId(), p.getOficinaOrigen().getCodigo());
+        Evolutivo e = new Evolutivo();
 
         List<Oficina> oficinas = oficinasRepository.findAll();
         List<Vuelo> vuelos = vuelosRepository.findAll();
@@ -207,5 +211,5 @@ public class PaquetesServiceImp implements PaquetesService {
             logger.info("{}", vva.getCodigo());
         }
     }
-   
+
 }
