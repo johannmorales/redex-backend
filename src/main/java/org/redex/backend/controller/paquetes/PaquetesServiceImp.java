@@ -188,17 +188,21 @@ public class PaquetesServiceImp implements PaquetesService {
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")));
         paquetesRepository.save(paquete);
 
-        paquetesRepository.flush();
-        
-        paquete = paquetesRepository.getOne(paquete.getId());
-        
-        Evolutivo e = new Evolutivo();
+        this.generarRuta(paquete.getId());
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void generarRuta(Long id){
+        logger.info("EL ID ES {}", id);
+        Paquete p = paquetesRepository.getOne(id);
+        logger.info("  {} {} {} ", p.getCodigoRastreo(), p.getOficinaDestino().getCodigo(), p.getOficinaOrigen().getCodigo());
+         Evolutivo e = new Evolutivo();
 
         List<Oficina> oficinas = oficinasRepository.findAll();
         List<Vuelo> vuelos = vuelosRepository.findAll();
         List<VueloAgendado> vuelosAgendados = new ArrayList<>();
 
-        List<VueloAgendado> va = e.run(paquete, vuelosAgendados, vuelos, oficinas);
+        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelos, oficinas);
         for (VueloAgendado vva : va) {
             logger.info("{}", vva.getCodigo());
         }
