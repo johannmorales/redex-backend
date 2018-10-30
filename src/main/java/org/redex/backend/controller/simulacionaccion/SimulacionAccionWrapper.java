@@ -32,7 +32,7 @@ public class SimulacionAccionWrapper {
         SimulacionAccionWrapper w = new SimulacionAccionWrapper();
         w.tipo = a.getTipo().name();
         w.oficinaLlegada = a.getOficinaLlegada().getPais().getCodigoIso();
-        if(a.getOficinaSalida().getPais().getCodigoIso() != null){
+        if(a.getOficinaSalida() != null){
             w.oficinaSalida = a.getOficinaSalida().getPais().getCodigoIso();
         }
         w.fechaLlegada =a.getFechaLlegada().toInstant(ZoneOffset.UTC).toEpochMilli();
