@@ -233,6 +233,8 @@ public class PaquetesServiceImp implements PaquetesService {
             paqueteRutaRepository.save(pR);
             logger.info("{}", vva.getCodigo());
         }
+        p.setFechaSalida(va.get(aux-1).getFechaFin());
+        paquetesRepository.save(p);
     }
     
 }
