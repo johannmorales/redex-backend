@@ -13,35 +13,134 @@ import org.redex.backend.model.simulacion.SimulacionAccion;
  * @param cantidadSalida cantidad de paquetes que salen al terminar el vuelo
  */
 public class SimulacionAccionWrapper {
+
+    private String tipo;
     
-    public String tipo;
+    private String oficinaLlegada;
     
-    public String oficinaLlegada;
+    private String oficinaSalida;
     
-    public String oficinaSalida;
+    private Long fechaSalida;
     
-    public Long fechaSalida;
+    private Long fechaLlegada;
     
-    public Long fechaLlegada;
+    private Integer cantidad;
     
-    public Integer cantidad;
+    private Integer cantidadSalida;
+    /**
+     * @return the tipo
+     */
+    public String getTipo() {
+        return tipo;
+    }
+
+    /**
+     * @param tipo the tipo to set
+     */
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    /**
+     * @return the oficinaLlegada
+     */
+    public String getOficinaLlegada() {
+        return oficinaLlegada;
+    }
+
+    /**
+     * @param oficinaLlegada the oficinaLlegada to set
+     */
+    public void setOficinaLlegada(String oficinaLlegada) {
+        this.oficinaLlegada = oficinaLlegada;
+    }
+
+    /**
+     * @return the oficinaSalida
+     */
+    public String getOficinaSalida() {
+        return oficinaSalida;
+    }
+
+    /**
+     * @param oficinaSalida the oficinaSalida to set
+     */
+    public void setOficinaSalida(String oficinaSalida) {
+        this.oficinaSalida = oficinaSalida;
+    }
+
+    /**
+     * @return the fechaSalida
+     */
+    public Long getFechaSalida() {
+        return fechaSalida;
+    }
+
+    /**
+     * @param fechaSalida the fechaSalida to set
+     */
+    public void setFechaSalida(Long fechaSalida) {
+        this.fechaSalida = fechaSalida;
+    }
+
+    /**
+     * @return the fechaLlegada
+     */
+    public Long getFechaLlegada() {
+        return fechaLlegada;
+    }
+
+    /**
+     * @param fechaLlegada the fechaLlegada to set
+     */
+    public void setFechaLlegada(Long fechaLlegada) {
+        this.fechaLlegada = fechaLlegada;
+    }
+
+    /**
+     * @return the cantidad
+     */
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    /**
+     * @param cantidad the cantidad to set
+     */
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    /**
+     * @return the cantidadSalida
+     */
+    public Integer getCantidadSalida() {
+        return cantidadSalida;
+    }
+
+    /**
+     * @param cantidadSalida the cantidadSalida to set
+     */
+    public void setCantidadSalida(Integer cantidadSalida) {
+        this.cantidadSalida = cantidadSalida;
+    }
     
-    public Integer cantidadSalida;
+    
     
     public static SimulacionAccionWrapper of(SimulacionAccion a){
         SimulacionAccionWrapper w = new SimulacionAccionWrapper();
-        w.tipo = a.getTipo().name();
-        w.oficinaLlegada = a.getOficinaLlegada().getPais().getCodigoIso();
+        w.setTipo(a.getTipo().name());
+        w.setOficinaLlegada(a.getOficinaLlegada().getPais().getCodigoIso());
         if(a.getOficinaSalida() != null){
-            w.oficinaSalida = a.getOficinaSalida().getPais().getCodigoIso();
+            w.setOficinaSalida(a.getOficinaSalida().getPais().getCodigoIso());
         }
-        w.fechaLlegada =a.getFechaLlegada().toInstant(ZoneOffset.UTC).toEpochMilli();
+        w.setFechaLlegada((Long) a.getFechaLlegada().toInstant(ZoneOffset.UTC).toEpochMilli());
         if(a.getFechaSalida() != null){
-            w.fechaSalida = a.getFechaSalida().toInstant(ZoneOffset.UTC).toEpochMilli();
+            w.setFechaSalida((Long) a.getFechaSalida().toInstant(ZoneOffset.UTC).toEpochMilli());
         }
-        w.cantidad = a.getCantidad();
+        w.setCantidad(a.getCantidad());
         if (a.getCantidadSalida() != null){
-            w.cantidadSalida = a.getCantidadSalida();
+            w.setCantidadSalida(a.getCantidadSalida());
         }
         
         return w;
