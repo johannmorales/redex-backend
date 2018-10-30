@@ -32,11 +32,17 @@ public class SimulacionAccionWrapper {
         SimulacionAccionWrapper w = new SimulacionAccionWrapper();
         w.tipo = a.getTipo().name();
         w.oficinaLlegada = a.getOficinaLlegada().getPais().getCodigoIso();
-        w.oficinaSalida = a.getOficinaSalida().getPais().getCodigoIso();
+        if(a.getOficinaSalida().getPais().getCodigoIso() != null){
+            w.oficinaSalida = a.getOficinaSalida().getPais().getCodigoIso();
+        }
         w.fechaLlegada =a.getFechaLlegada().toInstant(ZoneOffset.UTC).toEpochMilli();
-        w.fechaSalida = a.getFechaSalida().toInstant(ZoneOffset.UTC).toEpochMilli();
+        if(a.getFechaSalida() != null){
+            w.fechaSalida = a.getFechaSalida().toInstant(ZoneOffset.UTC).toEpochMilli();
+        }
         w.cantidad = a.getCantidad();
-        w.cantidadSalida = a.getCantidadSalida();
+        if (a.getCantidadSalida() != null){
+            w.cantidadSalida = a.getCantidadSalida();
+        }
         
         return w;
     }
