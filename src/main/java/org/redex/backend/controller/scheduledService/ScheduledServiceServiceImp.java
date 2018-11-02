@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.redex.backend.controller.scheduledService;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,12 +17,7 @@ import org.redex.backend.repository.PaquetesRepository;
 import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosAgendadosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 
-/**
- *
- * @author Oscar
- */
 public class ScheduledServiceServiceImp implements ScheduledServiceService{
     
     @Autowired
