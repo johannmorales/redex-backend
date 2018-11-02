@@ -31,11 +31,10 @@ public class AlgoritmoWrapper {
         Map<String, AlgoritmoOficina> mapOficinas = ao.stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
         List<AlgoritmoVueloAgendado> sva = vuelosAgendados.stream().map(va -> AlgoritmoVueloAgendado.of(va, mapOficinas)).collect(Collectors.toList());
         AlgoritmoPaquete p = AlgoritmoPaquete.of(paquete, mapOficinas);
+        
         Evolutivo e = new Evolutivo();
-
         List<AlgoritmoVueloAgendado> avas = e.run(p, sva, ao);
 
         return avas.stream().map(x -> vaId.get(x.getId())).collect(Collectors.toList());
-
     }
 }

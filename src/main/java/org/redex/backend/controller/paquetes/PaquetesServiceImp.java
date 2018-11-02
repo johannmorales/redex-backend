@@ -214,19 +214,20 @@ public class PaquetesServiceImp implements PaquetesService {
         Evolutivo e = new Evolutivo();
 
         List<Oficina> oficinas = oficinasRepository.findAll();
-        
+
         LocalDateTime fechaInicio = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
         LocalDateTime fechaFin = fechaInicio.plusHours(24L);
-        
-        logger.info(" {} - {}", fechaInicio, fechaFin);
-                
+
+        if (p.esIntercontinental()) {
+            fechaFin = fechaFin.plusHours(24L);
+        }
+
         List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAllByFechaInicioAfterAndFechaFinBefore(fechaInicio, fechaFin);
 
         List<VueloAgendado> va = AlgoritmoWrapper.sistemaRun(p, vuelosAgendados, oficinas);
 
         int aux = 0;
         for (VueloAgendado vva : va) {
-
             PaqueteRuta pR = new PaqueteRuta();
             pR.setPaquete(p);
             pR.setVueloAgendado(vva);
@@ -238,7 +239,6 @@ public class PaquetesServiceImp implements PaquetesService {
             pR.setOrden(aux);
             aux++;
             paqueteRutaRepository.save(pR);
-            logger.info("{}", vva.getCodigo());
         }
         p.setFechaSalida(va.get(aux - 1).getFechaFin());
         paquetesRepository.save(p);
