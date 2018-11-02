@@ -17,9 +17,13 @@ import org.redex.backend.repository.PaquetesRepository;
 import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosAgendadosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-public class ScheduledServiceServiceImp implements ScheduledServiceService{
-    
+@Service
+@Transactional(readOnly = true)
+public class ScheduledServiceServiceImp implements ScheduledServiceService {
+
     @Autowired
     PlanVueloRepository planVueloRepository;
 
@@ -28,31 +32,31 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService{
 
     @Autowired
     PaquetesRepository paquetesRepository;
-    
+
     @Autowired
     OficinasRepository oficinasRepository;
-    
+
     @Autowired
     PaqueteRutaRepository paqueteRutasRepository;
-    
-    public void salidaVuelos(){
-        
+
+    @Transactional
+    public void salidaVuelos() {
+
         List<VueloAgendado> vuelos = vuelosRepository.findAll();
-        
+
         Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
-        
-       
+
         LocalDateTime actualTime = LocalDateTime.now();
-        
-        for (VueloAgendado vA : vuelos){
-            if ((vA.getEstado().equals(VueloAgendadoEstadoEnum.CREADO)) && 
-                    (vA.getFechaInicio().isBefore(actualTime))){
+
+        for (VueloAgendado vA : vuelos) {
+            if ((vA.getEstado().equals(VueloAgendadoEstadoEnum.CREADO))
+                    && (vA.getFechaInicio().isBefore(actualTime))) {
                 vA.setEstado(VueloAgendadoEstadoEnum.ACTIVO);
-                Oficina o = oficinas.get(vA.getOficinaOrigen());
+                Oficina o = oficinas.get(vA.getOficinaOrigen().getCodigo());
                 List<PaqueteRuta> pR = paqueteRutasRepository.findAllByVueloAgendado(vA);
-                for (PaqueteRuta p: pR){
+                for (PaqueteRuta p : pR) {
                     p.setEstado(RutaEstadoEnum.ACTIVO);
                     Paquete px = p.getPaquete();
                     px.setEstado(PaqueteEstadoEnum.EN_VUELO);
@@ -64,37 +68,38 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService{
                 oficinasRepository.save(o);
             }
         }
-        
+
     }
-    
-    public void llegadaVuelos(){
-        
+
+    @Transactional
+    public void llegadaVuelos() {
+
         List<VueloAgendado> vuelos = vuelosRepository.findAll();
         Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
         LocalDateTime actualTime = LocalDateTime.now();
-        
-        for (VueloAgendado vA : vuelos){
-            if (!(vA.getEstado().equals(VueloAgendadoEstadoEnum.FINALIZADO)) && 
-                    (vA.getFechaInicio().isAfter(actualTime))){
+
+        for (VueloAgendado vA : vuelos) {
+            if (!(vA.getEstado().equals(VueloAgendadoEstadoEnum.FINALIZADO))
+                    && (vA.getFechaInicio().isAfter(actualTime))) {
                 vA.setEstado(VueloAgendadoEstadoEnum.FINALIZADO);
                 Oficina o = oficinas.get(vA.getOficinaDestino());
                 List<PaqueteRuta> pR = paqueteRutasRepository.findAllByVueloAgendado(vA);
-                for (PaqueteRuta p: pR){
+                for (PaqueteRuta p : pR) {
                     p.setEstado(RutaEstadoEnum.FINALIZADO);
                     paqueteRutasRepository.save(p);
                     Paquete px = p.getPaquete();
                     List<PaqueteRuta> pR1 = paqueteRutasRepository.findAllByPaquete(px);
                     int termino = 0;
-                    for (PaqueteRuta pAux: pR1){
-                        if (!pAux.getEstado().equals(RutaEstadoEnum.FINALIZADO)){
+                    for (PaqueteRuta pAux : pR1) {
+                        if (!pAux.getEstado().equals(RutaEstadoEnum.FINALIZADO)) {
                             termino = 1;
                         }
                     }
-                    if (termino == 1){
+                    if (termino == 1) {
                         px.setEstado(PaqueteEstadoEnum.ENTREGADO);
-                    }else{
+                    } else {
                         o.setCapacidadActual(o.getCapacidadActual() + 1);
                         px.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
                     }
