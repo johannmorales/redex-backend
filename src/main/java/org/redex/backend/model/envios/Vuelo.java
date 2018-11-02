@@ -30,11 +30,11 @@ public class Vuelo implements Serializable {
     @JoinColumn(name = "id_plan_vuelo", nullable = false)
     private PlanVuelo planVuelo;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina_origen", nullable = false)
     private Oficina oficinaOrigen;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina_destino", nullable = false)
     private Oficina oficinaDestino;
 

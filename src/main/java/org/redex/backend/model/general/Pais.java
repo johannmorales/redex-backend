@@ -31,11 +31,11 @@ public class Pais implements Serializable {
     @Column
     private String codigoIso;
 
-    @Column(precision = 4)
+    @Column(scale = 10)
     private BigDecimal latitud;
 
-    @Column(precision = 4)
-    private BigDecimal altitud;
+    @Column(scale = 10)
+    private BigDecimal longitud;
 
     public Pais() {
     }
@@ -92,12 +92,12 @@ public class Pais implements Serializable {
         this.latitud = latitud;
     }
 
-    public BigDecimal getAltitud() {
-        return altitud;
+    public BigDecimal getLongitud() {
+        return longitud;
     }
 
     public void setAltitud(BigDecimal altitud) {
-        this.altitud = altitud;
+        this.longitud = altitud;
     }
 
 }

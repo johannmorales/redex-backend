@@ -1,29 +1,21 @@
-package org.redex.backend.model.rrhh;
+package org.redex.backend.model.abztract;
 
-import java.io.Serializable;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Pais;
 
-@Entity
-@Table(name = "oficina", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "codigo")
-})
-public class Oficina implements Serializable {
+@MappedSuperclass
+public abstract class AbstractOficina {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +26,7 @@ public class Oficina implements Serializable {
     private String codigo;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "id_pais", nullable = false)
     private Pais pais;
 
@@ -53,39 +45,6 @@ public class Oficina implements Serializable {
     @NotNull
     @Column(nullable = false)
     private Integer zonaHoraria;
-
-    
-    public Oficina() {
-    }
-
-    public Oficina(Long id){
-        this.id = id;
-    }
-    
-    public double getPorcentajeUsado() {
-        return getCapacidadActual() / getCapacidadMaxima() * 100;
-    }
-
-    public void llegaPaquete() {
-        this.setCapacidadActual((Integer) (this.getCapacidadActual() + 1));
-    }
-
-    public void llegaVuelo(VueloAgendado vuelo) {
-        this.setCapacidadActual((Integer) (this.getCapacidadActual() + vuelo.getCapacidadActual()));
-    }
-
-    public void saleVuelo(VueloAgendado vuelo) {
-        this.setCapacidadActual((Integer) (this.getCapacidadActual() - vuelo.getCapacidadActual()));
-    }
-
-    public void entregaPaquete() {
-        this.setCapacidadActual((Integer) (this.getCapacidadActual() - 1));
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Oficina %s", getCodigo());
-    }
 
     public Long getId() {
         return id;
@@ -111,6 +70,14 @@ public class Oficina implements Serializable {
         this.pais = pais;
     }
 
+    public EstadoEnum getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoEnum estado) {
+        this.estado = estado;
+    }
+
     public Integer getCapacidadActual() {
         return capacidadActual;
     }
@@ -133,14 +100,6 @@ public class Oficina implements Serializable {
 
     public void setZonaHoraria(Integer zonaHoraria) {
         this.zonaHoraria = zonaHoraria;
-    }
-
-    public EstadoEnum getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoEnum estado) {
-        this.estado = estado;
     }
 
 }

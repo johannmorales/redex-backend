@@ -1,7 +1,7 @@
 package org.redex.backend.model.simulacion;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,10 +32,10 @@ public class SimulacionPaquete implements Serializable {
     private SimulacionOficina oficinaDestino;
 
     @Column(nullable = false)
-    private ZonedDateTime fechaIngreso;
+    private LocalDateTime fechaIngreso;
 
     @Column
-    private ZonedDateTime fechaSalida;
+    private LocalDateTime fechaSalida;
 
     public Long getId() {
         return id;
@@ -69,19 +69,19 @@ public class SimulacionPaquete implements Serializable {
         this.oficinaDestino = oficinaDestino;
     }
 
-    public ZonedDateTime getFechaIngreso() {
+    public LocalDateTime getFechaIngreso() {
         return fechaIngreso;
     }
 
-    public void setFechaIngreso(ZonedDateTime fechaIngreso) {
+    public void setFechaIngreso(LocalDateTime fechaIngreso) {
         this.fechaIngreso = fechaIngreso;
     }
 
-    public ZonedDateTime getFechaSalida() {
+    public LocalDateTime getFechaSalida() {
         return fechaSalida;
     }
 
-    public void setFechaSalida(ZonedDateTime fechaSalida) {
+    public void setFechaSalida(LocalDateTime fechaSalida) {
         this.fechaSalida = fechaSalida;
     }
 

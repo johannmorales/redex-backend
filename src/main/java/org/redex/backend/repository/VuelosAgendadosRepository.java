@@ -1,10 +1,8 @@
 package org.redex.backend.repository;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
-import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.envios.VueloAgendadoEstadoEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -45,6 +43,23 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             + "  order by va.id desc")
     public Page<VueloAgendado> crimsonList(@Param("q") String q, Pageable pageable);
 
-    public List<VueloAgendado> findAllByFechaInicioAfter(ZonedDateTime fechaInicio);
+    public List<VueloAgendado> findAllByFechaInicioAfter(LocalDateTime fechaInicio);
+
+    @Query(" "
+            + "select va from VueloAgendado va "
+            + " join fetch va.vuelo v"
+            + " join fetch v.oficinaOrigen oo "
+            + " join fetch v.oficinaDestino od "
+            + "where "
+            + " va.fechaInicio > :inicio and"
+            + " va.fechaFin < :fin ")
+    public List<VueloAgendado> findAllByFechaInicioAfterAndFechaFinBefore(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
+
+    @Override
+    @Query(" select va from VueloAgendado va "
+            + " join fetch va.vuelo v"
+            + " join fetch v.oficinaOrigen oo "
+            + " join fetch v.oficinaDestino od ")
+    public List<VueloAgendado> findAll();
 
 }

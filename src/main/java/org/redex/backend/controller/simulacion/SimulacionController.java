@@ -1,7 +1,8 @@
 package org.redex.backend.controller.simulacion;
 
-import static org.apache.poi.hssf.usermodel.HeaderFooter.page;
+import java.util.List;
 import org.redex.backend.model.simulacion.Simulacion;
+import org.redex.backend.model.simulacion.SimulacionAccion;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.redex.backend.zelper.response.ApplicationResponse;
@@ -69,6 +70,12 @@ public class SimulacionController {
             "cantidadOficinas",
             "cantidadVuelos"
         });
+    }
+    
+    @GetMapping("window")
+    public ResponseEntity<?> getWindow(WindowRequest request){
+        List<SimulacionAccion> acciones = service.accionesByWindow(request);
+        return ResponseEntity.ok(acciones);
     }
 
 }

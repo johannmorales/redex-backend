@@ -31,10 +31,10 @@ public class SimulacionAccionWrapper {
     public static SimulacionAccionWrapper of(SimulacionAccion a){
         SimulacionAccionWrapper w = new SimulacionAccionWrapper();
         w.tipo = a.getTipo().name();
-        w.oficinaLlegada = a.getOficinaLlegada().getPais().getCodigoIso();
-        w.oficinaSalida = a.getOficinaSalida().getPais().getCodigoIso();
-        w.fechaLlegada =a.getFechaLlegada().toInstant(ZoneOffset.UTC).toEpochMilli();
-        w.fechaSalida = a.getFechaSalida().toInstant(ZoneOffset.UTC).toEpochMilli();
+        w.oficinaLlegada = a.getOficinaOrigen().getPais().getCodigoIso();
+        w.oficinaSalida = a.getOficinaDestino().getPais().getCodigoIso();
+        w.fechaLlegada =a.getFechaFin().toInstant(ZoneOffset.UTC).toEpochMilli();
+        w.fechaSalida = a.getFechaInicio().toInstant(ZoneOffset.UTC).toEpochMilli();
         w.cantidad = a.getCantidad();
         w.cantidadSalida = a.getCantidadSalida();
         

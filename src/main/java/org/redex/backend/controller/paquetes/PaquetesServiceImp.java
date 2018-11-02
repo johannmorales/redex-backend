@@ -17,14 +17,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.AlgoritmoWrapper;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
 import org.redex.backend.model.envios.PaqueteRuta;
 import org.redex.backend.model.envios.RutaEstadoEnum;
-import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.envios.VueloAgendadoEstadoEnum;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.general.TipoDocumentoIdentidad;
@@ -70,10 +69,10 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Autowired
     VuelosAgendadosRepository vuelosAgendadosRepository;
-    
+
     @Autowired
     PaqueteRutaRepository paqueteRutaRepository;
-    
+
     @Override
     public List<Paquete> list() {
         return paquetesRepository.findAll();
@@ -152,7 +151,7 @@ public class PaquetesServiceImp implements PaquetesService {
 
         p.setCodigoRastreo(datos.get(0));
         p.setEstado(PaqueteEstadoEnum.REGISTRADO);
-        p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")));
+        p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")).toLocalDateTime());
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
         Persona pO = personas.get(datos.get(12));
@@ -195,16 +194,19 @@ public class PaquetesServiceImp implements PaquetesService {
     public void save(Paquete paquete) {
         paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.REGISTRADO);
-        paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")));
+        paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());
 
-        Oficina oo = oficinasRepository.getOne(paquete.getOficinaOrigen().getId());
-        Oficina od = oficinasRepository.getOne(paquete.getOficinaDestino().getId());
+        Oficina oo = oficinasRepository.findById(paquete.getOficinaOrigen().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Paquete", "id", paquete.getOficinaOrigen().getId()));
+
+        Oficina od = oficinasRepository.findById(paquete.getOficinaDestino().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Paquete", "id", paquete.getOficinaDestino().getId()));
 
         paquete.setOficinaDestino(od);
         paquete.setOficinaOrigen(oo);
 
         paquetesRepository.save(paquete);
-        
+
         this.generarRuta(paquete);
     }
 
@@ -212,18 +214,23 @@ public class PaquetesServiceImp implements PaquetesService {
         Evolutivo e = new Evolutivo();
 
         List<Oficina> oficinas = oficinasRepository.findAll();
-        List<Vuelo> vuelos = vuelosRepository.findAll();
-        List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAllByFechaInicioAfter(ZonedDateTime.now(ZoneId.of("UTC")));
-
-        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelos, oficinas);
         
-        int aux = 1;
+        LocalDateTime fechaInicio = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
+        LocalDateTime fechaFin = fechaInicio.plusHours(24L);
+        
+        logger.info(" {} - {}", fechaInicio, fechaFin);
+                
+        List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAllByFechaInicioAfterAndFechaFinBefore(fechaInicio, fechaFin);
+
+        List<VueloAgendado> va = AlgoritmoWrapper.sistemaRun(p, vuelosAgendados, oficinas);
+
+        int aux = 0;
         for (VueloAgendado vva : va) {
-            
+
             PaqueteRuta pR = new PaqueteRuta();
             pR.setPaquete(p);
             pR.setVueloAgendado(vva);
-            if (aux == 1){
+            if (aux == 0) {
                 pR.setEstado(RutaEstadoEnum.ACTIVO);
             } else {
                 pR.setEstado(RutaEstadoEnum.PENDIENTE);
@@ -233,8 +240,8 @@ public class PaquetesServiceImp implements PaquetesService {
             paqueteRutaRepository.save(pR);
             logger.info("{}", vva.getCodigo());
         }
-        p.setFechaSalida(va.get(aux-1).getFechaFin());
+        p.setFechaSalida(va.get(aux - 1).getFechaFin());
         paquetesRepository.save(p);
     }
-    
+
 }
