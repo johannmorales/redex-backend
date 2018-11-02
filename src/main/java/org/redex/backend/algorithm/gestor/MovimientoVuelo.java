@@ -1,8 +1,8 @@
 package org.redex.backend.algorithm.gestor;
 
-import java.time.ZonedDateTime;
-import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.rrhh.Oficina;
+import java.time.LocalDateTime;
+import org.redex.backend.algorithm.AlgoritmoOficina;
+import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
 
 public class MovimientoVuelo implements Comparable<MovimientoVuelo> {
 
@@ -10,15 +10,15 @@ public class MovimientoVuelo implements Comparable<MovimientoVuelo> {
         ENTRADA, SALIDA
     }
 
-    private VueloAgendado vueloAgendado;
+    private AlgoritmoVueloAgendado vueloAgendado;
 
-    private Oficina oficina;
+    private AlgoritmoOficina oficina;
 
     private Tipo tipo;
 
-    private ZonedDateTime momento;
+    private LocalDateTime momento;
 
-    public MovimientoVuelo(Tipo tipo, VueloAgendado va) {
+    public MovimientoVuelo(Tipo tipo, AlgoritmoVueloAgendado va) {
         this.tipo = tipo;
         this.vueloAgendado = va;
         switch (tipo) {
@@ -40,19 +40,19 @@ public class MovimientoVuelo implements Comparable<MovimientoVuelo> {
         return momento.compareTo(o.getMomento());
     }
 
-    public VueloAgendado getVueloAgendado() {
+    public AlgoritmoVueloAgendado getVueloAgendado() {
         return vueloAgendado;
     }
 
-    public void setVueloAgendado(VueloAgendado vueloAgendado) {
+    public void setVueloAgendado(AlgoritmoVueloAgendado vueloAgendado) {
         this.vueloAgendado = vueloAgendado;
     }
 
-    public Oficina getOficina() {
+    public AlgoritmoOficina getOficina() {
         return oficina;
     }
 
-    public void setOficina(Oficina oficina) {
+    public void setOficina(AlgoritmoOficina oficina) {
         this.oficina = oficina;
     }
 
@@ -64,11 +64,11 @@ public class MovimientoVuelo implements Comparable<MovimientoVuelo> {
         this.tipo = tipo;
     }
 
-    public ZonedDateTime getMomento() {
+    public LocalDateTime getMomento() {
         return momento;
     }
 
-    public void setMomento(ZonedDateTime momento) {
+    public void setMomento(LocalDateTime momento) {
         this.momento = momento;
     }
 

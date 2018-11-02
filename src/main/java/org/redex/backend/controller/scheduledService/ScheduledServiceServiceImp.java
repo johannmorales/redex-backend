@@ -5,6 +5,7 @@
  */
 package org.redex.backend.controller.scheduledService;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService{
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
         
        
-        ZonedDateTime actualTime = ZonedDateTime.now();
+        LocalDateTime actualTime = LocalDateTime.now();
         
         for (VueloAgendado vA : vuelos){
             if ((vA.getEstado().equals(VueloAgendadoEstadoEnum.CREADO)) && 
@@ -83,7 +84,7 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService{
         Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
-        ZonedDateTime actualTime = ZonedDateTime.now();
+        LocalDateTime actualTime = LocalDateTime.now();
         
         for (VueloAgendado vA : vuelos){
             if (!(vA.getEstado().equals(VueloAgendadoEstadoEnum.FINALIZADO)) && 

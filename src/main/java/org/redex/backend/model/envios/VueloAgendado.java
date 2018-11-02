@@ -3,6 +3,7 @@ package org.redex.backend.model.envios;
 import org.redex.backend.model.rrhh.Oficina;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +28,7 @@ public class VueloAgendado implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_vuelo", nullable = false)
     private Vuelo vuelo;
 
@@ -36,10 +37,10 @@ public class VueloAgendado implements Serializable {
     private VueloAgendadoEstadoEnum estado;
 
     @Column(nullable = false)
-    private ZonedDateTime fechaInicio;
+    private LocalDateTime fechaInicio;
 
     @Column(nullable = false)
-    private ZonedDateTime fechaFin;
+    private LocalDateTime fechaFin;
 
     @Column(nullable = false)
     private Integer capacidadActual;
@@ -64,8 +65,8 @@ public class VueloAgendado implements Serializable {
         fechaInicioLimpia = fechaInicioLimpia.with(vuelo.getHoraInicio());
         fechaFinLimpia = fechaFinLimpia.with(vuelo.getHoraFin());
 
-        va.fechaInicio = fechaInicioLimpia;
-        va.fechaFin = fechaFinLimpia;
+        va.fechaInicio = fechaInicioLimpia.toLocalDateTime();
+        va.fechaFin = fechaFinLimpia.toLocalDateTime();
 
         va.capacidadActual = 0;
         va.capacidadMaxima = vuelo.getCapacidad();
@@ -82,8 +83,8 @@ public class VueloAgendado implements Serializable {
         fechaInicioLimpia = fechaInicioLimpia.with(vuelo.getHoraInicio());
         fechaFinLimpia = fechaFinLimpia.with(vuelo.getHoraFin());
 
-        this.fechaInicio = fechaInicioLimpia;
-        this.fechaFin = fechaFinLimpia;
+        this.fechaInicio = fechaInicioLimpia.toLocalDateTime();
+        this.fechaFin = fechaFinLimpia.toLocalDateTime();
 
         this.capacidadActual = 0;
         this.capacidadMaxima = 100;
@@ -91,7 +92,7 @@ public class VueloAgendado implements Serializable {
         this.vuelo = vuelo;
     }
 
-    public VueloAgendado(ZonedDateTime fechaLlegada, ZonedDateTime fechaSalida, Integer capacidadMaxima, Integer capacidadActual, Vuelo vuelo) {
+    public VueloAgendado(LocalDateTime fechaLlegada, LocalDateTime fechaSalida, Integer capacidadMaxima, Integer capacidadActual, Vuelo vuelo) {
         this.fechaInicio = fechaLlegada;
         this.fechaFin = fechaSalida;
         this.capacidadMaxima = capacidadMaxima;
@@ -99,7 +100,7 @@ public class VueloAgendado implements Serializable {
         this.vuelo = vuelo;
     }
 
-    public VueloAgendado(ZonedDateTime fechaLlegada, ZonedDateTime fechaSalida, Oficina oficinaDestino, Oficina oficinaOrigen) {
+    public VueloAgendado(LocalDateTime fechaLlegada, LocalDateTime fechaSalida, Oficina oficinaDestino, Oficina oficinaOrigen) {
         this.fechaInicio = fechaLlegada;
         this.fechaFin = fechaSalida;
         this.capacidadMaxima = 0;
@@ -114,19 +115,19 @@ public class VueloAgendado implements Serializable {
         this.id = id;
     }
 
-    public ZonedDateTime getFechaInicio() {
+    public LocalDateTime getFechaInicio() {
         return fechaInicio;
     }
 
-    public void setFechaInicio(ZonedDateTime fechaInicio) {
+    public void setFechaInicio(LocalDateTime fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
 
-    public ZonedDateTime getFechaFin() {
+    public LocalDateTime getFechaFin() {
         return fechaFin;
     }
 
-    public void setFechaFin(ZonedDateTime fechaFin) {
+    public void setFechaFin(LocalDateTime fechaFin) {
         this.fechaFin = fechaFin;
     }
 

@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,7 +15,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.NaturalId;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Pais;
@@ -30,12 +30,11 @@ public class Oficina implements Serializable {
     private Long id;
 
     @NotBlank
-    @NaturalId
     @Column(nullable = false)
     private String codigo;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pais", nullable = false)
     private Pais pais;
 

@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -54,10 +55,10 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     private PaqueteEstadoEnum estado;
 
     @Column(nullable = false)
-    private ZonedDateTime fechaIngreso;
+    private LocalDateTime fechaIngreso;
 
     @Column
-    private ZonedDateTime fechaSalida;
+    private LocalDateTime fechaSalida;
 
     @Column(nullable = false, unique = true)
     private String codigoRastreo;
@@ -138,19 +139,19 @@ public class Paquete extends ModificacionAuditable implements Serializable {
         this.estado = estado;
     }
 
-    public ZonedDateTime getFechaIngreso() {
+    public LocalDateTime getFechaIngreso() {
         return fechaIngreso;
     }
 
-    public void setFechaIngreso(ZonedDateTime fechaIngreso) {
+    public void setFechaIngreso(LocalDateTime fechaIngreso) {
         this.fechaIngreso = fechaIngreso;
     }
 
-    public ZonedDateTime getFechaSalida() {
+    public LocalDateTime getFechaSalida() {
         return fechaSalida;
     }
 
-    public void setFechaSalida(ZonedDateTime fechaSalida) {
+    public void setFechaSalida(LocalDateTime fechaSalida) {
         this.fechaSalida = fechaSalida;
     }
 

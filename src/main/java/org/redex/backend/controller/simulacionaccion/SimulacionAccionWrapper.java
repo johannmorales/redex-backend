@@ -130,18 +130,19 @@ public class SimulacionAccionWrapper {
     public static SimulacionAccionWrapper of(SimulacionAccion a){
         SimulacionAccionWrapper w = new SimulacionAccionWrapper();
         w.setTipo(a.getTipo().name());
-        w.setOficinaLlegada(a.getOficinaLlegada().getPais().getCodigoIso());
-        if(a.getOficinaSalida() != null){
-            w.setOficinaSalida(a.getOficinaSalida().getPais().getCodigoIso());
+        w.setOficinaLlegada(a.getOficinaDestino().getPais().getCodigoIso());
+        if(a.getOficinaOrigen() != null){
+            w.setOficinaSalida(a.getOficinaOrigen().getPais().getCodigoIso());
         }
-        w.setFechaLlegada((Long) a.getFechaLlegada().toInstant(ZoneOffset.UTC).toEpochMilli());
-        if(a.getFechaSalida() != null){
-            w.setFechaSalida((Long) a.getFechaSalida().toInstant(ZoneOffset.UTC).toEpochMilli());
+        w.setFechaLlegada((Long) a.getFechaFin().toInstant(ZoneOffset.UTC).toEpochMilli());
+        if(a.getFechaInicio() != null){
+            w.setFechaSalida((Long) a.getFechaInicio().toInstant(ZoneOffset.UTC).toEpochMilli());
         }
         w.setCantidad(a.getCantidad());
         if (a.getCantidadSalida() != null){
             w.setCantidadSalida(a.getCantidadSalida());
         }
+
         
         return w;
     }
