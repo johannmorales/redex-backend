@@ -6,6 +6,7 @@ import org.redex.backend.model.simulacion.Simulacion;
 import org.redex.backend.model.simulacion.SimulacionPaquete;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -21,8 +22,8 @@ public interface SimulacionPaquetesRepository extends JpaRepository<SimulacionPa
             "   join fetch od.pais " +
             " where " +
             "   p.simulacion = :s and " +
-            "   p.fechaIngreso >= inicio and " +
-            "   p.fechaIngreso < fin ")
-    public List<SimulacionPaquete> findAllBySimulacionAndFechaIngresoBetween(Simulacion simulacion, LocalDateTime inicio, LocalDateTime fin);
+            "   p.fechaIngreso >= :inicio and " +
+            "   p.fechaIngreso < :fin ")
+    public List<SimulacionPaquete> findAllBySimulacionAndFechaIngresoBetween(@Param("s") Simulacion simulacion, @Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
     
 }
