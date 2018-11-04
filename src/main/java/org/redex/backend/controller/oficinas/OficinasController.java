@@ -49,7 +49,14 @@ public class OficinasController {
         List<Oficina> oficinas = service.all();
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
         for (Oficina oficina : oficinas) {
-            arr.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance));
+            arr.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+                    "id",
+                    "pais.*",
+                    "capacidadActual",
+                    "capacidadMaxima",
+                    "estado",
+                    "codigo"
+            }));
         }
         return arr;
     }
