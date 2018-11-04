@@ -10,11 +10,11 @@ public class Persona {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_documento_identidad", nullable = false)
     private TipoDocumentoIdentidad tipoDocumentoIdentidad;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pais", nullable = false)
     private Pais pais;
 

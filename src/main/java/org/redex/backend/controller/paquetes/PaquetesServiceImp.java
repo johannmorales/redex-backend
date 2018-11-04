@@ -224,7 +224,9 @@ public class PaquetesServiceImp implements PaquetesService {
 
         List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAllAlgoritmo(fechaInicio, fechaFin);
 
-        List<VueloAgendado> va = AlgoritmoWrapper.sistemaRun(p, vuelosAgendados, oficinas);
+        List<VueloAgendado> vuelosTerminados = vuelosAgendadosRepository.findAllTerminados(fechaInicio, fechaFin);
+
+        List<VueloAgendado> va = AlgoritmoWrapper.sistemaRun(p, vuelosAgendados, vuelosTerminados, oficinas);
 
         int aux = 0;
         for (VueloAgendado vva : va) {

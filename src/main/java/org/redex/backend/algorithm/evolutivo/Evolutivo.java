@@ -42,8 +42,8 @@ public class Evolutivo implements Algoritmo {
     private GestorAlgoritmo gestorAlgoritmo;
 
     @Override
-    public List<AlgoritmoVueloAgendado> run(AlgoritmoPaquete paquete, List<AlgoritmoVueloAgendado> vuelosAgendados, List<AlgoritmoOficina> oficinas) {
-        gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, oficinas);
+    public List<AlgoritmoVueloAgendado> run(AlgoritmoPaquete paquete, List<AlgoritmoVueloAgendado> vuelosAgendados, List<AlgoritmoVueloAgendado> vuelosSalida, List<AlgoritmoOficina> oficinas) {
+        gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, vuelosSalida, oficinas);
         TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaRegistro(), paquete);
         
         for (int i = 0; i < iteraciones; i++) {
@@ -208,7 +208,7 @@ public class Evolutivo implements Algoritmo {
 
         for (Gen gen : cromosome.getGenes()) {
             AlgoritmoVueloAgendado va = gen.getVueloAgendado();
-            costo += gen.getVueloAgendado().getPorcentajeUsado() * K1 + 2 * K2;
+            costo += gen.getVueloAgendado().getPorcentajeUsado() * K1 + gestorAlgoritmo.obtenerCapacidadEnMomento(va.getOficinaDestino(), va.getFechaFin()) * K2;
         }
 
         AlgoritmoVueloAgendado lastFlight = cromosome.getGenes().get(cromosome.getGenes().size() - 1).getVueloAgendado();

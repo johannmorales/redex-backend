@@ -25,15 +25,16 @@ public class AlgoritmoWrapper {
 
     }
 
-    public static List<VueloAgendado> sistemaRun(Paquete paquete, List<VueloAgendado> vuelosAgendados, List<Oficina> oficinas) {
+    public static List<VueloAgendado> sistemaRun(Paquete paquete, List<VueloAgendado> vuelosAgendados, List<VueloAgendado> vuelosTerminados, List<Oficina> oficinas) {
         Map<Long, VueloAgendado> vaId = vuelosAgendados.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
         List<AlgoritmoOficina> ao = oficinas.stream().map(o -> AlgoritmoOficina.of(o)).collect(Collectors.toList());
         Map<String, AlgoritmoOficina> mapOficinas = ao.stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
         List<AlgoritmoVueloAgendado> sva = vuelosAgendados.stream().map(va -> AlgoritmoVueloAgendado.of(va, mapOficinas)).collect(Collectors.toList());
         AlgoritmoPaquete p = AlgoritmoPaquete.of(paquete, mapOficinas);
-        
+        List<AlgoritmoVueloAgendado> svaTerminados = vuelosTerminados.stream().map(va -> AlgoritmoVueloAgendado.of(va, mapOficinas)).collect(Collectors.toList());
+
         Evolutivo e = new Evolutivo();
-        List<AlgoritmoVueloAgendado> avas = e.run(p, sva, ao);
+        List<AlgoritmoVueloAgendado> avas = e.run(p, sva, svaTerminados, ao);
 
         return avas.stream().map(x -> vaId.get(x.getId())).collect(Collectors.toList());
     }
