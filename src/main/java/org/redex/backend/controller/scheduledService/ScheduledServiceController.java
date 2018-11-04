@@ -8,7 +8,7 @@ public class ScheduledServiceController {
     @Autowired
     ScheduledServiceService service;
     
-    @Scheduled(fixedRate=10)
+   // @Scheduled(fixedRate=10)
     public void despachoVuelo(){
         
         service.salidaVuelos();
