@@ -68,11 +68,12 @@ public class SimulacionServiceImp implements SimulacionService {
     SimulacionVueloAgendadoRepository simulacionVueloAgendadoRepository;
 
     @Override
+    @Transactional
     public CargaDatosResponse cargaPaquetes(Long id, MultipartFile file) {
         Simulacion simu = simulacionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Simulacion", "id", id));
 
         //simuPaquete.setSimulacion(simu)
-        Map<String, SimulacionOficina> oficinas = simulacionOficinasRepository.findAll()
+        Map<String, SimulacionOficina> oficinas = simulacionOficinasRepository.findAllBySimulacion(simu)
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
 
@@ -88,7 +89,7 @@ public class SimulacionServiceImp implements SimulacionService {
             for (String linea : lineasList) {
                 if (!linea.isEmpty()) {
                     List<String> separateLine = Arrays.asList(linea.split("-"));
-                    if (separateLine.size() == 22) {
+                    if (separateLine.size() == 4) {
                         SimulacionPaquete nuevoP = leePaquete(separateLine, oficinas);
                         nuevoP.setSimulacion(simu);
                         nuevosPaquetes.add(nuevoP);
@@ -109,6 +110,7 @@ public class SimulacionServiceImp implements SimulacionService {
     }
 
     @Override
+    @Transactional
     public CargaDatosResponse cargaVuelos(Long id, MultipartFile file) {
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
@@ -163,6 +165,7 @@ public class SimulacionServiceImp implements SimulacionService {
     }
 
     @Override
+    @Transactional
     public CargaDatosResponse cargaOficinas(Long id, MultipartFile file) {
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
