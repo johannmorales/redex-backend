@@ -45,21 +45,13 @@ public class OficinasController {
     }
 
     @GetMapping("eduardo")
-    public CrimsonTableResponse eduardo(@Valid CrimsonTableRequest request) {
-        Page<Oficina> oficinas = service.allByCrimson(request);
-        return CrimsonTableResponse.of(oficinas, new String[]{
-                "id",
-                "pais.id",
-                "pais.codigo",
-                "pais.nombre",
-                "pais.codigoIso",
-                "pais.longitud",
-                "pais.latitud",
-                "capacidadActual",
-                "capacidadMaxima",
-                "estado",
-                "codigo"
-        });
+    public ArrayNode eduardo() {
+        List<Oficina> oficinas = service.all();
+        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            arr.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance));
+        }
+        return arr;
     }
 
 
