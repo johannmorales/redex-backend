@@ -16,7 +16,7 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE VueloAgendado va set va.capacidadActual = va.capacidadActual + 1 where va.id = :#{#vueloAgendado.id}")
-    public void incrementarCapacidadActual(@Param("vueloAgendado") VueloAgendado vueloAgendado);
+    void incrementarCapacidadActual(@Param("vueloAgendado") VueloAgendado vueloAgendado);
 
     @Query(""
             + "select va from VueloAgendado va "
@@ -41,25 +41,28 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             + "    od.codigo like %:q% "
             + "  ) "
             + "  order by va.id desc")
-    public Page<VueloAgendado> crimsonList(@Param("q") String q, Pageable pageable);
+    Page<VueloAgendado> crimsonList(@Param("q") String q, Pageable pageable);
 
-    public List<VueloAgendado> findAllByFechaInicioAfter(LocalDateTime fechaInicio);
-
-    @Query(" "
-            + "select va from VueloAgendado va "
-            + " join fetch va.vuelo v"
-            + " join fetch v.oficinaOrigen oo "
-            + " join fetch v.oficinaDestino od "
-            + "where "
-            + " va.fechaInicio > :inicio and"
-            + " va.fechaFin < :fin ")
-    public List<VueloAgendado> findAllByFechaInicioAfterAndFechaFinBefore(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
+    @Query(" " +
+            " select sva from VueloAgendado sva " +
+            "   join fetch sva.vuelo v" +
+            "   join fetch v.oficinaOrigen oo " +
+            "   join fetch v.oficinaDestino od " +
+            " where " +
+            "   sva.fechaInicio > :inicio and " +
+            "   sva.fechaFin < :fin and " +
+            "   sva.capacidadActual < sva.capacidadMaxima and " +
+            "   oo.estado = 'ACTIVO' and " +
+            "   od.estado = 'ACTIVO' " +
+            " order by sva.fechaInicio asc "
+    )
+    List<VueloAgendado> findAllAlgoritmo(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
 
     @Override
     @Query(" select va from VueloAgendado va "
             + " join fetch va.vuelo v"
             + " join fetch v.oficinaOrigen oo "
             + " join fetch v.oficinaDestino od ")
-    public List<VueloAgendado> findAll();
+    List<VueloAgendado> findAll();
 
 }

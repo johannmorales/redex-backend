@@ -32,16 +32,36 @@ public class OficinasController {
     public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request) {
         Page<Oficina> oficinas = service.allByCrimson(request);
         return CrimsonTableResponse.of(oficinas, new String[]{
-            "id",
-            "pais.id",
-            "pais.codigo",
-            "pais.nombre",
-            "capacidadActual",
-            "capacidadMaxima",
-            "estado",
-            "codigo"
+                "id",
+                "pais.id",
+                "pais.codigo",
+                "pais.nombre",
+                "capacidadActual",
+                "capacidadMaxima",
+                "estado",
+                "codigo"
+
         });
     }
+
+    @GetMapping("eduardo")
+    public CrimsonTableResponse eduardo(@Valid CrimsonTableRequest request) {
+        Page<Oficina> oficinas = service.allByCrimson(request);
+        return CrimsonTableResponse.of(oficinas, new String[]{
+                "id",
+                "pais.id",
+                "pais.codigo",
+                "pais.nombre",
+                "pais.codigoIso",
+                "pais.longitud",
+                "pais.latitud",
+                "capacidadActual",
+                "capacidadMaxima",
+                "estado",
+                "codigo"
+        });
+    }
+
 
     @PostMapping("/carga")
     public CargaDatosResponse carga(@RequestParam("file") MultipartFile file) {

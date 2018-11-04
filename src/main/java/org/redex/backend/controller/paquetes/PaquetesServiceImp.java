@@ -222,7 +222,7 @@ public class PaquetesServiceImp implements PaquetesService {
             fechaFin = fechaFin.plusHours(24L);
         }
 
-        List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAllByFechaInicioAfterAndFechaFinBefore(fechaInicio, fechaFin);
+        List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAllAlgoritmo(fechaInicio, fechaFin);
 
         List<VueloAgendado> va = AlgoritmoWrapper.sistemaRun(p, vuelosAgendados, oficinas);
 
