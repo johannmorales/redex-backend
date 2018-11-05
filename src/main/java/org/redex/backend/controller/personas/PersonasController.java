@@ -31,18 +31,18 @@ public class PersonasController {
     public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request) {
         Page<Persona> list = service.allByCrimson(request);
         return CrimsonTableResponse.of(list, new String[]{
-            "id",
-            "nombres",
-            "paterno",
-            "materno",
-            "email",
-            "telefono",
-            "celular",
-            "pais.id",
-            "tipoDocumentoIdentidad.*",
-            "numeroDocumentoIdentidad",
-            "pais.codigo",
-            "pais.nombre"
+                "id",
+                "nombres",
+                "paterno",
+                "materno",
+                "email",
+                "telefono",
+                "celular",
+                "pais.id",
+                "tipoDocumentoIdentidad.*",
+                "numeroDocumentoIdentidad",
+                "pais.codigo",
+                "pais.nombre"
         });
     }
 
@@ -56,18 +56,18 @@ public class PersonasController {
         Persona item = service.find(id);
 
         return JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-            "id",
-            "nombres",
-            "paterno",
-            "materno",
-            "email",
-            "telefono",
-            "celular",
-            "pais.id",
-            "tipoDocumentoIdentidad.*",
-            "numeroDocumentoIdentidad",
-            "pais.codigo",
-            "pais.nombre"
+                "id",
+                "nombres",
+                "paterno",
+                "materno",
+                "email",
+                "telefono",
+                "celular",
+                "pais.id",
+                "tipoDocumentoIdentidad.*",
+                "numeroDocumentoIdentidad",
+                "pais.codigo",
+                "pais.nombre"
         });
     }
 

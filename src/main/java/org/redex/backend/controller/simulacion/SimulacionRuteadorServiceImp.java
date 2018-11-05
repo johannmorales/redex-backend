@@ -1,9 +1,8 @@
 package org.redex.backend.controller.simulacion;
 
 import org.redex.backend.algorithm.AlgoritmoWrapper;
-import org.redex.backend.model.simulacion.SimulacionOficina;
-import org.redex.backend.model.simulacion.SimulacionPaquete;
-import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
+import org.redex.backend.model.simulacion.*;
+import org.redex.backend.repository.SimulacionAccionRepository;
 import org.redex.backend.repository.SimulacionOficinasRepository;
 import org.redex.backend.repository.SimulacionVueloAgendadoRepository;
 import org.redex.backend.repository.SimulacionVuelosRepository;
@@ -28,6 +27,10 @@ public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
 
     @Autowired
     SimulacionVueloAgendadoRepository vueloAgendadoRepository;
+
+    @Autowired
+    SimulacionAccionRepository accionRepository;
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -55,6 +58,15 @@ public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
             } else {
                 vueloAgendadoRepository.agregarPaquete(step);
             }
+        }
+    }
+
+    @Override
+    public void accionesVuelosSalida(LocalDateTime inicio, LocalDateTime fin, Simulacion s) {
+        List<SimulacionVueloAgendado> vueloAgendados = vueloAgendadoRepository.findAllByWindow(inicio, fin , s);
+        for (SimulacionVueloAgendado va : vueloAgendados) {
+            SimulacionAccion sa = SimulacionAccion.of(va);
+            accionRepository.save(sa);
         }
     }
 
