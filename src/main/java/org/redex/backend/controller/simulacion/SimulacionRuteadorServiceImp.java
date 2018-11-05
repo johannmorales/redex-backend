@@ -9,6 +9,7 @@ import org.redex.backend.repository.SimulacionVueloAgendadoRepository;
 import org.redex.backend.repository.SimulacionVuelosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -29,9 +30,13 @@ public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
     SimulacionVueloAgendadoRepository vueloAgendadoRepository;
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void findRuta(SimulacionPaquete paquete) {
         LocalDateTime inicio = paquete.getFechaIngreso();
-        LocalDateTime fin = paquete.getOficinaOrigen().getPais().getContinente() == paquete.getOficinaDestino().getPais().getContinente() ? inicio.plus(24, ChronoUnit.HOURS) : inicio.plus(48, ChronoUnit.HOURS);
+        LocalDateTime fin =
+                paquete.getOficinaOrigen().getPais().getContinente() == paquete.getOficinaDestino().getPais().getContinente()
+                        ? inicio.plus(24, ChronoUnit.HOURS)
+                        : inicio.plus(48, ChronoUnit.HOURS);
 
         List<SimulacionOficina> oficinas = oficinasRepository.findAllBySimulacion(paquete.getSimulacion());
 
@@ -40,6 +45,17 @@ public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
         List<SimulacionVueloAgendado> vuelosTerminan = vueloAgendadoRepository.findAllAlgoritmoTerminan(paquete.getSimulacion(), inicio, fin);
 
         List<SimulacionVueloAgendado> ruta = AlgoritmoWrapper.simulacionRun(paquete, vueloAgendados, vuelosTerminan, oficinas);
+
+        int n = 0;
+
+        for (SimulacionVueloAgendado step : ruta) {
+            n++;
+            if (n == ruta.size()) {
+                vueloAgendadoRepository.agregarFinalPaquete(step);
+            } else {
+                vueloAgendadoRepository.agregarPaquete(step);
+            }
+        }
     }
 
 

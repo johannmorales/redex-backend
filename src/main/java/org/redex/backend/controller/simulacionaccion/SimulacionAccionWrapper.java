@@ -27,100 +27,59 @@ public class SimulacionAccionWrapper {
     private Integer cantidad;
     
     private Integer cantidadSalida;
-    /**
-     * @return the tipo
-     */
+
     public String getTipo() {
         return tipo;
     }
 
-    /**
-     * @param tipo the tipo to set
-     */
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 
-    /**
-     * @return the oficinaLlegada
-     */
     public String getOficinaLlegada() {
         return oficinaLlegada;
     }
 
-    /**
-     * @param oficinaLlegada the oficinaLlegada to set
-     */
     public void setOficinaLlegada(String oficinaLlegada) {
         this.oficinaLlegada = oficinaLlegada;
     }
 
-    /**
-     * @return the oficinaSalida
-     */
     public String getOficinaSalida() {
         return oficinaSalida;
     }
 
-    /**
-     * @param oficinaSalida the oficinaSalida to set
-     */
     public void setOficinaSalida(String oficinaSalida) {
         this.oficinaSalida = oficinaSalida;
     }
 
-    /**
-     * @return the fechaSalida
-     */
     public Long getFechaSalida() {
         return fechaSalida;
     }
 
-    /**
-     * @param fechaSalida the fechaSalida to set
-     */
     public void setFechaSalida(Long fechaSalida) {
         this.fechaSalida = fechaSalida;
     }
 
-    /**
-     * @return the fechaLlegada
-     */
     public Long getFechaLlegada() {
         return fechaLlegada;
     }
 
-    /**
-     * @param fechaLlegada the fechaLlegada to set
-     */
     public void setFechaLlegada(Long fechaLlegada) {
         this.fechaLlegada = fechaLlegada;
     }
 
-    /**
-     * @return the cantidad
-     */
     public Integer getCantidad() {
         return cantidad;
     }
 
-    /**
-     * @param cantidad the cantidad to set
-     */
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
     }
 
-    /**
-     * @return the cantidadSalida
-     */
     public Integer getCantidadSalida() {
         return cantidadSalida;
     }
 
-    /**
-     * @param cantidadSalida the cantidadSalida to set
-     */
     public void setCantidadSalida(Integer cantidadSalida) {
         this.cantidadSalida = cantidadSalida;
     }
@@ -134,7 +93,9 @@ public class SimulacionAccionWrapper {
         if(a.getOficinaOrigen() != null){
             w.setOficinaSalida(a.getOficinaOrigen().getPais().getCodigoIso());
         }
-        w.setFechaLlegada((Long) a.getFechaFin().toInstant(ZoneOffset.UTC).toEpochMilli());
+        if(a.getFechaFin() != null){
+            w.setFechaLlegada((Long) a.getFechaFin().toInstant(ZoneOffset.UTC).toEpochMilli());
+        }
         if(a.getFechaInicio() != null){
             w.setFechaSalida((Long) a.getFechaInicio().toInstant(ZoneOffset.UTC).toEpochMilli());
         }

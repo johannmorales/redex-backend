@@ -286,6 +286,8 @@ public class SimulacionServiceImp implements SimulacionService {
             simulacionRuteadoService.findRuta(paquete);
         }
 
+        List<SimulacionVueloAgendado> vueloAgendados = simulacionVueloAgendadoRepository.findAllByWindow(request.getInicio(), request.getFin(), simulacion);
+
         List<SimulacionAccion> acciones = accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
 
 

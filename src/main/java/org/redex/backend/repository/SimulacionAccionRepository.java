@@ -20,7 +20,8 @@ public interface SimulacionAccionRepository extends JpaRepository<SimulacionAcci
             " where " +
             "   s.id = :s and " +
             "   fechaInicio >= :inicio and " +
-            "   fechaFin < :fin")
+            "   fechaFin < :fin " +
+            " order by a.")
     List<SimulacionAccion> findAllBySimulacionVentana(
             @Param("inicio") LocalDateTime inicio,
             @Param("fin") LocalDateTime fin,
