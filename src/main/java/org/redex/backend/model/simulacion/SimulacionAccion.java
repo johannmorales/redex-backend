@@ -44,7 +44,7 @@ public class SimulacionAccion implements Serializable {
 
     public static SimulacionAccion of(SimulacionPaquete sp){
         SimulacionAccion a = new SimulacionAccion();
-        a.setFechaInicio(sp.getFechaIngreso());
+        a.setFechaFin(sp.getFechaIngreso());
         a.setOficinaOrigen(sp.getOficinaOrigen());
         a.setSimulacion(sp.getSimulacion());
         a.setTipo(SimulacionAccionTipoEnum.REGISTRO);
