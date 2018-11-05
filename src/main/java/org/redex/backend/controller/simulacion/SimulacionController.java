@@ -1,8 +1,17 @@
 package org.redex.backend.controller.simulacion;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.simulacion.Simulacion;
 import org.redex.backend.model.simulacion.SimulacionAccion;
+import org.redex.backend.model.simulacion.SimulacionPaquete;
+import org.redex.backend.model.simulacion.SimulacionVuelo;
+import org.redex.backend.repository.SimulacionPaquetesRepository;
+import org.redex.backend.repository.SimulacionRepository;
+import org.redex.backend.repository.SimulacionVueloAgendadoRepository;
+import org.redex.backend.repository.SimulacionVuelosRepository;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.redex.backend.zelper.response.ApplicationResponse;
@@ -25,6 +34,18 @@ public class SimulacionController {
 
     @Autowired
     SimulacionService service;
+
+    @Autowired
+    SimulacionRepository simulacionRepository;
+
+    @Autowired
+    SimulacionPaquetesRepository paquetesRepository;
+
+    @Autowired
+    SimulacionVueloAgendadoRepository vueloAgendadoRepository;
+
+    @Autowired
+    SimulacionVuelosRepository vuelosRepository;
 
     @RequestMapping("/{id}/estado")
     public void greeting(@RequestParam Long id) {
@@ -72,9 +93,15 @@ public class SimulacionController {
         });
     }
     
-    @GetMapping("window")
+    @PostMapping("window")
     public ResponseEntity<?> getWindow(WindowRequest request){
+        Simulacion s = simulacionRepository.getOne(request.getSimulacion());
+        LocalDateTime inicio = request.getInicio();
+        LocalDateTime fin = request.getFin();
         List<SimulacionAccion> acciones = service.accionesByWindow(request);
+
+        List<SimulacionPaquete> paquetes = paquetesRepository.findAllBySimulacionAndFechaIngresoBetween(s, inicio, fin);
+
         return ResponseEntity.ok(acciones);
     }
 

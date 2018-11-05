@@ -3,6 +3,8 @@ package org.redex.backend.controller.simulacion;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import static java.lang.Character.codePointBefore;
 import static java.lang.Character.isDigit;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +24,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.redex.backend.controller.oficinas.OficinasServiceImp;
+import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.general.Pais;
+import org.redex.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.redex.backend.model.simulacion.Simulacion;
 import org.redex.backend.model.simulacion.SimulacionAccion;
@@ -31,17 +35,12 @@ import org.redex.backend.model.simulacion.SimulacionOficina;
 import org.redex.backend.model.simulacion.SimulacionPaquete;
 import org.redex.backend.model.simulacion.SimulacionVuelo;
 import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
-import org.redex.backend.repository.PaisesRepository;
-import org.redex.backend.repository.SimulacionOficinasRepository;
-import org.redex.backend.repository.SimulacionPaquetesRepository;
-import org.redex.backend.repository.SimulacionRepository;
-import org.redex.backend.repository.SimulacionVueloAgendadoRepository;
-import org.redex.backend.repository.SimulacionVuelosRepository;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -66,6 +65,12 @@ public class SimulacionServiceImp implements SimulacionService {
 
     @Autowired
     SimulacionVueloAgendadoRepository simulacionVueloAgendadoRepository;
+
+    @Autowired
+    SimulacionRuteadoService simulacionRuteadoService;
+
+    @Autowired
+    SimulacionAccionRepository accionRepository;
 
     @Override
     @Transactional
@@ -100,6 +105,7 @@ public class SimulacionServiceImp implements SimulacionService {
                 }
             }
             nuevosPaquetes.forEach((paquete) -> {
+                accionRepository.save(SimulacionAccion.of(paquete));
                 simulacionPaquetesRepository.save(paquete);
             });
         } catch (IOException ex) {
@@ -276,21 +282,15 @@ public class SimulacionServiceImp implements SimulacionService {
 
         List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
 
-        List<SimulacionVueloAgendado> vuelosAgendadosTerminan = simulacionVueloAgendadoRepository.findAllAlgoritmoTerminan(simulacion, request.getInicio(), request.getFin());
-
-        List<SimulacionVueloAgendado> vuelosAgendados = simulacionVueloAgendadoRepository.findAllAlgoritmo(simulacion, request.getInicio(), request.getFin());
-        
-        List<SimulacionAccion> acciones = new ArrayList<>();
-        
-        for (SimulacionVueloAgendado va : vuelosAgendados) {
-            acciones.add(SimulacionAccion.of(va));
+        for (SimulacionPaquete paquete : paquetes) {
+            simulacionRuteadoService.findRuta(paquete);
         }
-        
-        
-        
-        Collections.sort(acciones, Comparator.comparing(SimulacionAccion::getFechaInicio));
-        
+
+        List<SimulacionAccion> acciones = accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
+
+
         return acciones;
     }
+
 
 }
