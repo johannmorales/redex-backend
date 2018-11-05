@@ -61,9 +61,9 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
 
     @Modifying(clearAutomatically = true)
     @Query(" " +
-            " update SimulacionVueloAgendado va " +
+            " UPDATE SimulacionVueloAgendado va " +
             " set " +
-            "   va.capacidadActual = va.capacidadActual + 1 and " +
+            "   va.capacidadActual = va.capacidadActual + 1,   " +
             "   va.cantidadSalida = va.cantidadSalida + 1 " +
             " where " +
             "   va.id = :va ")
