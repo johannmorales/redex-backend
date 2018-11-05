@@ -72,10 +72,12 @@ public class PersonasController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> save(@RequestBody Persona persona) {
-        service.save(persona);
-        return ResponseEntity.ok(JsonHelper.createJson(this, JsonNodeFactory.instance, new String[]{
-            "id"
+    public ResponseEntity<?> save(@RequestBody PersonaRegistro form) {
+        Persona persona = service.save(form);
+        return ResponseEntity.ok(JsonHelper.createJson(persona, JsonNodeFactory.instance, new String[]{
+                "id",
+                "nombreCompleto",
+                "nombreCorto"
         }));
     }
 

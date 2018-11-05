@@ -118,10 +118,10 @@ public class PersonasServiceImp implements PersonasService {
     }
 
     @Override
-    public void save(Persona persona) {
-        Persona p = new Persona();
-        
+    public Persona save(PersonaRegistro personaRegistro) {
+        Persona p = personaRegistro.crearPersona();
         personaRepository.save(p);
+        return p;
     }
 
     @Override
