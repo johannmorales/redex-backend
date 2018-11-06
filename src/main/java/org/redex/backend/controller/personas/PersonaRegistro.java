@@ -1,6 +1,7 @@
 package org.redex.backend.controller.personas;
 
 import org.redex.backend.model.general.Persona;
+import org.redex.backend.model.general.TipoDocumentoIdentidad;
 
 public class PersonaRegistro {
 
@@ -26,7 +27,7 @@ public class PersonaRegistro {
         p.setNombres(nombres);
         p.setTelefono(telefono);
         p.setMaterno(apMaterno);
-
+        p.setTipoDocumentoIdentidad(new TipoDocumentoIdentidad(idDocumento));
         return p;
     }
 
