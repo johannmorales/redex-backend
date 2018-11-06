@@ -282,10 +282,14 @@ public class SimulacionServiceImp implements SimulacionService {
 
         Simulacion simulacion = simulacionRepository.getOne(request.getSimulacion());
         simulacionRuteadoService.generarVuelos(request.getInicio(), request.getFin(), simulacion);
-        //List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
-        //for (SimulacionPaquete paquete : paquetes) {
-        //    simulacionRuteadoService.findRuta(paquete);
-        //}
+        List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
+        for (SimulacionPaquete paquete : paquetes) {
+            try {
+                simulacionRuteadoService.findRuta(paquete);
+            }catch (Exception ex){
+
+            }
+        }
         simulacionRuteadoService.accionesVuelosSalida(request.getInicio(), request.getFin(), simulacion);
         return  accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
     }
