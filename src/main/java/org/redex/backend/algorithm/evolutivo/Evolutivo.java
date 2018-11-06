@@ -28,10 +28,10 @@ public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
-    private int iteraciones = 250;
-    private int populationSize = 25;
+    private int iteraciones = 150;
+    private int populationSize = 20;
     private double surviveRatio = 0.8;
-    private double mutationRatio = 0.25;
+    private double mutationRatio = 0.2;
 
     private int K1 = 1;
     private int K2 = 1;

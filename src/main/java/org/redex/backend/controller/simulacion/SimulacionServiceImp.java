@@ -18,11 +18,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.PathNotFoundException;
 import org.redex.backend.controller.oficinas.OficinasServiceImp;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.general.Pais;
@@ -47,6 +49,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @Transactional(readOnly = true)
 public class SimulacionServiceImp implements SimulacionService {
+
+    private final Logger logger = LogManager.getLogger(SimulacionServiceImp.class);
 
     @Autowired
     SimulacionOficinasRepository simulacionOficinasRepository;
@@ -109,7 +113,6 @@ public class SimulacionServiceImp implements SimulacionService {
                 simulacionPaquetesRepository.save(paquete);
             });
         } catch (IOException ex) {
-            Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
 
@@ -164,7 +167,6 @@ public class SimulacionServiceImp implements SimulacionService {
             });
 
         } catch (IOException ex) {
-            Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
@@ -208,7 +210,6 @@ public class SimulacionServiceImp implements SimulacionService {
             });
 
         } catch (IOException ex) {
-            Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
@@ -286,9 +287,9 @@ public class SimulacionServiceImp implements SimulacionService {
         for (SimulacionPaquete paquete : paquetes) {
             try {
                 simulacionRuteadoService.findRuta(paquete);
-                System.out.println("GENERADO");
-            }catch (Exception ex){
-                System.out.println(ex.getMessage());
+                logger.info("ruta de {} a {} generada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
+            }catch (PathNotFoundException ex){
+                logger.error("ruta de {} a {} no encontrada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
 
             }
         }
