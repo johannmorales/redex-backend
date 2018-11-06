@@ -11,8 +11,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SimulacionAccionRepository extends JpaRepository<SimulacionAccion, Long> {
-    
-    List<SimulacionAccion> findAllBySimulacion(Simulacion simulacion);
+
+    @Query("" +
+            " select a from SimulacionAccion a " +
+            "   join a.simulacion s " +
+            " where " +
+            "   s = :s " +
+            " order by a.fechaInicio asc ")
+    List<SimulacionAccion> findAllBySimulacion(@Param("s") Simulacion simulacion);
 
     @Query("" +
             " select a from SimulacionAccion a " +

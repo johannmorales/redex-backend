@@ -42,14 +42,16 @@ public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
         LocalDateTime inicio = paquete.getFechaIngreso();
         LocalDateTime fin =
                 paquete.getOficinaOrigen().getPais().getContinente() == paquete.getOficinaDestino().getPais().getContinente()
-                        ? inicio.plus(24, ChronoUnit.HOURS)
-                        : inicio.plus(48, ChronoUnit.HOURS);
+                        ? inicio.plus(10000, ChronoUnit.HOURS)
+                        : inicio.plus(10000, ChronoUnit.HOURS);
 
         List<SimulacionOficina> oficinas = oficinasRepository.findAllBySimulacion(paquete.getSimulacion());
 
         List<SimulacionVueloAgendado> vueloAgendados = vueloAgendadoRepository.findAllAlgoritmo(paquete.getSimulacion(), inicio, fin);
 
         List<SimulacionVueloAgendado> vuelosTerminan = vueloAgendadoRepository.findAllAlgoritmoTerminan(paquete.getSimulacion(), inicio, fin);
+
+        logger.info(" oficinas {} || vuelos: {} || terminan: {}", oficinas.size(), vueloAgendados.size(), vuelosTerminan.size());
 
         List<SimulacionVueloAgendado> ruta = AlgoritmoWrapper.simulacionRun(paquete, vueloAgendados, vuelosTerminan, oficinas);
 

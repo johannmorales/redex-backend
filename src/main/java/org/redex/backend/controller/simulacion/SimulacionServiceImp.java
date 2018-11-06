@@ -286,12 +286,19 @@ public class SimulacionServiceImp implements SimulacionService {
         for (SimulacionPaquete paquete : paquetes) {
             try {
                 simulacionRuteadoService.findRuta(paquete);
+                System.out.println("GENERADO");
             }catch (Exception ex){
+                System.out.println(ex.getMessage());
 
             }
         }
         simulacionRuteadoService.accionesVuelosSalida(request.getInicio(), request.getFin(), simulacion);
         return  accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
+    }
+
+    @Override
+    public List<SimulacionOficina> listOficinas(Long id) {
+        return simulacionOficinasRepository.findAllBySimulacion(new Simulacion(id));
     }
 
 

@@ -101,7 +101,10 @@ public class GestorAlgoritmo {
     private void agregarVueloAgendado(AlgoritmoVueloAgendado va) {
         LocalDateTime momento = va.getFechaInicio();
         AlgoritmoOficina oficina = va.getOficinaOrigen();
-        
+
+        if(oficina.getCodigo().equals("BIKF") && va.getOficinaDestino().getCodigo().equals("SLLP")) {
+            System.out.println("HOLA MUNDO");
+        }
         if (!vuelosAgendadosPorOrigen.containsKey(momento)) {
             vuelosAgendadosPorOrigen.put(momento, new HashMap<>());
         }
