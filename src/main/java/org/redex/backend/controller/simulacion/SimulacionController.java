@@ -72,7 +72,7 @@ public class SimulacionController {
     }
 
 
-    @PostMapping("/{id}/oficinas")
+    @GetMapping("/{id}/oficinas")
     public ArrayNode oficinas(@PathVariable Long id) {
         List<SimulacionOficina> oficinas = service.listOficinas(id);
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
