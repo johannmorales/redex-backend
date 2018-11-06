@@ -278,14 +278,15 @@ public class SimulacionServiceImp implements SimulacionService {
 
     @Override
     public List<SimulacionAccion> accionesByWindow(WindowRequest request) {
+
         Simulacion simulacion = simulacionRepository.getOne(request.getSimulacion());
+        simulacionRuteadoService.generarVuelos(request.getInicio(), request.getFin(), simulacion);
         List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
         for (SimulacionPaquete paquete : paquetes) {
             simulacionRuteadoService.findRuta(paquete);
         }
         simulacionRuteadoService.accionesVuelosSalida(request.getInicio(), request.getFin(), simulacion);
-        List<SimulacionAccion> acciones = accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
-        return acciones;
+        return  accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
     }
 
 

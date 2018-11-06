@@ -118,6 +118,7 @@ public class PersonasServiceImp implements PersonasService {
     }
 
     @Override
+    @Transactional
     public Persona save(PersonaRegistro personaRegistro) {
         Persona p = personaRegistro.crearPersona();
         personaRepository.save(p);

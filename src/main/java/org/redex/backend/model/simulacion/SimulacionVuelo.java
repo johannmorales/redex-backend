@@ -40,6 +40,14 @@ public class SimulacionVuelo implements Serializable {
     @JoinColumn(name = "id_oficina_destino", nullable = false)
     private SimulacionOficina oficinaDestino;
 
+    public boolean esDeUnDia(){
+        if(horaInicio.isBefore(horaFin)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public Long getId() {
         return id;
     }

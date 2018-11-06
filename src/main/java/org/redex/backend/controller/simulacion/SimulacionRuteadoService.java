@@ -10,4 +10,6 @@ public interface SimulacionRuteadoService {
     void findRuta(SimulacionPaquete paquete);
 
     void accionesVuelosSalida(LocalDateTime inicio, LocalDateTime fin, Simulacion s);
+
+    void generarVuelos(LocalDateTime inicio, LocalDateTime fin, Simulacion simulacion);
 }

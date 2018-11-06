@@ -36,7 +36,7 @@ public class SimulacionAccion implements Serializable {
     @Column(nullable = false)
     private Integer cantidad;
 
-    @Column(nullable = true)
+    @Column
     private Integer cantidadSalida;
 
     public SimulacionAccion() {

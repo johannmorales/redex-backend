@@ -1,7 +1,6 @@
 package org.redex.backend.controller.personas;
 
 import org.redex.backend.model.general.Persona;
-import org.springframework.security.core.parameters.P;
 
 public class PersonaRegistro {
 
