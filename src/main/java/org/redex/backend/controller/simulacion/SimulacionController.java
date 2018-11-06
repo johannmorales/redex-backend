@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.simulacion.*;
@@ -77,16 +78,19 @@ public class SimulacionController {
         List<SimulacionOficina> oficinas = service.listOficinas(id);
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
         for (SimulacionOficina oficina : oficinas) {
-            arr.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+
+            ObjectNode oficinaNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
                     "id",
-                    "capacidadActual",
                     "capacidadMaxima",
                     "pais.id",
                     "pais.codigo",
                     "pais.codigoIso",
                     "pais.latitud",
                     "pais.longitud",
-            }));
+            });
+            oficinaNode.put("capacidadActual",oficina.getCapacidadInicial());
+
+            arr.add(oficinaNode);
         }
 
         return arr;
