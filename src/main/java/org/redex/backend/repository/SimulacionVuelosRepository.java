@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -29,4 +30,5 @@ public interface SimulacionVuelosRepository extends JpaRepository<SimulacionVuel
             "   v.simulacion = :s " +
             " order by  v.horaInicio asc ")
     List<SimulacionVuelo> findAllBySimulacion(@Param("s") Simulacion simulacion);
+
 }

@@ -3,6 +3,8 @@ package org.redex.backend.controller.personas;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.validation.Valid;
+
+import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
@@ -92,9 +94,7 @@ public class PersonasController {
                 "nombreCorto"
             }));
         } else {
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            node.set("id", null);
-            return ResponseEntity.ok(node);
+            throw new ResourceNotFoundException("Persona", "DNI", request.numeroDocumentoIdentidad);
         }
 
     }

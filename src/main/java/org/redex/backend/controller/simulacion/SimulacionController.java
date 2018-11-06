@@ -3,6 +3,9 @@ package org.redex.backend.controller.simulacion;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.simulacion.Simulacion;
 import org.redex.backend.model.simulacion.SimulacionAccion;
@@ -22,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 @RestController
@@ -91,14 +95,12 @@ public class SimulacionController {
     
     @PostMapping("window")
     public ResponseEntity<?> getWindow(@RequestBody WindowRequest request){
-        Simulacion s = simulacionRepository.getOne(request.getSimulacion());
-        LocalDateTime inicio = request.getInicio();
-        LocalDateTime fin = request.getFin();
         List<SimulacionAccion> acciones = service.accionesByWindow(request);
-
-        List<SimulacionPaquete> paquetes = paquetesRepository.findAllBySimulacionAndFechaIngresoBetween(s, inicio, fin);
-
-        return ResponseEntity.ok(acciones);
+        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        for (SimulacionAccion accion : acciones) {
+            arr.add(JsonHelper.createJson(SimulacionAccionWrapper.of(accion), JsonNodeFactory.instance));
+        }
+        return ResponseEntity.ok(arr);
     }
 
 }

@@ -1,11 +1,10 @@
 package org.redex.backend.controller.simulacion;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.AlgoritmoWrapper;
 import org.redex.backend.model.simulacion.*;
-import org.redex.backend.repository.SimulacionAccionRepository;
-import org.redex.backend.repository.SimulacionOficinasRepository;
-import org.redex.backend.repository.SimulacionVueloAgendadoRepository;
-import org.redex.backend.repository.SimulacionVuelosRepository;
+import org.redex.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,6 +20,9 @@ import java.util.List;
 public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
 
     @Autowired
+    SimulacionRepository simulacionRepository;
+
+    @Autowired
     SimulacionOficinasRepository oficinasRepository;
 
     @Autowired
@@ -33,6 +35,7 @@ public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
     SimulacionAccionRepository accionRepository;
 
 
+    public static final Logger logger = LogManager.getLogger(SimulacionRuteadorServiceImp.class);
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void findRuta(SimulacionPaquete paquete) {
@@ -64,7 +67,8 @@ public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
 
     @Override
     public void accionesVuelosSalida(LocalDateTime inicio, LocalDateTime fin, Simulacion s) {
-        List<SimulacionVueloAgendado> vueloAgendados = vueloAgendadoRepository.findAllByWindow(inicio, fin, s);
+        List<SimulacionVueloAgendado> vueloAgendados = vueloAgendadoRepository.findAllByWindowGenerarAccion(inicio, fin, s);
+        vueloAgendadoRepository.marcarAccionGenerada(inicio, fin, s);
         for (SimulacionVueloAgendado va : vueloAgendados) {
             SimulacionAccion sa = SimulacionAccion.of(va);
             accionRepository.save(sa);
@@ -85,12 +89,16 @@ public class SimulacionRuteadorServiceImp implements SimulacionRuteadoService {
             inicioGeneracion = inicio;
         }
 
-        LocalDateTime finGeneracion = inicioGeneracion.plusHours(94L);
+        LocalDateTime finGeneracion = inicioGeneracion.plusHours(49L);
 
         List<SimulacionVuelo> vuelos = vuelosRepository.findAllBySimulacion(simulacion);
         int dia = 0;
 
         LocalDateTime current = inicioGeneracion;
+
+
+        simulacion.setFechaFin(finGeneracion);
+        simulacionRepository.save(simulacion);
 
         while (true) {
             for (SimulacionVuelo vuelo : vuelos) {

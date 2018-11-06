@@ -91,10 +91,42 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             " where " +
             "   sva.fechaInicio >= :inicio and " +
             "   sva.fechaFin < :fin and " +
-            "   sva.simulacion = :s" +
+            "   sva.simulacion = :s " +
             " order by sva.fechaInicio asc "
     )
     List<SimulacionVueloAgendado> findAllByWindow(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin,
+            @Param("s") Simulacion simulacion
+    );
+
+    @Query(" " +
+            " select sva from SimulacionVueloAgendado sva " +
+            "   join fetch sva.vuelo v" +
+            "   join fetch v.oficinaOrigen oo " +
+            "   join fetch v.oficinaDestino od" +
+            " where " +
+            "   sva.fechaInicio >= :inicio and " +
+            "   sva.fechaFin < :fin and " +
+            "   sva.simulacion = :s and " +
+            "   ( sva.accionGenerada = null or sva.accionGenerada = false ) " +
+            " order by sva.fechaInicio asc "
+    )
+    List<SimulacionVueloAgendado> findAllByWindowGenerarAccion(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin,
+            @Param("s") Simulacion simulacion
+    );
+
+    @Modifying(clearAutomatically = true)
+    @Query(" " +
+            " update SimulacionVueloAgendado sva " +
+            " set sva.accionGenerada = true" +
+            " where " +
+            "   sva.fechaInicio >= :inicio and " +
+            "   sva.fechaFin < :fin and " +
+            "   sva.simulacion = :s")
+    void marcarAccionGenerada(
             @Param("inicio") LocalDateTime inicio,
             @Param("fin") LocalDateTime fin,
             @Param("s") Simulacion simulacion

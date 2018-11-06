@@ -43,6 +43,9 @@ public class SimulacionVueloAgendado implements Serializable {
     @Column
     private Integer cantidadSalida;
 
+    @Column
+    private Boolean accionGenerada;
+
     public LocalDateTime getFechaFin() {
         return fechaFin;
     }
@@ -105,6 +108,14 @@ public class SimulacionVueloAgendado implements Serializable {
 
     public void setVuelo(SimulacionVuelo vuelo) {
         this.vuelo = vuelo;
+    }
+
+    public Boolean getAccionGenerada() {
+        return accionGenerada;
+    }
+
+    public void setAccionGenerada(Boolean accionGenerada) {
+        this.accionGenerada = accionGenerada;
     }
 
 }
