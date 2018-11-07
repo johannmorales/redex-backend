@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 public class AlgoritmoVueloAgendado {
 
@@ -31,7 +32,8 @@ public class AlgoritmoVueloAgendado {
         ava.setFechaFin(sva.getFechaFin());
         ava.setCapacidadActual(sva.getCapacidadActual());
         ava.setCapacidadMaxima(sva.getCapacidadMaxima());
-
+        ava.setOficinaOrigen(oficinas.get(sva.getVuelo().getOficinaOrigen().getCodigo()));
+        ava.setOficinaDestino(oficinas.get(sva.getVuelo().getOficinaDestino().getCodigo()));
         return ava;
     }
 

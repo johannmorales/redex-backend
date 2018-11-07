@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.AlgoritmoOficina;
 import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
 import org.redex.backend.model.envios.VueloAgendado;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 public class GestorAlgoritmo {
     
@@ -102,9 +103,6 @@ public class GestorAlgoritmo {
         LocalDateTime momento = va.getFechaInicio();
         AlgoritmoOficina oficina = va.getOficinaOrigen();
 
-        if(oficina.getCodigo().equals("BIKF") && va.getOficinaDestino().getCodigo().equals("SLLP")) {
-            System.out.println("HOLA MUNDO");
-        }
         if (!vuelosAgendadosPorOrigen.containsKey(momento)) {
             vuelosAgendadosPorOrigen.put(momento, new HashMap<>());
         }

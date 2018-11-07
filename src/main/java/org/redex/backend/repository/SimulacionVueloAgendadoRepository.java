@@ -16,7 +16,7 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
 
     @Query(" " +
             " select sva from SimulacionVueloAgendado sva " +
-            "   join fetch sva.vuelo v" +
+            "   join fetch sva.vuelo v " +
             "   join fetch v.oficinaOrigen oo " +
             "   join fetch v.oficinaDestino od" +
             "   join fetch oo.pais po " +
@@ -66,7 +66,7 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             "   va.capacidadActual = va.capacidadActual + 1,   " +
             "   va.cantidadSalida = va.cantidadSalida + 1 " +
             " where " +
-            "   va.id = :va ")
+            "   va = :va ")
     void agregarFinalPaquete(@Param("va") SimulacionVueloAgendado step);
 
     @Modifying(clearAutomatically = true)
@@ -75,7 +75,7 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             " set " +
             "   va.capacidadActual = va.capacidadActual + 1 " +
             " where " +
-            "   va.id = :va ")
+            "   va = :va ")
     void agregarPaquete(@Param("va") SimulacionVueloAgendado step);
 
 

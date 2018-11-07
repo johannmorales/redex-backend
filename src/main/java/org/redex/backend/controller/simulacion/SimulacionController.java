@@ -78,9 +78,9 @@ public class SimulacionController {
         List<SimulacionOficina> oficinas = service.listOficinas(id);
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
         for (SimulacionOficina oficina : oficinas) {
-
             ObjectNode oficinaNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
                     "id",
+                    "codigo",
                     "capacidadMaxima",
                     "pais.id",
                     "pais.codigo",
@@ -89,7 +89,6 @@ public class SimulacionController {
                     "pais.longitud",
             });
             oficinaNode.put("capacidadActual",oficina.getCapacidadInicial());
-
             arr.add(oficinaNode);
         }
 

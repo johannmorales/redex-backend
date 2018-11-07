@@ -77,9 +77,12 @@ public class PersonasController {
     public ResponseEntity<?> save(@RequestBody PersonaRegistro form) {
         Persona persona = service.save(form);
         return ResponseEntity.ok(JsonHelper.createJson(persona, JsonNodeFactory.instance, new String[]{
-                "id",
+                "id"
+                "numeroDocumentoIdentidad",
                 "nombreCompleto",
-                "nombreCorto"
+                "nombreCorto",
+                "tipoDocumentoIdentidad.id",
+                "tipoDocumentoIdentidad.simbolo"
         }));
     }
 
