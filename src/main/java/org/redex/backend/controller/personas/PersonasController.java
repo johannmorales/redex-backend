@@ -79,7 +79,9 @@ public class PersonasController {
         return ResponseEntity.ok(JsonHelper.createJson(persona, JsonNodeFactory.instance, new String[]{
                 "id",
                 "nombreCompleto",
-                "nombreCorto"
+                "nombreCorto",
+                "tipoDocumentoIdentidad.id",
+                "tipoDocumentoIdentidad.simbolo"
         }));
     }
 
