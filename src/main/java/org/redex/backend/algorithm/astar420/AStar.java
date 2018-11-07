@@ -10,10 +10,6 @@ import org.redex.backend.algorithm.AlgoritmoPaquete;
 import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
 import org.redex.backend.algorithm.gestor.GestorAlgoritmo;
 import org.redex.backend.algorithm.PathNotFoundException;
-import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.simulacion.SimulacionOficina;
-import org.redex.backend.model.simulacion.SimulacionPaquete;
-import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
 
 public class AStar implements Algoritmo {
 
@@ -54,11 +50,6 @@ public class AStar implements Algoritmo {
         }
 
         throw new PathNotFoundException(paquete);
-    }
-
-    @Override
-    public List<SimulacionVueloAgendado> runBatch(List<SimulacionPaquete> paquetes, List<VueloAgendado> vuelosAgendados, List<SimulacionOficina> oficinas) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
