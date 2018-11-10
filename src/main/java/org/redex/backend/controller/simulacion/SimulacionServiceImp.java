@@ -1,11 +1,23 @@
 package org.redex.backend.controller.simulacion;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.PathNotFoundException;
+import org.redex.backend.model.general.Pais;
+import org.redex.backend.model.simulacion.*;
+import org.redex.backend.repository.*;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.exception.ResourceNotFoundException;
+import org.redex.backend.zelper.response.CargaDatosResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import static java.lang.Character.codePointBefore;
-import static java.lang.Character.isDigit;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -14,37 +26,13 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.redex.backend.algorithm.PathNotFoundException;
-import org.redex.backend.controller.oficinas.OficinasServiceImp;
-import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.general.Pais;
-import org.redex.backend.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.redex.backend.model.simulacion.Simulacion;
-import org.redex.backend.model.simulacion.SimulacionAccion;
-import org.redex.backend.model.simulacion.SimulacionEstadoEnum;
-import org.redex.backend.model.simulacion.SimulacionOficina;
-import org.redex.backend.model.simulacion.SimulacionPaquete;
-import org.redex.backend.model.simulacion.SimulacionVuelo;
-import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
-import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
-import org.redex.backend.zelper.exception.ResourceNotFoundException;
-import org.redex.backend.zelper.response.CargaDatosResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import static java.lang.Character.isDigit;
 
 @Service
 @Transactional(readOnly = true)
@@ -288,13 +276,13 @@ public class SimulacionServiceImp implements SimulacionService {
             try {
                 //simulacionRuteadoService.findRuta(paquete);
                 logger.info("ruta de {} a {} generada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
-            }catch (PathNotFoundException ex){
+            } catch (PathNotFoundException ex) {
                 logger.error("ruta de {} a {} no encontrada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
 
             }
         }
         simulacionRuteadoService.accionesVuelosSalida(request.getInicio(), request.getFin(), simulacion);
-        return  accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
+        return accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
     }
 
     @Override
@@ -302,5 +290,12 @@ public class SimulacionServiceImp implements SimulacionService {
         return simulacionOficinasRepository.findAllBySimulacion(new Simulacion(id));
     }
 
+    @Override
+    @Transactional
+    public void resetear(Long id) {
+        Simulacion s = simulacionRepository.getOne(id);
+        s.setFechaFin(null);
+        simulacionRepository.save(s);
+    }
 
 }

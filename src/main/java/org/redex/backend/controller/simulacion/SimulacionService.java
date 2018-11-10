@@ -26,4 +26,7 @@ public interface SimulacionService {
     public List<SimulacionAccion> accionesByWindow(WindowRequest request);
 
     List<SimulacionOficina> listOficinas(Long id);
+
+    public void resetear(Long id);
+    
 }

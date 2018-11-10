@@ -28,10 +28,10 @@ public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
-    private int iteraciones = 150;
+    private int iteraciones = 100;
     private int populationSize = 20;
-    private double surviveRatio = 0.8;
-    private double mutationRatio = 0.2;
+    private double surviveRatio = 0.6;
+    private double mutationRatio = 0.4;
 
     private int K1 = 1;
     private int K2 = 1;
@@ -223,11 +223,6 @@ public class Evolutivo implements Algoritmo {
         costo += ChronoUnit.MINUTES.between(inicio, fin);
 
         cromosome.setCosto(costo);
-    }
-
-    @Override
-    public List<SimulacionVueloAgendado> runBatch(List<SimulacionPaquete> paquetes, List<VueloAgendado> vuelosAgendados, List<SimulacionOficina> oficinas) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

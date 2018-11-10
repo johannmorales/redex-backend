@@ -131,4 +131,19 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             @Param("fin") LocalDateTime fin,
             @Param("s") Simulacion simulacion
     );
+    
+    @Modifying(clearAutomatically = true)
+    @Query(nativeQuery = true, value = ""
+            + " insert into simulacion_vuelo_agendado (id_vuelo, fecha_inicio, fecha_fin, capacidad_actual, capacidad_maxima, accion_generada, id_simulacion) "
+            + " select  "
+            + "     id, "
+            + "     concat( :fecha, SUBSTRING(hora_fin,11) ), "
+            + "     concat( IF( hora_inicio < hora_fin , :fecha, DATE_ADD( :fecha ,INTERVAL 1 DAY)), SUBSTRING(hora_fin,11)), "
+            + "     0, "
+            + "     capacidad ,"
+            + "     0, "
+            + "     id_simulacion "
+            + " from simulacion_vuelo "
+            + " where id_simulacion = :s ")
+    void generarVuelos(@Param("fecha") String fecha, @Param("s") Long idSimulacion);
 }

@@ -10,8 +10,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PersonaRepository extends JpaRepository<Persona, Long>{
-    
+public interface PersonaRepository extends JpaRepository<Persona, Long> {
+
     @Query(""
             + "select p from Persona p "
             + "  join p.tipoDocumentoIdentidad tdoc "
@@ -23,5 +23,5 @@ public interface PersonaRepository extends JpaRepository<Persona, Long>{
     Page<Persona> crimsonList(@Param("q") String q, Pageable pageable);
 
     public Persona findByTipoDocumentoIdentidadAndNumeroDocumentoIdentidad(TipoDocumentoIdentidad tipoDocumentoIdentidad, String numeroDocumentoIdentidad);
-    
+
 }

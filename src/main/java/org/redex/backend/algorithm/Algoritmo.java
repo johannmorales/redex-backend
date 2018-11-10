@@ -8,8 +8,6 @@ import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
 
 public interface Algoritmo {
 
-    List<SimulacionVueloAgendado> runBatch(List<SimulacionPaquete> paquetes, List<VueloAgendado> vuelosAgendados, List<SimulacionOficina> oficinas);
-
     List<AlgoritmoVueloAgendado> run(AlgoritmoPaquete paquete, List<AlgoritmoVueloAgendado> vuelosAgendados, List<AlgoritmoVueloAgendado> vuelosSalida, List<AlgoritmoOficina> oficinas);
 
 }
