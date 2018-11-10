@@ -36,9 +36,12 @@ import org.redex.backend.repository.PersonaRepository;
 import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
 import org.redex.backend.repository.VuelosAgendadosRepository;
 import org.redex.backend.repository.VuelosRepository;
+import org.redex.backend.security.DataSession;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -208,6 +211,22 @@ public class PaquetesServiceImp implements PaquetesService {
         paquetesRepository.save(paquete);
 
         this.generarRuta(paquete);
+    }
+
+    @Override
+    public Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds) {
+                        return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
+
+//        switch (ds.getRol().getCodigo()){
+//            case ADMINISTRADOR:
+//            case GERENTE_GENERAL:
+//                return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
+//            case EMPLEADO:
+//            case JEFE_OFICINA:
+//                return paquetesRepository.crimsonListByOficina(request.getSearch(), ds.getOficina(), request.createPagination());
+//            default:
+//                return null;
+//        }
     }
 
     public void generarRuta(Paquete p) {

@@ -137,7 +137,7 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             + " insert into simulacion_vuelo_agendado (id_vuelo, fecha_inicio, fecha_fin, capacidad_actual, capacidad_maxima, accion_generada, id_simulacion) "
             + " select  "
             + "     id, "
-            + "     id, "
+            + "     concat( :fecha, SUBSTRING(hora_fin,11) ), "
             + "     concat( IF( hora_inicio < hora_fin , :fecha, DATE_ADD( :fecha ,INTERVAL 1 DAY)), SUBSTRING(hora_fin,11)), "
             + "     0, "
             + "     capacidad ,"

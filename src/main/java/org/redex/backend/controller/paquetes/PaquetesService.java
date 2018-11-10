@@ -2,17 +2,21 @@ package org.redex.backend.controller.paquetes;
 
 import java.util.List;
 import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.security.DataSession;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.response.CargaDatosResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PaquetesService {
 
-    public List<Paquete> list();
+    List<Paquete> list();
 
-    public Paquete find(Long id);
+    Paquete find(Long id);
 
-    public CargaDatosResponse carga(MultipartFile file);
+    CargaDatosResponse carga(MultipartFile file);
 
-    public void save(Paquete paquete);
-    
+    void save(Paquete paquete);
+
+    Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds);
 }

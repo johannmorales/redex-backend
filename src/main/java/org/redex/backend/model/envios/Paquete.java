@@ -66,7 +66,7 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     @OrderBy("orden ASC")
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "paquete", fetch = FetchType.LAZY)
     private List<PaqueteRuta> paqueteRutas;
-    
+
     public Long getId() {
         return id;
     }
