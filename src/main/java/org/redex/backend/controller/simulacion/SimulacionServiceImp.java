@@ -286,7 +286,7 @@ public class SimulacionServiceImp implements SimulacionService {
         List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
         for (SimulacionPaquete paquete : paquetes) {
             try {
-                simulacionRuteadoService.findRuta(paquete);
+                //simulacionRuteadoService.findRuta(paquete);
                 logger.info("ruta de {} a {} generada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
             }catch (PathNotFoundException ex){
                 logger.error("ruta de {} a {} no encontrada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
