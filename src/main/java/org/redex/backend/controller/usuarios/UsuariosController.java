@@ -101,6 +101,7 @@ public class UsuariosController {
         return JsonHelper.createJson(item,JsonNodeFactory.instance,new String[]{
                 "id",
                 "colaborador.*",
+                "colaborador.persona.*",
                 "rol.*",
         });
     }
