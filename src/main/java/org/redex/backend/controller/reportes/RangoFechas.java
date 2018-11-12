@@ -9,14 +9,7 @@ package org.redex.backend.controller.reportes;
  *
  * @author Oscar
  */
-public interface ReportesService {
-
-    public void paquetesXvuelo(Long id);
-    
-    public void enviosXfechas(String fI,String fF);
-    
-    public void paquetesXusuario(Long id);
-    
-    public void accionesXusuarioXoficinaXfecha();
-    
+public class RangoFechas {
+    public String fecha_ini;
+    public String fecha_fin;
 }
