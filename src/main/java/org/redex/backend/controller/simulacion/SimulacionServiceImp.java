@@ -63,6 +63,8 @@ public class SimulacionServiceImp implements SimulacionService {
     @Autowired
     VisorSimulacion visorSimulacion;
 
+    @Autowired
+    SimulacionPaquetesRepository simulacionPaquetesRepository;
 
     @Override
     @Transactional
@@ -257,14 +259,17 @@ public class SimulacionServiceImp implements SimulacionService {
         Simulacion simulacion = simulacionRepository.getOne(request.getSimulacion());
         List<SimulacionOficina> oficinas = simulacionOficinasRepository.findAllBySimulacion(simulacion);
         simulacionRuteadoService.generarVuelos(request.getInicio(), request.getFin(), simulacion);
-//        List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
-//        for (SimulacionPaquete paquete : paquetes) {
-//            try {
-//                simulacionRuteadoService.findRuta(paquete, oficinas);
-//            } catch (PathNotFoundException ex) {
-//
-//            }
-//        }
+
+        List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
+        for (SimulacionPaquete paquete : paquetes) {
+            try {
+                //simulacionRuteadoService.findRuta(paquete);
+                logger.info("ruta de {} a {} generada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
+            } catch (PathNotFoundException ex) {
+                logger.error("ruta de {} a {} no encontrada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
+
+            }
+        }
         simulacionRuteadoService.accionesVuelosSalida(request.getInicio(), request.getFin(), simulacion);
         return accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
     }

@@ -23,8 +23,11 @@ public class SimulacionAccionController {
     public ResponseEntity<?> list(@PathVariable Long id){
         List<SimulacionAccion> list = service.list(id);
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        int cont = 0;
         for (SimulacionAccion item : list) {
+            cont++;
             arr.add(JsonHelper.createJson(SimulacionAccionWrapper.of(item), JsonNodeFactory.instance));
+            if(cont>100) break;
         }
         return ResponseEntity.ok(arr);
     }
