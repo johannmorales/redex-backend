@@ -95,7 +95,8 @@ public class SimulacionAccionWrapper {
         w.fechaSalida= ava.getFechaInicio().toInstant(ZoneOffset.UTC).toEpochMilli();
         w.fechaLlegada = ava.getFechaFin().toInstant(ZoneOffset.UTC).toEpochMilli();
         w.setTipo("SALIDA");
-
+        w.setOficinaLlegada(ava.getOficinaDestino().getPais().getCodigoIso());
+        w.setOficinaSalida(ava.getOficinaOrigen().getPais().getCodigoIso());
         return w;
     }
 
@@ -106,7 +107,7 @@ public class SimulacionAccionWrapper {
         w.cantidadSalida = 0;
         w.fechaSalida= ava.getFechaRegistro().toInstant(ZoneOffset.UTC).toEpochMilli();
         w.setTipo("REGISTRO");
-
+        w.setOficinaLlegada(ava.getOficinaOrigen().getPais().getCodigoIso());
         return w;
     }
 
@@ -127,8 +128,6 @@ public class SimulacionAccionWrapper {
         if (a.getCantidadSalida() != null){
             w.setCantidadSalida(a.getCantidadSalida());
         }
-
-        
         return w;
     }
 }

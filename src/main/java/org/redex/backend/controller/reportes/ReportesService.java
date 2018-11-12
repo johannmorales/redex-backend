@@ -13,7 +13,7 @@ public interface ReportesService {
 
     public void paquetesXvuelo(Long id);
     
-    public void enviosXfechas(String fI,String fF);
+    public String enviosXfechas(String fI,String fF);
     
     public void paquetesXusuario(Long id);
     
