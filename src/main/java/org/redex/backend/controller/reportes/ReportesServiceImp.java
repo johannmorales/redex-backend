@@ -20,10 +20,6 @@ import javax.persistence.PersistenceUnit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- *
- * @author Oscar
- */
 @Service
 @Transactional(readOnly = true)
 public class ReportesServiceImp implements ReportesService{
@@ -86,11 +82,11 @@ public class ReportesServiceImp implements ReportesService{
         } catch (Exception e) {
             Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
         }
-        
+
     }
     
     @Override    
-    public void enviosXfechas(String fI,String fF){
+    public String enviosXfechas(String fI,String fF){
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -143,12 +139,15 @@ public class ReportesServiceImp implements ReportesService{
             sheet.autoSizeColumn(i);
         }
         try {
-            FileOutputStream fileOut = new FileOutputStream("Reporte_envio_fecha.xlsx");
+            String filename = "Reporte_envio_fecha.xlsx";
+            FileOutputStream fileOut = new FileOutputStream(filename);
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
+            return filename;
         } catch (Exception e) {
             Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
+            return null;
         }
     }
     
