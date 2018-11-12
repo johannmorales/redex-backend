@@ -130,8 +130,13 @@ public class PersonasServiceImp implements PersonasService {
     }
     
     @Override
-    public void editar(String email, int telefono){
-        personaRepository.editar(email, telefono);
+    public void editar(Persona persona){
+		Persona p = personaRepository.getOne(persona.getId());
+		
+        p.setEmail(persona.email);
+		p.setTelefono(persona.telefono);
+		
+		personaRepository.save(p);
     }
 
 }
