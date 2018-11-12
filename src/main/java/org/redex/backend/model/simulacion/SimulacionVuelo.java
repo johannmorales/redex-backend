@@ -2,14 +2,7 @@ package org.redex.backend.model.simulacion;
 
 import java.io.Serializable;
 import java.time.LocalTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "simulacion_vuelo")
@@ -19,7 +12,7 @@ public class SimulacionVuelo implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_simulacion", nullable = false)
     private Simulacion simulacion;
 
@@ -32,13 +25,21 @@ public class SimulacionVuelo implements Serializable {
     @Column(nullable = false)
     private Integer capacidad;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina_origen", nullable = false)
     private SimulacionOficina oficinaOrigen;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina_destino", nullable = false)
     private SimulacionOficina oficinaDestino;
+
+    public boolean esDeUnDia(){
+        if(horaInicio.isBefore(horaFin)){
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public Long getId() {
         return id;

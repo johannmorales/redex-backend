@@ -1,16 +1,16 @@
 package org.redex.backend.zelper;
 
-
+import org.redex.backend.controller.scheduledService.ScheduledServiceController;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 public class Laboratory {
 
-//    public static void main(String[] args) {
-//        
-////        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-////        LocalDateTime date = LocalDateTime.parse("2018-04-17 07:27", formatter);
-////        date = date.plus(-5, ChronoUnit.HOURS);
-////        System.out.println(ZonedDateTime.of(date, ZoneId.of("UTC")));
-//
-//    }
+    //private static ScheduledServiceController ssc; 
+    
+    public static void main(String[] args) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        System.out.println(encoder.encode("dp1"));
+        //ssc.despachoVuelo();
+    }
 }

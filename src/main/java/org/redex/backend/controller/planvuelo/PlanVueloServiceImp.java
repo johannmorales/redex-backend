@@ -31,6 +31,7 @@ import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosRepository;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.exception.AppException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -173,6 +174,14 @@ public class PlanVueloServiceImp implements PlanVueloService {
         vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter));
         vuelo.setEstado(EstadoEnum.ACTIVO);
         vuelo.setCapacidad(500);
+        
+        if(vuelo.getOficinaOrigen() == null) {
+            throw new AppException(String.format("Oficina con codigo %s no encontrada", codeOffice1));
+        }
+        
+        if(vuelo.getOficinaDestino() == null) {
+            throw new AppException(String.format("Oficina con codigo %s no encontrada", codeOffice2));
+        }
 
         return vuelo;
     }

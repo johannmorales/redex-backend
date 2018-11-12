@@ -1,8 +1,8 @@
 package org.redex.backend.model.general;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import org.hibernate.annotations.Immutable;
 
 @Entity
@@ -18,7 +18,7 @@ public class Pais implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_continente")
     private Continente continente;
 
@@ -30,6 +30,12 @@ public class Pais implements Serializable {
 
     @Column
     private String codigoIso;
+
+    @Column(scale = 10)
+    private BigDecimal latitud;
+
+    @Column(scale = 10)
+    private BigDecimal longitud;
 
     public Pais() {
     }
@@ -76,6 +82,22 @@ public class Pais implements Serializable {
 
     public void setCodigoIso(String codigoIso) {
         this.codigoIso = codigoIso;
+    }
+
+    public BigDecimal getLatitud() {
+        return latitud;
+    }
+
+    public void setLatitud(BigDecimal latitud) {
+        this.latitud = latitud;
+    }
+
+    public BigDecimal getLongitud() {
+        return longitud;
+    }
+
+    public void setAltitud(BigDecimal altitud) {
+        this.longitud = altitud;
     }
 
 }

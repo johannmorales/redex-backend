@@ -5,8 +5,13 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.security.CurrentUser;
+import org.redex.backend.security.DataSession;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
+import javax.xml.ws.Response;
+
 @RestController
 @RequestMapping("paquetes")
 public class PaquetesController {
@@ -26,13 +33,9 @@ public class PaquetesController {
     PaquetesService service;
 
     @GetMapping
-    public ArrayNode list() {
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-
-        List<Paquete> list = service.list();
-
-        for (Paquete item : list) {
-            arr.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+    public ResponseEntity<?> list(CrimsonTableRequest request, @CurrentUser DataSession ds) {
+        Page<Paquete> paquetes = service.crimsonList(request, ds);
+        return ResponseEntity.ok(CrimsonTableResponse.of(paquetes, new String[]{
                 "id",
                 "personaOrigen.id",
                 "personaOrigen.nombreCompleto",
@@ -55,10 +58,7 @@ public class PaquetesController {
                 "codigoRastreo",
                 "estado",
                 "fechaIngresoString"
-            }));
-        }
-
-        return arr;
+        }));
     }
 
     @GetMapping("/{id}")
@@ -112,7 +112,7 @@ public class PaquetesController {
     @PostMapping("/save")
     public ResponseEntity<?> save(@RequestBody Paquete paquete){
         service.save(paquete);
-        return ResponseEntity.ok(paquete);
+        return ResponseEntity.ok("Paquete guardado");
     }
 
 }

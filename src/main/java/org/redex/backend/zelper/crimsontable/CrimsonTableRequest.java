@@ -31,7 +31,7 @@ public class CrimsonTableRequest {
     }
 
     public String getSearch() {
-        return search;
+        return search.replace(' ', '%');
     }
 
     public void setSearch(String search) {

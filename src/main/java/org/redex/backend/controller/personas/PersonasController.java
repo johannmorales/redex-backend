@@ -3,9 +3,10 @@ package org.redex.backend.controller.personas;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.validation.Valid;
+
+import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.redex.backend.model.general.Persona;
-import org.redex.backend.model.general.TipoDocumentoIdentidad;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,18 +33,18 @@ public class PersonasController {
     public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request) {
         Page<Persona> list = service.allByCrimson(request);
         return CrimsonTableResponse.of(list, new String[]{
-            "id",
-            "nombres",
-            "paterno",
-            "materno",
-            "email",
-            "telefono",
-            "celular",
-            "pais.id",
-            "tipoDocumentoIdentidad.*",
-            "numeroDocumentoIdentidad",
-            "pais.codigo",
-            "pais.nombre"
+                "id",
+                "nombres",
+                "paterno",
+                "materno",
+                "email",
+                "telefono",
+                "celular",
+                "pais.id",
+                "tipoDocumentoIdentidad.*",
+                "numeroDocumentoIdentidad",
+                "pais.codigo",
+                "pais.nombre"
         });
     }
 
@@ -57,26 +58,31 @@ public class PersonasController {
         Persona item = service.find(id);
 
         return JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-            "id",
-            "nombres",
-            "paterno",
-            "materno",
-            "email",
-            "telefono",
-            "celular",
-            "pais.id",
-            "tipoDocumentoIdentidad.*",
-            "numeroDocumentoIdentidad",
-            "pais.codigo",
-            "pais.nombre"
+                "id",
+                "nombres",
+                "paterno",
+                "materno",
+                "email",
+                "telefono",
+                "celular",
+                "pais.id",
+                "tipoDocumentoIdentidad.*",
+                "numeroDocumentoIdentidad",
+                "pais.codigo",
+                "pais.nombre"
         });
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> save(@RequestBody Persona persona) {
-        service.save(persona);
-        return ResponseEntity.ok(JsonHelper.createJson(this, JsonNodeFactory.instance, new String[]{
-            "id"
+    public ResponseEntity<?> save(@RequestBody PersonaRegistro form) {
+        Persona persona = service.save(form);
+        return ResponseEntity.ok(JsonHelper.createJson(persona, JsonNodeFactory.instance, new String[]{
+                "id",
+                "numeroDocumentoIdentidad",
+                "nombreCompleto",
+                "nombreCorto",
+                "tipoDocumentoIdentidad.id",
+                "tipoDocumentoIdentidad.simbolo"
         }));
     }
     
@@ -86,7 +92,7 @@ public class PersonasController {
         return ResponseEntity.ok("Persona actualizada");
     }
 
-    @GetMapping("/find")
+    @PostMapping("/find")
     public ResponseEntity<?> find(@RequestBody FindPersonaRequest request) {
         Persona persona = service.findByDocumento(request.tipoDocumentoIdentidad, request.numeroDocumentoIdentidad);
 
@@ -97,9 +103,7 @@ public class PersonasController {
                 "nombreCorto"
             }));
         } else {
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            node.set("id", null);
-            return ResponseEntity.ok(node);
+            throw new ResourceNotFoundException("Persona", "DNI", request.numeroDocumentoIdentidad);
         }
 
     }

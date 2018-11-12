@@ -15,7 +15,7 @@ public interface PersonasService {
 
     public Page<Persona> allByCrimson(CrimsonTableRequest request);
 
-    public void save(Persona persona);
+    public Persona save(PersonaRegistro persona);
 
     public Persona findByDocumento(TipoDocumentoIdentidad tipoDocumentoIdentidad, String numeroDocumentoIdentidad);
     

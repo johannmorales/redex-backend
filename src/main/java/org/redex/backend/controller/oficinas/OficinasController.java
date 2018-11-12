@@ -2,7 +2,6 @@ package org.redex.backend.controller.oficinas;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.validation.Valid;
 import org.redex.backend.zelper.response.CargaDatosResponse;
@@ -33,16 +32,35 @@ public class OficinasController {
     public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request) {
         Page<Oficina> oficinas = service.allByCrimson(request);
         return CrimsonTableResponse.of(oficinas, new String[]{
-            "id",
-            "pais.id",
-            "pais.codigo",
-            "pais.nombre",
-            "capacidadActual",
-            "capacidadMaxima",
-            "estado",
-            "codigo"
+                "id",
+                "pais.id",
+                "pais.codigo",
+                "pais.nombre",
+                "capacidadActual",
+                "capacidadMaxima",
+                "estado",
+                "codigo"
+
         });
     }
+
+    @GetMapping("eduardo")
+    public ArrayNode eduardo() {
+        List<Oficina> oficinas = service.all();
+        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            arr.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+                    "id",
+                    "pais.*",
+                    "capacidadActual",
+                    "capacidadMaxima",
+                    "estado",
+                    "codigo"
+            }));
+        }
+        return arr;
+    }
+
 
     @PostMapping("/carga")
     public CargaDatosResponse carga(@RequestParam("file") MultipartFile file) {

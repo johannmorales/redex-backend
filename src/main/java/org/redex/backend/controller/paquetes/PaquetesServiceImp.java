@@ -14,24 +14,34 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.redex.backend.controller.oficinas.OficinasServiceImp;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.AlgoritmoWrapper;
+import org.redex.backend.algorithm.evolutivo.Evolutivo;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
+import org.redex.backend.model.envios.PaqueteRuta;
+import org.redex.backend.model.envios.RutaEstadoEnum;
+import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.general.TipoDocumentoIdentidad;
 import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaisesRepository;
+import org.redex.backend.repository.PaqueteRutaRepository;
 import org.redex.backend.repository.PaquetesRepository;
 import org.redex.backend.repository.PersonaRepository;
 import org.redex.backend.repository.TipoDocumentoIdentidadRepository;
+import org.redex.backend.repository.VuelosAgendadosRepository;
+import org.redex.backend.repository.VuelosRepository;
+import org.redex.backend.security.DataSession;
+import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +49,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @Transactional(readOnly = true)
 public class PaquetesServiceImp implements PaquetesService {
+
+    private static final Logger logger = LogManager.getLogger(PaquetesServiceImp.class);
 
     @Autowired
     PaquetesRepository paquetesRepository;
@@ -53,7 +65,16 @@ public class PaquetesServiceImp implements PaquetesService {
     PersonaRepository personaRepository;
 
     @Autowired
+    VuelosRepository vuelosRepository;
+
+    @Autowired
     TipoDocumentoIdentidadRepository tpiRepository;
+
+    @Autowired
+    VuelosAgendadosRepository vuelosAgendadosRepository;
+
+    @Autowired
+    PaqueteRutaRepository paqueteRutaRepository;
 
     @Override
     public List<Paquete> list() {
@@ -115,7 +136,6 @@ public class PaquetesServiceImp implements PaquetesService {
                 });
             }
         } catch (IOException ex) {
-            Logger.getLogger(OficinasServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
@@ -134,7 +154,7 @@ public class PaquetesServiceImp implements PaquetesService {
 
         p.setCodigoRastreo(datos.get(0));
         p.setEstado(PaqueteEstadoEnum.REGISTRADO);
-        p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")));
+        p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")).toLocalDateTime());
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
         Persona pO = personas.get(datos.get(12));
@@ -173,11 +193,76 @@ public class PaquetesServiceImp implements PaquetesService {
     }
 
     @Override
+    @Transactional
     public void save(Paquete paquete) {
-        paquete.setCodigoRastreo("asdasdasdasdasdsadsad");
+        paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.REGISTRADO);
-        paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")));
+        paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());
+
+        Oficina oo = oficinasRepository.findById(paquete.getOficinaOrigen().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Paquete", "id", paquete.getOficinaOrigen().getId()));
+
+        Oficina od = oficinasRepository.findById(paquete.getOficinaDestino().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Paquete", "id", paquete.getOficinaDestino().getId()));
+
+        paquete.setOficinaDestino(od);
+        paquete.setOficinaOrigen(oo);
+
         paquetesRepository.save(paquete);
+
+        this.generarRuta(paquete);
+    }
+
+    @Override
+    public Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds) {
+                        return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
+
+//        switch (ds.getRol().getCodigo()){
+//            case ADMINISTRADOR:
+//            case GERENTE_GENERAL:
+//                return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
+//            case EMPLEADO:
+//            case JEFE_OFICINA:
+//                return paquetesRepository.crimsonListByOficina(request.getSearch(), ds.getOficina(), request.createPagination());
+//            default:
+//                return null;
+//        }
+    }
+
+    public void generarRuta(Paquete p) {
+        Evolutivo e = new Evolutivo();
+
+        List<Oficina> oficinas = oficinasRepository.findAll();
+
+        LocalDateTime fechaInicio = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
+        LocalDateTime fechaFin = fechaInicio.plusHours(24L);
+
+        if (p.esIntercontinental()) {
+            fechaFin = fechaFin.plusHours(24L);
+        }
+
+        List<VueloAgendado> vuelosAgendados = vuelosAgendadosRepository.findAllAlgoritmo(fechaInicio, fechaFin);
+
+        List<VueloAgendado> vuelosTerminados = vuelosAgendadosRepository.findAllTerminados(fechaInicio, fechaFin);
+
+        List<VueloAgendado> va = AlgoritmoWrapper.sistemaRun(p, vuelosAgendados, vuelosTerminados, oficinas);
+
+        int aux = 0;
+        for (VueloAgendado vva : va) {
+            PaqueteRuta pR = new PaqueteRuta();
+            pR.setPaquete(p);
+            pR.setVueloAgendado(vva);
+            if (aux == 0) {
+                pR.setEstado(RutaEstadoEnum.ACTIVO);
+            } else {
+                pR.setEstado(RutaEstadoEnum.PENDIENTE);
+            }
+            pR.setOrden(aux);
+            aux++;
+            paqueteRutaRepository.save(pR);
+        }
+        p.setFechaSalida(va.get(aux - 1).getFechaFin());
+        paquetesRepository.save(p);
     }
 
 }

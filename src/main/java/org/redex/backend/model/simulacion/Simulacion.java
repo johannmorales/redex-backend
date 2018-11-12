@@ -2,6 +2,8 @@ package org.redex.backend.model.simulacion;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -38,10 +40,10 @@ public class Simulacion extends RegistroAuditable implements Serializable {
     private Integer cantidadOficinas;
 
     @Column(nullable = false)
-    private ZonedDateTime fechaInicio;
+    private LocalDateTime fechaInicio;
 
     @Column(nullable = false)
-    private ZonedDateTime fechaFin;
+    private LocalDate fechaFin;
 
     @Column(nullable = false)
     private Duration duracion;
@@ -57,6 +59,14 @@ public class Simulacion extends RegistroAuditable implements Serializable {
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "simulacion")
     private Set<SimulacionVuelo> vuelosAgendados;
+
+    public Simulacion(){
+
+    }
+
+    public Simulacion(Long id){
+        this.id = id;
+    }
 
     public Long getId() {
         return id;
@@ -98,19 +108,19 @@ public class Simulacion extends RegistroAuditable implements Serializable {
         this.cantidadOficinas = cantidadOficinas;
     }
 
-    public ZonedDateTime getFechaInicio() {
+    public LocalDateTime getFechaInicio() {
         return fechaInicio;
     }
 
-    public void setFechaInicio(ZonedDateTime fechaInicio) {
+    public void setFechaInicio(LocalDateTime fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
 
-    public ZonedDateTime getFechaFin() {
+    public LocalDate getFechaFin() {
         return fechaFin;
     }
 
-    public void setFechaFin(ZonedDateTime fechaFin) {
+    public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
     }
 

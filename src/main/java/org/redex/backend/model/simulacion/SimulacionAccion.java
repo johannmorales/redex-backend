@@ -1,17 +1,10 @@
 package org.redex.backend.model.simulacion;
 
+import org.redex.backend.algorithm.AlgoritmoPaquete;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "simulacion_accion")
@@ -21,33 +14,62 @@ public class SimulacionAccion implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_simulacion", nullable = false)
     private Simulacion simulacion;
 
-    @ManyToOne
-    @JoinColumn(name = "id_oficina_llegada", nullable = false)
-    private SimulacionOficina oficinaLlegada;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_oficina_origen")
+    private SimulacionOficina oficinaOrigen;
 
-    @ManyToOne
-    @JoinColumn(name = "id_oficina_salida", nullable = false)
-    private SimulacionOficina oficinaSalida;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_oficina_destino")
+    private SimulacionOficina oficinaDestino;
 
     @Enumerated(EnumType.STRING)
     private SimulacionAccionTipoEnum tipo;
 
-    @Column(nullable = false)
-    private LocalDateTime fechaSalida;
+    @Column
+    private LocalDateTime fechaInicio;
 
-    @Column(nullable = false)
-    private LocalDateTime fechaLlegada;
+    @Column
+    private LocalDateTime fechaFin;
 
     @Column(nullable = false)
     private Integer cantidad;
 
-    @Column(nullable = true)
+    @Column
     private Integer cantidadSalida;
 
+    public SimulacionAccion() {
+    }
+
+    public static SimulacionAccion of(SimulacionPaquete sp){
+        SimulacionAccion a = new SimulacionAccion();
+        a.setFechaInicio(sp.getFechaIngreso());
+        a.setOficinaDestino(sp.getOficinaOrigen());
+        a.setSimulacion(sp.getSimulacion());
+        a.setTipo(SimulacionAccionTipoEnum.REGISTRO);
+        a.setCantidadSalida(0);
+        a.setCantidad(1);
+        
+        return a;
+    }
+    
+      public static SimulacionAccion of(SimulacionVueloAgendado sv){
+        SimulacionAccion a = new SimulacionAccion();
+        a.setFechaFin(sv.getFechaFin());
+        a.setFechaInicio(sv.getFechaInicio());
+        a.setOficinaOrigen(sv.getVuelo().getOficinaOrigen());
+        a.setOficinaDestino(sv.getVuelo().getOficinaDestino());
+        a.setSimulacion(sv.getSimulacion());
+        a.setCantidad(sv.getCapacidadActual());
+        a.setCantidadSalida(sv.getCantidadSalida());
+        a.setTipo(SimulacionAccionTipoEnum.SALIDA);
+        
+        return a;
+    }
+      
     public Long getId() {
         return id;
     }
@@ -72,20 +94,20 @@ public class SimulacionAccion implements Serializable {
         this.tipo = tipo;
     }
 
-    public LocalDateTime getFechaSalida() {
-        return fechaSalida;
+    public LocalDateTime getFechaInicio() {
+        return fechaInicio;
     }
 
-    public void setFechaSalida(LocalDateTime fechaSalida) {
-        this.fechaSalida = fechaSalida;
+    public void setFechaInicio(LocalDateTime fechaInicio) {
+        this.fechaInicio = fechaInicio;
     }
 
-    public LocalDateTime getFechaLlegada() {
-        return fechaLlegada;
+    public LocalDateTime getFechaFin() {
+        return fechaFin;
     }
 
-    public void setFechaLlegada(LocalDateTime fechaLlegada) {
-        this.fechaLlegada = fechaLlegada;
+    public void setFechaFin(LocalDateTime fechaFin) {
+        this.fechaFin = fechaFin;
     }
 
     public Integer getCantidad() {
@@ -104,20 +126,20 @@ public class SimulacionAccion implements Serializable {
         this.cantidadSalida = cantidadSalida;
     }
 
-    public SimulacionOficina getOficinaLlegada() {
-        return oficinaLlegada;
+    public SimulacionOficina getOficinaOrigen() {
+        return oficinaOrigen;
     }
 
-    public void setOficinaLlegada(SimulacionOficina oficinaLlegada) {
-        this.oficinaLlegada = oficinaLlegada;
+    public void setOficinaOrigen(SimulacionOficina oficinaOrigen) {
+        this.oficinaOrigen = oficinaOrigen;
     }
 
-    public SimulacionOficina getOficinaSalida() {
-        return oficinaSalida;
+    public SimulacionOficina getOficinaDestino() {
+        return oficinaDestino;
     }
 
-    public void setOficinaSalida(SimulacionOficina oficinaSalida) {
-        this.oficinaSalida = oficinaSalida;
+    public void setOficinaDestino(SimulacionOficina oficinaDestino) {
+        this.oficinaDestino = oficinaDestino;
     }
 
 }
