@@ -25,4 +25,5 @@ public interface UsuariosService {
 
     public void editar(Usuario usuario);
 
+    public Usuario find(Long id);
 }

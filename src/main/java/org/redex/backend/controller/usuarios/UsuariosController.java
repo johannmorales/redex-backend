@@ -94,4 +94,14 @@ public class UsuariosController {
     public void editar(@RequestBody Usuario usuario){
         service.editar(usuario);
     }
+
+    @GetMapping("/{id}")
+    public ObjectNode find(@PathVariable Long id){
+        Usuario item = service.find(id);
+        return JsonHelper.createJson(item,JsonNodeFactory.instance,new String[]{
+                "id",
+                "colaborador.*",
+                "rol.*",
+        });
+    }
 }

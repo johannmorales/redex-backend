@@ -236,4 +236,9 @@ public class UsuariosServiceImp implements UsuariosService {
         usuariosRepository.save(u);
     }
 
+    @Override
+    public Usuario find(Long id){
+        return usuariosRepository.getOne(id);
+    }
+
 }
