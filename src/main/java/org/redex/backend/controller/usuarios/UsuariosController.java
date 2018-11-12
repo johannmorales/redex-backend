@@ -102,6 +102,7 @@ public class UsuariosController {
                 "id",
                 "colaborador.*",
                 "colaborador.persona.*",
+                "colaborador.oficina.*",
                 "rol.*",
         });
     }
