@@ -128,5 +128,10 @@ public class PersonasServiceImp implements PersonasService {
     public Persona findByDocumento(TipoDocumentoIdentidad tipoDocumentoIdentidad, String numeroDocumentoIdentidad) {
         return personaRepository.findByTipoDocumentoIdentidadAndNumeroDocumentoIdentidad(tipoDocumentoIdentidad, numeroDocumentoIdentidad);
     }
+    
+    @Override
+    public void editar(String email, int telefono){
+        personaRepository.editar(email, telefono);
+    }
 
 }

@@ -79,6 +79,14 @@ public class PersonasController {
             "id"
         }));
     }
+    
+    @PostMapping("/editar")
+    public ResponseEntity<?> editar(@RequestBody String email, int telefono){
+        service.editar(email, telefono);
+        return ResponseEntity.ok(JsonHelper.createJson(this, JsonNodeFactory.instance, new String[]{
+            "Se edito correctamente"
+        }));
+    }
 
     @GetMapping("/find")
     public ResponseEntity<?> find(@RequestBody FindPersonaRequest request) {

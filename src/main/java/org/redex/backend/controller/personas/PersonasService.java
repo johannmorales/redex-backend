@@ -19,4 +19,6 @@ public interface PersonasService {
 
     public Persona findByDocumento(TipoDocumentoIdentidad tipoDocumentoIdentidad, String numeroDocumentoIdentidad);
     
+    public void editar(String email, int telefono);
+    
 }
