@@ -23,4 +23,6 @@ public interface UsuariosService {
 
     public void activar(Long id);
 
+    public void editar(Usuario usuario);
+
 }

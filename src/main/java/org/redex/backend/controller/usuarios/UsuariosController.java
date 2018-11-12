@@ -89,4 +89,9 @@ public class UsuariosController {
             "rol.codigo"
         });
     }
+
+    @PostMapping("/editar")
+    public void editar(@RequestBody Usuario usuario){
+        service.editar(usuario);
+    }
 }

@@ -134,8 +134,8 @@ public class PersonasServiceImp implements PersonasService {
     public void editar(Persona persona){
 		Persona p = personaRepository.getOne(persona.getId());
 		
-        p.setEmail(persona.email);
-		p.setTelefono(persona.telefono);
+        p.setEmail(persona.getEmail());
+		p.setTelefono(persona.getTelefono());
 		
 		personaRepository.save(p);
     }

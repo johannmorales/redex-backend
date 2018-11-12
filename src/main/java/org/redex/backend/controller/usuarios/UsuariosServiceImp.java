@@ -222,4 +222,18 @@ public class UsuariosServiceImp implements UsuariosService {
         usuariosRepository.save(u);
     }
 
+    @Override
+    @Transactional
+    public void editar(Usuario usuario) {
+        Usuario u = usuariosRepository.getOne(usuario.getId());
+        Colaborador c = u.getColaborador();
+        u.setRol(usuario.getRol());
+        c.setOficina(usuario.getColaborador().getOficina());
+        c.setEmail(usuario.getColaborador().getEmail());
+        c.setTelefono(usuario.getColaborador().getTelefono());
+
+        colaboradoresRepository.save(c);
+        usuariosRepository.save(u);
+    }
+
 }
