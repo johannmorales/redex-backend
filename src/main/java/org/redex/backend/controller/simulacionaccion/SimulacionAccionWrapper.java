@@ -1,6 +1,9 @@
 package org.redex.backend.controller.simulacionaccion;
 
 import java.time.ZoneOffset;
+
+import org.redex.backend.algorithm.AlgoritmoPaquete;
+import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
 import org.redex.backend.model.simulacion.SimulacionAccion;
 
 /**
@@ -85,7 +88,28 @@ public class SimulacionAccionWrapper {
     }
     
     
-    
+    public static SimulacionAccionWrapper of(AlgoritmoVueloAgendado ava){
+        SimulacionAccionWrapper w = new SimulacionAccionWrapper();
+        w.cantidad = ava.getCapacidadActual();
+        w.cantidadSalida = ava.getCantidadSalida();
+        w.fechaSalida= ava.getFechaInicio().toInstant(ZoneOffset.UTC).toEpochMilli();
+        w.fechaLlegada = ava.getFechaFin().toInstant(ZoneOffset.UTC).toEpochMilli();
+        w.setTipo("SALIDA");
+
+        return w;
+    }
+
+
+    public static SimulacionAccionWrapper of(AlgoritmoPaquete ava){
+        SimulacionAccionWrapper w = new SimulacionAccionWrapper();
+        w.cantidad = 1;
+        w.cantidadSalida = 0;
+        w.fechaSalida= ava.getFechaRegistro().toInstant(ZoneOffset.UTC).toEpochMilli();
+        w.setTipo("REGISTRO");
+
+        return w;
+    }
+
     public static SimulacionAccionWrapper of(SimulacionAccion a){
         SimulacionAccionWrapper w = new SimulacionAccionWrapper();
         w.setTipo(a.getTipo().name());

@@ -1,10 +1,12 @@
 package org.redex.backend.algorithm;
 
 import java.util.Objects;
+
+import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.model.simulacion.SimulacionOficina;
 
-    public class AlgoritmoOficina {
+public class AlgoritmoOficina {
 
     private Long id;
 
@@ -15,6 +17,8 @@ import org.redex.backend.model.simulacion.SimulacionOficina;
     private Integer capacidadMaxima;
 
     private Integer zonaHoraria;
+
+    private Pais pais;
 
     public static AlgoritmoOficina of(SimulacionOficina o) {
         AlgoritmoOficina ao = new AlgoritmoOficina();
@@ -84,4 +88,11 @@ import org.redex.backend.model.simulacion.SimulacionOficina;
         return this.capacidadActual / this.capacidadMaxima * 100;
     }
 
+    public Pais getPais() {
+        return pais;
+    }
+
+    public void setPais(Pais pais) {
+        this.pais = pais;
+    }
 }

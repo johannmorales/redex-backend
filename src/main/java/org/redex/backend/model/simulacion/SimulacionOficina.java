@@ -1,14 +1,8 @@
 package org.redex.backend.model.simulacion;
 
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import org.redex.backend.model.general.Pais;
 
 @Entity
@@ -19,14 +13,14 @@ public class SimulacionOficina implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_simulacion", nullable = false)
     private Simulacion simulacion;
 
     @Column(nullable = false)
     private String codigo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pais", nullable = false)
     private Pais pais;
 

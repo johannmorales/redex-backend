@@ -15,6 +15,8 @@ public class AlgoritmoPaquete {
 
     private LocalDateTime fechaRegistro;
 
+    private Boolean rutaGenerada;
+
     public static AlgoritmoPaquete of(SimulacionPaquete o, Map<String, AlgoritmoOficina> oficinas) {
         AlgoritmoPaquete ap = new AlgoritmoPaquete();
 
@@ -33,7 +35,7 @@ public class AlgoritmoPaquete {
         ap.setOficinaOrigen(oficinas.get(o.getOficinaOrigen().getCodigo()));
         ap.setOficinaDestino(oficinas.get(o.getOficinaDestino().getCodigo()));
         ap.setFechaRegistro(o.getFechaIngreso());
-        
+
         return ap;
     }
 
@@ -69,4 +71,12 @@ public class AlgoritmoPaquete {
         this.fechaRegistro = fechaRegistro;
     }
 
+    public Boolean getRutaGenerada() {
+        return rutaGenerada;
+    }
+
+    public void setRutaGenerada(Boolean rutaGenerada) {
+        this.rutaGenerada = rutaGenerada;
+    }
+//
 }

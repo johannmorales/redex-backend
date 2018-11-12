@@ -11,22 +11,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface SimulacionService {
 
-    public CargaDatosResponse cargaPaquetes(Long id, MultipartFile file);
+    CargaDatosResponse cargaPaquetes(Long id, MultipartFile file);
     
-    public CargaDatosResponse cargaVuelos(Long id, MultipartFile file);
+    CargaDatosResponse cargaVuelos(Long id, MultipartFile file);
     
-    public CargaDatosResponse cargaOficinas(Long id, MultipartFile file);
+    CargaDatosResponse cargaOficinas(Long id, MultipartFile file);
 
-    public Simulacion crear();
+    Simulacion crear();
 
-    public void eliminar(Long id);
+    void eliminar(Long id);
 
-    public Page<Simulacion> crimsonList(CrimsonTableRequest request);
+    Page<Simulacion> crimsonList(CrimsonTableRequest request);
 
-    public List<SimulacionAccion> accionesByWindow(WindowRequest request);
+    List<SimulacionAccion> accionesByWindow(WindowRequest request);
 
     List<SimulacionOficina> listOficinas(Long id);
 
-    public void resetear(Long id);
+    void resetear(Long id);
     
 }

@@ -1,10 +1,15 @@
 package org.redex.backend.controller.simulacion;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.Algoritmo;
+import org.redex.backend.algorithm.AlgoritmoOficina;
 import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
 import org.redex.backend.model.simulacion.*;
 import org.redex.backend.repository.SimulacionPaquetesRepository;
@@ -26,6 +31,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 @RequestMapping("simulaciones")
 public class SimulacionController {
 
+    public static Logger logger = LogManager.getLogger(SimulacionController.class);
     @Autowired
     SimulacionService service;
 
@@ -40,6 +46,9 @@ public class SimulacionController {
 
     @Autowired
     SimulacionVuelosRepository vuelosRepository;
+
+    @Autowired
+    VisorSimulacion visorSimulacion;
 
     @RequestMapping("/{id}/estado")
     public void greeting(@RequestParam Long id) {
@@ -76,19 +85,21 @@ public class SimulacionController {
 
     @GetMapping("/{id}/oficinas")
     public ArrayNode oficinas(@PathVariable Long id) {
-        List<SimulacionOficina> oficinas = service.listOficinas(id);
+        Map<String, AlgoritmoOficina> oficinas = visorSimulacion.getOficinas();
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        for (SimulacionOficina oficina : oficinas) {
+        for (Map.Entry<String, AlgoritmoOficina> entry : oficinas.entrySet()) {
+            AlgoritmoOficina oficina = entry.getValue();
             ObjectNode oficinaNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
-                "id",
-                "codigo",
-                "capacidadMaxima",
-                "pais.id",
-                "pais.codigo",
-                "pais.codigoIso",
-                "pais.latitud",
-                "pais.longitud",});
-            oficinaNode.put("capacidadActual", oficina.getCapacidadInicial());
+                    "id",
+                    "codigo",
+                    "capacidadMaxima",
+                    "pais.id",
+                    "pais.codigo",
+                    "pais.codigoIso",
+                    "pais.latitud",
+                    "pais.longitud"
+            });
+            oficinaNode.put("capacidadActual", oficina.getCapacidadActual());
             arr.add(oficinaNode);
         }
 
@@ -105,22 +116,29 @@ public class SimulacionController {
         Page<Simulacion> list = service.crimsonList(request);
 
         return CrimsonTableResponse.of(list, new String[]{
-            "id",
-            "estado",
-            "cantidadPaquetes",
-            "cantidadPaquetesEntregados",
-            "cantidadOficinas",
-            "cantidadVuelos"
+                "id",
+                "estado",
+                "cantidadPaquetes",
+                "cantidadPaquetesEntregados",
+                "cantidadOficinas",
+                "cantidadVuelos"
         });
     }
 
     @PostMapping("window")
     public ResponseEntity<?> getWindow(@RequestBody WindowRequest request) {
-        List<SimulacionAccion> acciones = service.accionesByWindow(request);
+        Ventana v = new Ventana();
+
+        v.setInicio(request.getInicio());
+        v.setFin(request.getFin());
+
+        List<SimulacionAccionWrapper> acciones = visorSimulacion.procesarVentana(v);
+
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        for (SimulacionAccion accion : acciones) {
-            arr.add(JsonHelper.createJson(SimulacionAccionWrapper.of(accion), JsonNodeFactory.instance));
+        for (SimulacionAccionWrapper accion : acciones) {
+            arr.add(JsonHelper.createJson(accion, JsonNodeFactory.instance));
         }
+
         return ResponseEntity.ok(arr);
     }
 

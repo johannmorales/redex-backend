@@ -21,8 +21,6 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             "   join fetch v.oficinaDestino od" +
             "   join fetch oo.pais po " +
             "   join fetch od.pais pd " +
-            "   join fetch po.continente " +
-            "   join fetch pd.continente " +
             " where " +
             "   sva.fechaInicio > :inicio and " +
             "   sva.fechaFin < :fin and " +
@@ -44,8 +42,6 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             "   join fetch v.oficinaDestino od" +
             "   join fetch oo.pais po " +
             "   join fetch od.pais pd " +
-            "   join fetch po.continente " +
-            "   join fetch pd.continente " +
             " where " +
             "   sva.fechaInicio <= :inicio and " +
             "   sva.fechaFin < :fin and " +
@@ -124,7 +120,7 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             " set sva.accionGenerada = true" +
             " where " +
             "   sva.fechaInicio >= :inicio and " +
-            "   sva.fechaFin < :fin and " +
+            "   sva.fechaInicio < :fin and " +
             "   sva.simulacion = :s")
     void marcarAccionGenerada(
             @Param("inicio") LocalDateTime inicio,
@@ -137,7 +133,7 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             + " insert into simulacion_vuelo_agendado (id_vuelo, fecha_inicio, fecha_fin, capacidad_actual, capacidad_maxima, accion_generada, id_simulacion) "
             + " select  "
             + "     id, "
-            + "     concat( :fecha, SUBSTRING(hora_fin,11) ), "
+            + "     concat( :fecha, SUBSTRING(hora_inicio,11) ), "
             + "     concat( IF( hora_inicio < hora_fin , :fecha, DATE_ADD( :fecha ,INTERVAL 1 DAY)), SUBSTRING(hora_fin,11)), "
             + "     0, "
             + "     capacidad ,"
@@ -146,4 +142,10 @@ public interface SimulacionVueloAgendadoRepository extends JpaRepository<Simulac
             + " from simulacion_vuelo "
             + " where id_simulacion = :s ")
     void generarVuelos(@Param("fecha") String fecha, @Param("s") Long idSimulacion);
+
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = ""
+            + " update SimulacionVueloAgendado set accionGenerada = false, capacidadActual = 0, cantidadSalida = 0 where simulacion = :s ")
+    void deleteBySimulacion(@Param("s") Simulacion simulacion);
 }

@@ -2,10 +2,8 @@ package org.redex.backend.algorithm;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Objects;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 public class AlgoritmoVueloAgendado {
 
@@ -47,29 +45,6 @@ public class AlgoritmoVueloAgendado {
         ava.setOficinaOrigen(oficinas.get(sva.getOficinaOrigen().getCodigo()));
         ava.setOficinaDestino(oficinas.get(sva.getOficinaDestino().getCodigo()));
         return ava;
-    }
-
-    @Override
-    public int hashCode() {
-        return getId().hashCode(); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final AlgoritmoVueloAgendado other = (AlgoritmoVueloAgendado) obj;
-        if (!Objects.equals(this.id, other.id)) {
-            return false;
-        }
-        return true;
     }
 
     public Long getId() {

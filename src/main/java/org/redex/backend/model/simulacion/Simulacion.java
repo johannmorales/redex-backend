@@ -2,6 +2,7 @@ package org.redex.backend.model.simulacion;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class Simulacion extends RegistroAuditable implements Serializable {
     private LocalDateTime fechaInicio;
 
     @Column(nullable = false)
-    private LocalDateTime fechaFin;
+    private LocalDate fechaFin;
 
     @Column(nullable = false)
     private Duration duracion;
@@ -115,11 +116,11 @@ public class Simulacion extends RegistroAuditable implements Serializable {
         this.fechaInicio = fechaInicio;
     }
 
-    public LocalDateTime getFechaFin() {
+    public LocalDate getFechaFin() {
         return fechaFin;
     }
 
-    public void setFechaFin(LocalDateTime fechaFin) {
+    public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
     }
 

@@ -19,16 +19,12 @@ import org.redex.backend.algorithm.AlgoritmoPaquete;
 import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
 import org.redex.backend.algorithm.gestor.GestorAlgoritmo;
 import org.redex.backend.algorithm.PathNotFoundException;
-import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.simulacion.SimulacionOficina;
-import org.redex.backend.model.simulacion.SimulacionPaquete;
-import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
 
 public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
-    private int iteraciones = 100;
+    private int iteraciones = 75;
     private int populationSize = 20;
     private double surviveRatio = 0.6;
     private double mutationRatio = 0.4;
@@ -45,7 +41,7 @@ public class Evolutivo implements Algoritmo {
     public List<AlgoritmoVueloAgendado> run(AlgoritmoPaquete paquete, List<AlgoritmoVueloAgendado> vuelosAgendados, List<AlgoritmoVueloAgendado> vuelosSalida, List<AlgoritmoOficina> oficinas) {
         gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, vuelosSalida, oficinas);
         TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaRegistro(), paquete);
-        
+
         for (int i = 0; i < iteraciones; i++) {
             TreeMultiset<Cromosoma> survivors = fight(population);
             TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
@@ -60,6 +56,7 @@ public class Evolutivo implements Algoritmo {
     }
 
     private TreeMultiset<Cromosoma> initialize(AlgoritmoOficina ofiOrigen, AlgoritmoOficina ofiDestino, LocalDateTime current, AlgoritmoPaquete paquete) {
+
         TreeMultiset<Cromosoma> population = TreeMultiset.create(byCost);
         for (int i = 0; i < populationSize; i++) {
             List<AlgoritmoVueloAgendado> list = buildRandomPath(ofiOrigen, ofiDestino, current);
@@ -203,7 +200,6 @@ public class Evolutivo implements Algoritmo {
     }
 
     private void fitness(Cromosoma cromosome, AlgoritmoPaquete paquete) {
-
         double costo = 0;
 
         for (Gen gen : cromosome.getGenes()) {

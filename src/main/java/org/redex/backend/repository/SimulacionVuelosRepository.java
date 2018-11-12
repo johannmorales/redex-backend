@@ -16,11 +16,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-/**
- *
- * @author Oscar
- */
-
 @Repository
 public interface SimulacionVuelosRepository extends JpaRepository<SimulacionVuelo, Long>{
 
@@ -30,5 +25,7 @@ public interface SimulacionVuelosRepository extends JpaRepository<SimulacionVuel
             "   v.simulacion = :s " +
             " order by  v.horaInicio asc ")
     List<SimulacionVuelo> findAllBySimulacion(@Param("s") Simulacion simulacion);
+
+    void deleteBySimulacion(Simulacion simulacion);
 
 }

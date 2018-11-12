@@ -24,6 +24,9 @@ public interface SimulacionPaquetesRepository extends JpaRepository<SimulacionPa
             "   p.simulacion = :s and " +
             "   p.fechaIngreso >= :inicio and " +
             "   p.fechaIngreso < :fin ")
-    public List<SimulacionPaquete> findAllBySimulacionAndFechaIngresoBetween(@Param("s") Simulacion simulacion, @Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
-    
+    List<SimulacionPaquete> findAllBySimulacionAndFechaIngresoBetween(@Param("s") Simulacion simulacion, @Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
+
+    void deleteBySimulacion(Simulacion simulacion);
+
+
 }

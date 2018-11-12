@@ -1,5 +1,7 @@
 package org.redex.backend.model.simulacion;
 
+import org.redex.backend.algorithm.AlgoritmoPaquete;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import javax.persistence.*;
@@ -17,11 +19,11 @@ public class SimulacionAccion implements Serializable {
     private Simulacion simulacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_oficina_llegada")
+    @JoinColumn(name = "id_oficina_origen")
     private SimulacionOficina oficinaOrigen;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_oficina_salida")
+    @JoinColumn(name = "id_oficina_destino")
     private SimulacionOficina oficinaDestino;
 
     @Enumerated(EnumType.STRING)

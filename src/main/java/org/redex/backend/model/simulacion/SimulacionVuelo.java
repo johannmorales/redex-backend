@@ -25,11 +25,11 @@ public class SimulacionVuelo implements Serializable {
     @Column(nullable = false)
     private Integer capacidad;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina_origen", nullable = false)
     private SimulacionOficina oficinaOrigen;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina_destino", nullable = false)
     private SimulacionOficina oficinaDestino;
 

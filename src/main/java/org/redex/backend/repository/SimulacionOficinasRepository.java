@@ -20,4 +20,7 @@ public interface SimulacionOficinasRepository extends JpaRepository<SimulacionOf
             "   join fetch so.pais p " +
             " where so.simulacion = :s")
     List<SimulacionOficina> findAllBySimulacion(@Param("s") Simulacion simulacion);
+
+    void deleteBySimulacion(Simulacion simulacion);
+
 }

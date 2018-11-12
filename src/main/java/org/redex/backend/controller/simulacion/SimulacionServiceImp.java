@@ -2,12 +2,11 @@ package org.redex.backend.controller.simulacion;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.redex.backend.algorithm.PathNotFoundException;
+import org.redex.backend.algorithm.*;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.simulacion.*;
 import org.redex.backend.repository.*;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
-import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -47,16 +46,7 @@ public class SimulacionServiceImp implements SimulacionService {
     SimulacionRepository simulacionRepository;
 
     @Autowired
-    SimulacionVuelosRepository vuelosRepository;
-
-    @Autowired
     PaisesRepository paisesRepository;
-
-    @Autowired
-    SimulacionPaquetesRepository simulacionPaquetesRepository;
-
-    @Autowired
-    SimulacionVueloAgendadoRepository simulacionVueloAgendadoRepository;
 
     @Autowired
     SimulacionRuteadoService simulacionRuteadoService;
@@ -64,31 +54,34 @@ public class SimulacionServiceImp implements SimulacionService {
     @Autowired
     SimulacionAccionRepository accionRepository;
 
+    @Autowired
+    GestorPaquetes gestorPaquetes;
+
+    @Autowired
+    GestorVuelosAgendados gestorVuelosAgendados;
+
+    @Autowired
+    VisorSimulacion visorSimulacion;
+
+
     @Override
     @Transactional
     public CargaDatosResponse cargaPaquetes(Long id, MultipartFile file) {
-        Simulacion simu = simulacionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Simulacion", "id", id));
-
-        //simuPaquete.setSimulacion(simu)
-        Map<String, SimulacionOficina> oficinas = simulacionOficinasRepository.findAllBySimulacion(simu)
-                .stream()
-                .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
+        Map<String, AlgoritmoOficina> oficinas = visorSimulacion.getOficinas();
 
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
-        List<SimulacionPaquete> nuevosPaquetes = new ArrayList<>();
+        List<AlgoritmoPaquete> nuevosPaquetes = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
-
             List<String> lineasList = reader.lines().collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
                 if (!linea.isEmpty()) {
                     List<String> separateLine = Arrays.asList(linea.split("-"));
                     if (separateLine.size() == 4) {
-                        SimulacionPaquete nuevoP = leePaquete(separateLine, oficinas);
-                        nuevoP.setSimulacion(simu);
+                        AlgoritmoPaquete nuevoP = leePaquete(separateLine, oficinas);
                         nuevosPaquetes.add(nuevoP);
                     } else {
                         cantidadErrores = cantidadErrores + 1;
@@ -96,14 +89,11 @@ public class SimulacionServiceImp implements SimulacionService {
                     }
                 }
             }
-            nuevosPaquetes.forEach((paquete) -> {
-                accionRepository.save(SimulacionAccion.of(paquete));
-                simulacionPaquetesRepository.save(paquete);
-            });
+            gestorPaquetes.agregarLista(nuevosPaquetes);
         } catch (IOException ex) {
+
         }
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
-
     }
 
     @Override
@@ -113,12 +103,9 @@ public class SimulacionServiceImp implements SimulacionService {
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
 
-        Map<String, SimulacionOficina> oficinas = simulacionOficinasRepository.findAll()
-                .stream()
-                .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
+        Map<String, AlgoritmoOficina> oficinas = visorSimulacion.getOficinas();
 
-        Simulacion simu = simulacionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Simulacion", "id", id));
-        List<SimulacionVuelo> nuevosVuelos = new ArrayList<>();
+        List<AlgoritmoVuelo> nuevosVuelos = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
 
@@ -136,9 +123,8 @@ public class SimulacionServiceImp implements SimulacionService {
                     Matcher m2 = p.matcher(horaFin);
                     if (codeOffice1.matches("[A-Z]+") && codeOffice2.matches("[A-Z]+")
                             && m1.matches() && m2.matches()) {
-                        SimulacionVuelo nV = leerVuelo(codeOffice1, codeOffice2,
+                        AlgoritmoVuelo nV = leerVuelo(codeOffice1, codeOffice2,
                                 horaIni, horaFin, oficinas);
-                        nV.setSimulacion(simu);
                         nuevosVuelos.add(nV);
                     } else {
                         cantidadErrores = cantidadErrores + 1;
@@ -150,11 +136,11 @@ public class SimulacionServiceImp implements SimulacionService {
                 }
                 contLinea++;
             }
-            nuevosVuelos.forEach((vuelo) -> {
-                vuelosRepository.save(vuelo);
-            });
+
+            gestorVuelosAgendados.setVuelos(nuevosVuelos);
 
         } catch (IOException ex) {
+
         }
 
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
@@ -167,13 +153,16 @@ public class SimulacionServiceImp implements SimulacionService {
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
 
-        Simulacion simu = simulacionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Simulacion", "id", id));
+        Map<String, AlgoritmoOficina> oficinas = visorSimulacion.getOficinas();
+
+        oficinas.clear();
 
         Map<String, Pais> paises = paisesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
 
-        List<SimulacionOficina> nuevasOficinas = new ArrayList<>();
+
+        List<AlgoritmoOficina> nuevasOficinas = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
 
@@ -186,16 +175,14 @@ public class SimulacionServiceImp implements SimulacionService {
                         cantidadErrores = cantidadErrores + 1;
                         errores.add("La linea " + contLinea + " no tiene pais");
                     } else {
-                        SimulacionOficina oficinaNueva = leerOficina(code, paises);
-                        oficinaNueva.setSimulacion(simu);
+                        AlgoritmoOficina oficinaNueva = leerOficina(code, paises);
                         nuevasOficinas.add(oficinaNueva);
                     }
                 }
                 contLinea++;
             }
-            nuevasOficinas.forEach((oficina) -> {
-                simulacionOficinasRepository.save(oficina);
-            });
+
+            visorSimulacion.setOficinas(nuevasOficinas);
 
         } catch (IOException ex) {
         }
@@ -203,36 +190,35 @@ public class SimulacionServiceImp implements SimulacionService {
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
 
-    private SimulacionPaquete leePaquete(List<String> datos, Map<String, SimulacionOficina> oficinas) {
-        SimulacionPaquete p = new SimulacionPaquete();
+    private AlgoritmoPaquete leePaquete(List<String> datos, Map<String, AlgoritmoOficina> oficinas) {
+        AlgoritmoPaquete p = new AlgoritmoPaquete();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime date = LocalDateTime.parse(datos.get(1).substring(0, 4) + "-"
                 + datos.get(1).substring(4, 6) + "-" + datos.get(1).substring(6, 8)
                 + " " + datos.get(2).substring(0, 2) + datos.get(2).substring(2), formatter);
         date = date.plus(-5, ChronoUnit.HOURS);
-        p.setFechaIngreso(date);
+        p.setFechaRegistro(date);
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
+        p.setRutaGenerada(Boolean.FALSE);
         return p;
     }
 
-    private SimulacionOficina leerOficina(String linea, Map<String, Pais> mapPaises) {
-        SimulacionOficina oficina = new SimulacionOficina();
+    private AlgoritmoOficina leerOficina(String linea, Map<String, Pais> mapPaises) {
+        AlgoritmoOficina oficina = new AlgoritmoOficina();
         oficina.setCodigo(linea);
         oficina.setPais(mapPaises.get(linea));
-        oficina.setCapacidadInicial(0);
-        oficina.setCapacidadMaxima(100);
+        oficina.setCapacidadActual(0);
+        oficina.setCapacidadMaxima(250);
         oficina.setZonaHoraria(-5);
 
         return oficina;
     }
 
-    private SimulacionVuelo leerVuelo(String codeOffice1, String codeOffice2,
-            String horaIni, String horaFin, Map<String, SimulacionOficina> mapOficinas) {
-        // codigo para leer una oficina de una linea del archivo 
-
-        SimulacionVuelo vuelo = new SimulacionVuelo();
+    private AlgoritmoVuelo leerVuelo(String codeOffice1, String codeOffice2,
+                                     String horaIni, String horaFin, Map<String, AlgoritmoOficina> mapOficinas) {
+        AlgoritmoVuelo vuelo = new AlgoritmoVuelo();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
         vuelo.setOficinaOrigen(mapOficinas.get(codeOffice1));
         vuelo.setOficinaDestino(mapOficinas.get(codeOffice2));
@@ -268,19 +254,17 @@ public class SimulacionServiceImp implements SimulacionService {
     @Override
     @Transactional
     public List<SimulacionAccion> accionesByWindow(WindowRequest request) {
-
         Simulacion simulacion = simulacionRepository.getOne(request.getSimulacion());
+        List<SimulacionOficina> oficinas = simulacionOficinasRepository.findAllBySimulacion(simulacion);
         simulacionRuteadoService.generarVuelos(request.getInicio(), request.getFin(), simulacion);
-        List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
-        for (SimulacionPaquete paquete : paquetes) {
-            try {
-                simulacionRuteadoService.findRuta(paquete);
-                logger.info("ruta de {} a {} generada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
-            } catch (PathNotFoundException ex) {
-                logger.error("ruta de {} a {} no encontrada ", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
-
-            }
-        }
+//        List<SimulacionPaquete> paquetes = simulacionPaquetesRepository.findAllBySimulacionAndFechaIngresoBetween(simulacion, request.getInicio(), request.getFin());
+//        for (SimulacionPaquete paquete : paquetes) {
+//            try {
+//                simulacionRuteadoService.findRuta(paquete, oficinas);
+//            } catch (PathNotFoundException ex) {
+//
+//            }
+//        }
         simulacionRuteadoService.accionesVuelosSalida(request.getInicio(), request.getFin(), simulacion);
         return accionRepository.findAllBySimulacionVentana(request.getInicio(), request.getFin(), simulacion);
     }
@@ -296,6 +280,8 @@ public class SimulacionServiceImp implements SimulacionService {
         Simulacion s = simulacionRepository.getOne(id);
         s.setFechaFin(null);
         simulacionRepository.save(s);
+//        simulacionVueloAgendadoRepository.deleteBySimulacion(s);
+        accionRepository.deleteBySimulacion(s);
     }
 
 }
