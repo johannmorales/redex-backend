@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosRepository;
 import org.redex.backend.model.general.EstadoEnum;
+import org.redex.backend.model.general.Pais;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.exception.AppException;
 import org.springframework.data.domain.Page;
@@ -163,14 +164,15 @@ public class PlanVueloServiceImp implements PlanVueloService {
     private Vuelo leerVuelo(String codeOffice1, String codeOffice2,
             String horaIni, String horaFin, PlanVuelo pV, Map<String, Oficina> mapOficinas) {
         // codigo para leer una oficina de una linea del archivo 
-
+        Pais pI = mapOficinas.get(codeOffice1).getPais();
+        Pais pF = mapOficinas.get(codeOffice2).getPais();
         Vuelo vuelo = new Vuelo();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
         vuelo.setPlanVuelo(pV);
         vuelo.setOficinaOrigen(mapOficinas.get(codeOffice1));
         vuelo.setOficinaDestino(mapOficinas.get(codeOffice2));
-        vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter));
-        System.out.println(LocalTime.parse(horaFin, dateTimeFormatter));
+        vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter).plusHours(pI.getHuso_horario()*-1));
+        System.out.println(LocalTime.parse(horaFin, dateTimeFormatter).plusHours(pF.getHuso_horario()*-1));
         vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter));
         vuelo.setEstado(EstadoEnum.ACTIVO);
         vuelo.setCapacidad(500);
