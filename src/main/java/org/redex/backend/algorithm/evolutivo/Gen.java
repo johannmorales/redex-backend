@@ -1,20 +1,20 @@
 package org.redex.backend.algorithm.evolutivo;
 
-import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
+import org.redex.backend.model.envios.VueloAgendado;
 
 public class Gen {
 
-    public Gen(AlgoritmoVueloAgendado va) {
+    public Gen(VueloAgendado va) {
         this.vueloAgendado = va;
     }
 
-    private AlgoritmoVueloAgendado vueloAgendado;
+    private VueloAgendado vueloAgendado;
 
-    public AlgoritmoVueloAgendado getVueloAgendado() {
+    public VueloAgendado getVueloAgendado() {
         return vueloAgendado;
     }
 
-    public void setVueloAgendado(AlgoritmoVueloAgendado vueloAgendado) {
+    public void setVueloAgendado(VueloAgendado vueloAgendado) {
         this.vueloAgendado = vueloAgendado;
     }
 

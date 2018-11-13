@@ -2,7 +2,6 @@ package org.redex.backend.controller.simulacion;
 
 import java.util.List;
 import org.redex.backend.model.simulacion.Simulacion;
-import org.redex.backend.model.simulacion.SimulacionAccion;
 import org.redex.backend.model.simulacion.SimulacionOficina;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.response.CargaDatosResponse;
@@ -22,8 +21,6 @@ public interface SimulacionService {
     void eliminar(Long id);
 
     Page<Simulacion> crimsonList(CrimsonTableRequest request);
-
-    List<SimulacionAccion> accionesByWindow(WindowRequest request);
 
     List<SimulacionOficina> listOficinas(Long id);
 

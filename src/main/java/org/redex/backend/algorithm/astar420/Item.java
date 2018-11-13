@@ -1,16 +1,16 @@
 package org.redex.backend.algorithm.astar420;
 
 import java.util.List;
-import org.redex.backend.algorithm.AlgoritmoOficina;
-import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
+import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
 
 public class Item {
 
-    private List<AlgoritmoVueloAgendado> currentFlights;
+    private List<VueloAgendado> currentFlights;
     private Long cost;
-    private AlgoritmoOficina header;
+    private Oficina header;
 
-    public Item(List<AlgoritmoVueloAgendado> vA) {
+    public Item(List<VueloAgendado> vA) {
         this.currentFlights = vA;
         if (!vA.isEmpty()) {
             this.header = vA.get(vA.size() - 1).getOficinaDestino();
@@ -20,24 +20,24 @@ public class Item {
         this.cost = calcularCosto();
     }
 
-    public AlgoritmoVueloAgendado getLastFlight() {
+    public VueloAgendado getLastFlight() {
         return currentFlights.get(currentFlights.size() - 1);
     }
     
     public long calcularCosto() {
         long acc = 0;
-        for (AlgoritmoVueloAgendado currentFlight : currentFlights) {
+        for (VueloAgendado currentFlight : currentFlights) {
             acc += currentFlight.getPorcentajeUsado() * 420 + currentFlight.getOficinaDestino().getPorcentajeUsado() * 69;
         }
 
         return acc;
     }
 
-    public List<AlgoritmoVueloAgendado> getCurrentFlights() {
+    public List<VueloAgendado> getCurrentFlights() {
         return currentFlights;
     }
 
-    public void setCurrentFlights(List<AlgoritmoVueloAgendado> currentFlights) {
+    public void setCurrentFlights(List<VueloAgendado> currentFlights) {
         this.currentFlights = currentFlights;
     }
 
@@ -49,11 +49,11 @@ public class Item {
         this.cost = cost;
     }
 
-    public AlgoritmoOficina getHeader() {
+    public Oficina getHeader() {
         return header;
     }
 
-    public void setHeader(AlgoritmoOficina header) {
+    public void setHeader(Oficina header) {
         this.header = header;
     }
 

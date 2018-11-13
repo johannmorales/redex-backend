@@ -1,37 +1,42 @@
 package org.redex.backend.controller.simulacion;
 
-import org.redex.backend.algorithm.AlgoritmoPaquete;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.redex.backend.model.envios.Paquete;
 
 @Component
 public class GestorPaquetes {
 
-    private SortedMap<LocalDateTime,List<AlgoritmoPaquete>> paquetes =  new TreeMap<>();
+    private final Logger logger = LogManager.getLogger(GestorPaquetes.class);
 
-    public void agregarLista(List<AlgoritmoPaquete> paquetes){
-        for (AlgoritmoPaquete paquete : paquetes) {
+    private SortedMap<LocalDateTime, List<Paquete>> paquetes = new TreeMap<>();
+
+    public void agregarLista(List<Paquete> paquetes) {
+        for (Paquete paquete : paquetes) {
             this.agregarUno(paquete);
         }
+
+        logger.info("{} paquetes agregados", paquetes.size());
+
     }
 
-
-    public void agregarUno(AlgoritmoPaquete paquete){
-        if(!this.paquetes.containsKey(paquete.getFechaRegistro())){
-            this.paquetes.put(paquete.getFechaRegistro(), new ArrayList<>());
+    public void agregarUno(Paquete paquete) {
+        if (!this.paquetes.containsKey(paquete.getFechaIngreso())) {
+            this.paquetes.put(paquete.getFechaIngreso(), new ArrayList<>());
         }
-        this.paquetes.get(paquete.getFechaRegistro()).add(paquete);
+        this.paquetes.get(paquete.getFechaIngreso()).add(paquete);
     }
 
-    public void eliminarHasta(LocalDateTime hasta){
+    public void eliminarHasta(LocalDateTime hasta) {
         paquetes = new TreeMap<>(paquetes.tailMap(hasta));
     }
 
-
-    public List<AlgoritmoPaquete> allEntranVentana(Ventana ventana) {
+    public List<Paquete> allEntranVentana(Ventana ventana) {
         return paquetes.tailMap(ventana.getInicio()).headMap(ventana.getFin()).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 }

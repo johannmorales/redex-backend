@@ -2,14 +2,14 @@ package org.redex.backend.controller.simulacion;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.redex.backend.algorithm.AlgoritmoVuelo;
-import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.redex.backend.model.envios.Vuelo;
+import org.redex.backend.model.envios.VueloAgendado;
 
 @Component
 public class GestorVuelosAgendados {
@@ -17,44 +17,43 @@ public class GestorVuelosAgendados {
     private static final Logger logger = LogManager.getLogger(GestorVuelosAgendados.class);
 
     private LocalDate finGeneracionVuelosAgendados = null;
-    private List<AlgoritmoVuelo> vuelos = new ArrayList<>();
+    private List<Vuelo> vuelos = new ArrayList<>();
 
-    private SortedMap<LocalDateTime, List<AlgoritmoVueloAgendado>> vuelosAgendadosPorInicio = new TreeMap<>();
+    private SortedMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorInicio = new TreeMap<>();
 
     private void crearUnDiaVuelosAgendados(LocalDate dia) {
         if (finGeneracionVuelosAgendados != null && finGeneracionVuelosAgendados.isAfter(dia)) {
             return;
         }
 
-        for (AlgoritmoVuelo vuelo : vuelos) {
+        for (Vuelo vuelo : vuelos) {
             LocalDateTime inicio = LocalDateTime.of(dia, vuelo.getHoraInicio());
             LocalDateTime fin = LocalDateTime.of(dia, vuelo.getHoraFin());
 
-            if(vuelo.getHoraFin().isBefore(vuelo.getHoraInicio())){
-                inicio =  LocalDateTime.of(dia, vuelo.getHoraInicio());
-                fin =  LocalDateTime.of(dia.plusDays(1L), vuelo.getHoraFin());
+            if (vuelo.getHoraFin().isBefore(vuelo.getHoraInicio())) {
+                inicio = LocalDateTime.of(dia, vuelo.getHoraInicio());
+                fin = LocalDateTime.of(dia.plusDays(1L), vuelo.getHoraFin());
             }
-            AlgoritmoVueloAgendado sva = new AlgoritmoVueloAgendado();
+            VueloAgendado sva = new VueloAgendado();
             sva.setFechaInicio(inicio);
             sva.setFechaFin(fin);
             sva.setCapacidadActual(0);
             sva.setCantidadSalida(0);
             sva.setCapacidadMaxima(vuelo.getCapacidad());
-            sva.setOficinaOrigen(vuelo.getOficinaOrigen());
-            sva.setOficinaDestino(vuelo.getOficinaDestino());
+            sva.setVuelo(vuelo);
             this.agregarVueloAgendado(sva);
         }
         this.finGeneracionVuelosAgendados = dia.plusDays(1L);
     }
 
-    private void agregarVueloAgendado(AlgoritmoVueloAgendado sva) {
+    private void agregarVueloAgendado(VueloAgendado sva) {
         if (!this.vuelosAgendadosPorInicio.containsKey(sva.getFechaInicio())) {
             this.vuelosAgendadosPorInicio.put(sva.getFechaInicio(), new ArrayList<>());
         }
         this.vuelosAgendadosPorInicio.get(sva.getFechaInicio()).add(sva);
     }
 
-    public List<AlgoritmoVueloAgendado> allAlgoritmo(LocalDateTime inicio, LocalDateTime fin){
+    public List<VueloAgendado> allAlgoritmo(LocalDateTime inicio, LocalDateTime fin) {
         return vuelosAgendadosPorInicio.tailMap(inicio).values().stream().flatMap(Collection::stream).filter(va -> va.getFechaFin().isBefore(fin) && va.getCapacidadActual() < va.getCapacidadMaxima()).collect(Collectors.toList());
     }
 
@@ -62,8 +61,8 @@ public class GestorVuelosAgendados {
         System.out.printf("TBD");
     }
 
-    public List<AlgoritmoVueloAgendado> allPartenEnVentana(Ventana ventana) {
-        SortedMap<LocalDateTime, List<AlgoritmoVueloAgendado>> submap = this.vuelosAgendadosPorInicio.tailMap(ventana.getInicio());
+    public List<VueloAgendado> allPartenEnVentana(Ventana ventana) {
+        SortedMap<LocalDateTime, List<VueloAgendado>> submap = this.vuelosAgendadosPorInicio.tailMap(ventana.getInicio());
         return submap.headMap(ventana.getFin()).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
@@ -89,8 +88,8 @@ public class GestorVuelosAgendados {
         this.finGeneracionVuelosAgendados = fin;
     }
 
-    public void setVuelos(List<AlgoritmoVuelo> nuevosVuelos) {
-        System.out.println(String.format("Seteando %d vuelos", nuevosVuelos.size()));
+    public void setVuelos(List<Vuelo> nuevosVuelos) {
+        System.out.println(String.format("%d vuelos agregados", nuevosVuelos.size()));
         this.vuelos = nuevosVuelos;
     }
 }

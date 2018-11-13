@@ -1,8 +1,8 @@
 package org.redex.backend.algorithm.gestor;
 
 import java.time.LocalDateTime;
-import org.redex.backend.algorithm.AlgoritmoOficina;
-import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
+import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
 
 public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
 
@@ -10,9 +10,9 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
         VUELO_ENTRADA, VUELO_SALIDA, PAQUETES_SALIDA
     }
 
-    private AlgoritmoVueloAgendado vueloAgendado;
+    private VueloAgendado vueloAgendado;
 
-    private AlgoritmoOficina oficina;
+    private Oficina oficina;
 
     private Tipo tipo;
 
@@ -20,7 +20,7 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
 
     private LocalDateTime momento;
 
-    private AlgoritmoMovimiento(Tipo tipo, AlgoritmoVueloAgendado va) {
+    private AlgoritmoMovimiento(Tipo tipo, VueloAgendado va) {
         this.tipo = tipo;
         this.vueloAgendado = va;
         switch (tipo) {
@@ -44,15 +44,15 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
         }
     }
 
-    public static AlgoritmoMovimiento crearSalidaVuelo(AlgoritmoVueloAgendado va){
+    public static AlgoritmoMovimiento crearSalidaVuelo(VueloAgendado va){
         return new AlgoritmoMovimiento(Tipo.VUELO_SALIDA, va);
     }
 
-    public static AlgoritmoMovimiento crearEntradaVuelo(AlgoritmoVueloAgendado va){
+    public static AlgoritmoMovimiento crearEntradaVuelo(VueloAgendado va){
         return new AlgoritmoMovimiento(Tipo.VUELO_ENTRADA, va);
     }
 
-    public static AlgoritmoMovimiento crearSalidaPaquetes(AlgoritmoVueloAgendado va){
+    public static AlgoritmoMovimiento crearSalidaPaquetes(VueloAgendado va){
         return new AlgoritmoMovimiento(Tipo.PAQUETES_SALIDA, va);
     }
 
@@ -61,19 +61,19 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
         return momento.compareTo(o.getMomento());
     }
 
-    public AlgoritmoVueloAgendado getVueloAgendado() {
+    public VueloAgendado getVueloAgendado() {
         return vueloAgendado;
     }
 
-    public void setVueloAgendado(AlgoritmoVueloAgendado vueloAgendado) {
+    public void setVueloAgendado(VueloAgendado vueloAgendado) {
         this.vueloAgendado = vueloAgendado;
     }
 
-    public AlgoritmoOficina getOficina() {
+    public Oficina getOficina() {
         return oficina;
     }
 
-    public void setOficina(AlgoritmoOficina oficina) {
+    public void setOficina(Oficina oficina) {
         this.oficina = oficina;
     }
 
