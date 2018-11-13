@@ -70,7 +70,7 @@ public class Paquete extends ModificacionAuditable implements Serializable {
 
     @Transient
     private Boolean rutaGenerada;
-    
+
     public Long getId() {
         return id;
     }
@@ -178,7 +178,7 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     public void setPaqueteRutas(List<PaqueteRuta> paqueteRutas) {
         this.paqueteRutas = paqueteRutas;
     }
-    
+
     public Boolean getRutaGenerada() {
         return rutaGenerada;
     }

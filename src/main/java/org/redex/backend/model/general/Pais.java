@@ -14,8 +14,6 @@ import org.hibernate.annotations.Immutable;
 })
 public class Pais implements Serializable {
 
-    
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,8 +32,8 @@ public class Pais implements Serializable {
     private String codigoIso;
 
     @Column
-    private Integer huso_horario;
-    
+    private Integer husoHorario;
+
     @Column(scale = 10)
     private BigDecimal latitud;
 
@@ -105,17 +103,12 @@ public class Pais implements Serializable {
         this.longitud = altitud;
     }
 
-    /**
-     * @return the huso_horario
-     */
-    public Integer getHuso_horario() {
-        return huso_horario;
+    public Integer getHusoHorario() {
+        return husoHorario;
     }
 
-    /**
-     * @param huso_horario the huso_horario to set
-     */
-    public void setHuso_horario(Integer huso_horario) {
-        this.huso_horario = huso_horario;
+    public void setHusoHorario(Integer husoHorario) {
+        this.husoHorario = husoHorario;
     }
+    
 }

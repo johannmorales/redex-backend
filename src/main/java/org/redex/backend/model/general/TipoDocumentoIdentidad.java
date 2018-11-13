@@ -29,7 +29,7 @@ public class TipoDocumentoIdentidad implements Serializable {
     public TipoDocumentoIdentidad(Long id) {
         this.id = id;
     }
-    
+
     public Long getId() {
         return id;
     }

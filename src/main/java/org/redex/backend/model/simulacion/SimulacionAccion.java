@@ -44,7 +44,7 @@ public class SimulacionAccion implements Serializable {
     public SimulacionAccion() {
     }
 
-    public static SimulacionAccion of(SimulacionPaquete sp){
+    public static SimulacionAccion of(SimulacionPaquete sp) {
         SimulacionAccion a = new SimulacionAccion();
         a.setFechaInicio(sp.getFechaIngreso());
         a.setOficinaDestino(sp.getOficinaOrigen());
@@ -52,11 +52,11 @@ public class SimulacionAccion implements Serializable {
         a.setTipo(SimulacionAccionTipoEnum.REGISTRO);
         a.setCantidadSalida(0);
         a.setCantidad(1);
-        
+
         return a;
     }
-    
-      public static SimulacionAccion of(SimulacionVueloAgendado sv){
+
+    public static SimulacionAccion of(SimulacionVueloAgendado sv) {
         SimulacionAccion a = new SimulacionAccion();
         a.setFechaFin(sv.getFechaFin());
         a.setFechaInicio(sv.getFechaInicio());
@@ -66,10 +66,10 @@ public class SimulacionAccion implements Serializable {
         a.setCantidad(sv.getCapacidadActual());
         a.setCantidadSalida(sv.getCantidadSalida());
         a.setTipo(SimulacionAccionTipoEnum.SALIDA);
-        
+
         return a;
     }
-      
+
     public Long getId() {
         return id;
     }

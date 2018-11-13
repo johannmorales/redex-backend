@@ -26,7 +26,7 @@ public class PlanVuelo extends RegistroAuditable implements Serializable {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private EstadoEnum estado;
-    
+
     @OneToMany(mappedBy = "planVuelo", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Vuelo> vuelos;
 

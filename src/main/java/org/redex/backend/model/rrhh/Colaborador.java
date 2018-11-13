@@ -14,11 +14,11 @@ public class Colaborador implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-   
+
     @OneToOne
     @JoinColumn(name = "id_persona", nullable = false)
     private Persona persona;
-    
+
     @ManyToOne
     @JoinColumn(name = "id_oficina", nullable = false)
     private Oficina oficina;
@@ -30,7 +30,7 @@ public class Colaborador implements Serializable {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private EstadoEnum estado;
-    
+
     @Email
     @NotBlank
     @Column(nullable = false)

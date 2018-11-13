@@ -60,11 +60,11 @@ public class Simulacion extends RegistroAuditable implements Serializable {
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "simulacion")
     private Set<SimulacionVuelo> vuelosAgendados;
 
-    public Simulacion(){
+    public Simulacion() {
 
     }
 
-    public Simulacion(Long id){
+    public Simulacion(Long id) {
         this.id = id;
     }
 
