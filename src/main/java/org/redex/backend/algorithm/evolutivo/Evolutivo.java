@@ -38,22 +38,44 @@ public class Evolutivo implements Algoritmo {
     private GestorAlgoritmo gestorAlgoritmo;
 
     @Override
-    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendados,List<VueloAgendado> vuelosTerminan, List<Oficina> oficinas) {
+    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendados, List<VueloAgendado> vuelosTerminan, List<Oficina> oficinas) {
         gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, vuelosTerminan, oficinas);
         TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
 
+        for (Cromosoma cromosoma : population) {
+           // checkCromosoma(cromosoma);
+        }
+        
         for (int i = 0; i < iteraciones; i++) {
             TreeMultiset<Cromosoma> survivors = fight(population);
             TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
 
             population = TreeMultiset.create(byCost);
             population.addAll(survivors);
-            population.addAll(mutants);
+              for (Cromosoma cromosoma : population) {
+                checkCromosoma(cromosoma, "SURV");
+            }
 
+            population.addAll(mutants);
+            for (Cromosoma cromosoma : population) {
+                checkCromosoma(cromosoma, "MUT");
+            }
+
+            break;
         }
 
         Cromosoma winner = population.firstEntry().getElement();
         return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
+    }
+
+    private void checkCromosoma(Cromosoma cromosoma, String env) {
+        LocalDateTime ahora = null;
+        for (Gen gene : cromosoma.getGenes()) {
+            if (ahora != null && ahora.isAfter(gene.getVueloAgendado().getFechaInicio())) {
+                logger.error("[{}] ERROR EN EL CROMOSOA", env);
+            }
+            ahora = gene.getVueloAgendado().getFechaFin();
+        }
     }
 
     private TreeMultiset<Cromosoma> initialize(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, Paquete paquete) {
@@ -159,7 +181,7 @@ public class Evolutivo implements Algoritmo {
                 if (index1 == 0) {
                     Integer indiceSgte = index2 + 1;
                     VueloAgendado vueloSgte = genes.get(indiceSgte).getVueloAgendado();
-                    reemplazo = buildRandomLimitedPath(inicio.getOficinaOrigen(), fin.getOficinaDestino(), paquete.getFechaIngreso(), vueloSgte.getFechaFin());
+                    reemplazo = buildRandomLimitedPath(inicio.getOficinaOrigen(), fin.getOficinaDestino(), paquete.getFechaIngreso(), vueloSgte.getFechaInicio());
                 } else {
                     Integer indicePrevio = index1 - 1;
                     Integer indiceSgte = index2 + 1;

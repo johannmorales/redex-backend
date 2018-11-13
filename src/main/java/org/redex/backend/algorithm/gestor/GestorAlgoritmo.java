@@ -36,7 +36,11 @@ public class GestorAlgoritmo {
     }
 
     public List<VueloAgendado> obtenerValidos(Oficina oficina, LocalDateTime momento) {
+
+       // logger.info("Vuelos despues de {}", momento);
         SortedMap<LocalDateTime, Map<Oficina, List<VueloAgendado>>> submap = vuelosAgendadosPorOrigen.tailMap(momento);
+
+     //   submap.values().stream().filter(x -> x.containsKey(oficina)).flatMap(x -> x.get(oficina).stream()).forEach(v -> logger.info("\t{}", v.getFechaInicio()));
 
         return submap.values().stream()
                 .filter(x -> x.containsKey(oficina))
