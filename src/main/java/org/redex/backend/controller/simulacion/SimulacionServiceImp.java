@@ -199,7 +199,12 @@ public class SimulacionServiceImp implements SimulacionService {
         LocalDateTime date = LocalDateTime.parse(datos.get(1).substring(0, 4) + "-"
                 + datos.get(1).substring(4, 6) + "-" + datos.get(1).substring(6, 8)
                 + " " + datos.get(2).substring(0, 2) + datos.get(2).substring(2), formatter);
-        date = date.plus(-5, ChronoUnit.HOURS);
+        
+        
+        Pais pI = oficinas.get(datos.get(3)).getPais();
+        
+        
+        date = date.plus(pI.getHusoHorario()*-1, ChronoUnit.HOURS);
         p.setFechaIngreso(date);
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
