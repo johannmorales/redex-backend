@@ -39,7 +39,7 @@ public class AlgoritmoOficina {
         ao.setCapacidadActual(o.getCapacidadActual());
         ao.setCapacidadMaxima(o.getCapacidadMaxima());
         ao.setCodigo(o.getCodigo());
-        ao.setZonaHoraria(o.getZonaHoraria());
+        ao.setZonaHoraria(o.getPais().getHusoHorario());
 
         return ao;
     }

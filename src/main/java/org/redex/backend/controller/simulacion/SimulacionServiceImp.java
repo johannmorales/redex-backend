@@ -213,7 +213,6 @@ public class SimulacionServiceImp implements SimulacionService {
         oficina.setPais(mapPaises.get(linea));
         oficina.setCapacidadActual(0);
         oficina.setCapacidadMaxima(250);
-        oficina.setZonaHoraria(-5);
 
         return oficina;
     }
