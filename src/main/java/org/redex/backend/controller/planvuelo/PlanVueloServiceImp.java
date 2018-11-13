@@ -173,7 +173,7 @@ public class PlanVueloServiceImp implements PlanVueloService {
         vuelo.setOficinaDestino(mapOficinas.get(codeOffice2));
         vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter).plusHours(pI.getHusoHorario()*-1));
         System.out.println(LocalTime.parse(horaFin, dateTimeFormatter).plusHours(pF.getHusoHorario()*-1));
-        vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter));
+        vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter).plusHours(pF.getHusoHorario()*-1));
         vuelo.setEstado(EstadoEnum.ACTIVO);
         vuelo.setCapacidad(500);
         

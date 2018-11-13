@@ -220,11 +220,13 @@ public class SimulacionServiceImp implements SimulacionService {
     private Vuelo leerVuelo(String codeOffice1, String codeOffice2,
                                      String horaIni, String horaFin, Map<String, Oficina> mapOficinas) {
         Vuelo vuelo = new Vuelo();
+        Pais pI = mapOficinas.get(codeOffice1).getPais();
+        Pais pF = mapOficinas.get(codeOffice2).getPais();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
         vuelo.setOficinaOrigen(mapOficinas.get(codeOffice1));
         vuelo.setOficinaDestino(mapOficinas.get(codeOffice2));
-        vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter));
-        vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter));
+        vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter).plusHours(pI.getHusoHorario()*-1));
+        vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter).plusHours(pF.getHusoHorario()*-1));
         vuelo.setCapacidad(500);
 
         return vuelo;
