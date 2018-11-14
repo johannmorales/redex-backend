@@ -42,7 +42,7 @@ public class VisorSimulacion {
             this.oficinas.put(ofi.getCodigo(), ofi);
         }
         
-        logger.info("{} oficinas agregadas");
+        logger.info("{} oficinas agregadas", this.oficinas.size());
     }
 
     public Map<String, Oficina> getOficinas() {
@@ -84,10 +84,10 @@ public class VisorSimulacion {
                         item.setCapacidadActual(item.getCapacidadActual() + 1);
                     }
                 }
-                logger.info("RUTA: [{}=>{}]", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
+                logger.info("RUTA: () [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
 
             } catch (PathNotFoundException pex) {
-                logger.error("RUTA: [{}=>{}]", paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
+                logger.error("RUTA: () [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
             }
         }
 

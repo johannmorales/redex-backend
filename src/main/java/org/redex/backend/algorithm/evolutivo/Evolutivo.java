@@ -53,12 +53,10 @@ public class Evolutivo implements Algoritmo {
             population = TreeMultiset.create(byCost);
             population.addAll(survivors);
               for (Cromosoma cromosoma : population) {
-                checkCromosoma(cromosoma, "SURV");
             }
 
             population.addAll(mutants);
             for (Cromosoma cromosoma : population) {
-                checkCromosoma(cromosoma, "MUT");
             }
 
             break;
@@ -188,7 +186,7 @@ public class Evolutivo implements Algoritmo {
                     VueloAgendado vueloPrevio = genes.get(indicePrevio).getVueloAgendado();
                     VueloAgendado vueloSgte = genes.get(indiceSgte).getVueloAgendado();
 
-                    reemplazo = buildRandomLimitedPath(inicio.getOficinaOrigen(), fin.getOficinaDestino(), vueloPrevio.getFechaInicio(), vueloSgte.getFechaFin());
+                    reemplazo = buildRandomLimitedPath(inicio.getOficinaOrigen(), fin.getOficinaDestino(), vueloPrevio.getFechaInicio(), vueloSgte.getFechaInicio());
                 }
             }
 
