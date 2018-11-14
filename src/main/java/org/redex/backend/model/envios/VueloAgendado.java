@@ -46,6 +46,9 @@ public class VueloAgendado implements Serializable {
     private Integer capacidadActual;
 
     @Column(nullable = false)
+    private Integer cantidadSalida;
+
+    @Column(nullable = false)
     private Integer capacidadMaxima;
 
     public VueloAgendado() {
@@ -58,17 +61,16 @@ public class VueloAgendado implements Serializable {
     public static VueloAgendado of(Vuelo vuelo, LocalDate date) {
         VueloAgendado va = new VueloAgendado();
 
-        ZonedDateTime fechaInicioLimpia = date.atStartOfDay(ZoneId.of("UTC"));
-
-        ZonedDateTime fechaFinLimpia = vuelo.esDeUnDia() ? ZonedDateTime.from(fechaInicioLimpia) : fechaInicioLimpia.plus(1L, ChronoUnit.DAYS);
-
-        fechaInicioLimpia = fechaInicioLimpia.with(vuelo.getHoraInicio());
-        fechaFinLimpia = fechaFinLimpia.with(vuelo.getHoraFin());
-
-        va.fechaInicio = fechaInicioLimpia.toLocalDateTime();
-        va.fechaFin = fechaFinLimpia.toLocalDateTime();
+        if (vuelo.getHoraInicio().isBefore(vuelo.getHoraFin())) {
+            va.setFechaInicio(LocalDateTime.of(date, vuelo.getHoraInicio()));
+            va.setFechaFin(LocalDateTime.of(date, vuelo.getHoraFin()));
+        } else {
+            va.setFechaInicio(LocalDateTime.of(date, vuelo.getHoraInicio()));
+            va.setFechaFin(LocalDateTime.of(date.plusDays(1L), vuelo.getHoraFin()));
+        }
 
         va.capacidadActual = 0;
+        va.cantidadSalida = 0;
         va.capacidadMaxima = vuelo.getCapacidad();
         va.estado = VueloAgendadoEstadoEnum.CREADO;
         va.vuelo = vuelo;
@@ -207,6 +209,14 @@ public class VueloAgendado implements Serializable {
 
     public void setEstado(VueloAgendadoEstadoEnum estado) {
         this.estado = estado;
+    }
+
+    public Integer getCantidadSalida() {
+        return cantidadSalida;
+    }
+
+    public void setCantidadSalida(Integer cantidadSalida) {
+        this.cantidadSalida = cantidadSalida;
     }
 
 }

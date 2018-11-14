@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.redex.backend.algorithm.Algoritmo;
 import org.redex.backend.algorithm.AlgoritmoOficina;
 import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
+import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.model.simulacion.*;
 import org.redex.backend.repository.SimulacionPaquetesRepository;
 import org.redex.backend.repository.SimulacionRepository;
@@ -85,10 +85,10 @@ public class SimulacionController {
 
     @GetMapping("/{id}/oficinas")
     public ArrayNode oficinas(@PathVariable Long id) {
-        Map<String, AlgoritmoOficina> oficinas = visorSimulacion.getOficinas();
+        Map<String, Oficina> oficinas = visorSimulacion.getOficinas();
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        for (Map.Entry<String, AlgoritmoOficina> entry : oficinas.entrySet()) {
-            AlgoritmoOficina oficina = entry.getValue();
+        for (Map.Entry<String, Oficina> entry : oficinas.entrySet()) {
+            Oficina oficina = entry.getValue();
             ObjectNode oficinaNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
                     "id",
                     "codigo",

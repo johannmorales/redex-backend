@@ -23,6 +23,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Transient;
 import org.redex.backend.model.AppConstants;
 import org.redex.backend.model.auditoria.ModificacionAuditable;
 
@@ -66,6 +67,9 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     @OrderBy("orden ASC")
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "paquete", fetch = FetchType.LAZY)
     private List<PaqueteRuta> paqueteRutas;
+
+    @Transient
+    private Boolean rutaGenerada;
 
     public Long getId() {
         return id;
@@ -173,5 +177,13 @@ public class Paquete extends ModificacionAuditable implements Serializable {
 
     public void setPaqueteRutas(List<PaqueteRuta> paqueteRutas) {
         this.paqueteRutas = paqueteRutas;
+    }
+
+    public Boolean getRutaGenerada() {
+        return rutaGenerada;
+    }
+
+    public void setRutaGenerada(Boolean rutaGenerada) {
+        this.rutaGenerada = rutaGenerada;
     }
 }

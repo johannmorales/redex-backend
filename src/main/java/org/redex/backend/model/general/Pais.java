@@ -31,6 +31,9 @@ public class Pais implements Serializable {
     @Column
     private String codigoIso;
 
+    @Column
+    private Integer husoHorario;
+
     @Column(scale = 10)
     private BigDecimal latitud;
 
@@ -100,4 +103,12 @@ public class Pais implements Serializable {
         this.longitud = altitud;
     }
 
+    public Integer getHusoHorario() {
+        return husoHorario;
+    }
+
+    public void setHusoHorario(Integer husoHorario) {
+        this.husoHorario = husoHorario;
+    }
+    
 }

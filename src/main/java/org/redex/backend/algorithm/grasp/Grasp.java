@@ -1,28 +1,23 @@
 package org.redex.backend.algorithm.grasp;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.Algoritmo;
-import org.redex.backend.algorithm.AlgoritmoOficina;
-import org.redex.backend.algorithm.AlgoritmoPaquete;
-import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
 import org.redex.backend.algorithm.gestor.GestorAlgoritmo;
 import org.redex.backend.algorithm.PathNotFoundException;
+import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.simulacion.SimulacionOficina;
-import org.redex.backend.model.simulacion.SimulacionPaquete;
-import org.redex.backend.model.simulacion.SimulacionVueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
 
 public class Grasp implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Grasp.class);
     
-    private static List<AlgoritmoVueloAgendado> listaRuta = new ArrayList<>();
+    private static List<VueloAgendado> listaRuta = new ArrayList<>();
     private double porc = 0.85;//modifica el limite del fitness a elegir 0.4 - 0.85
     private double alpha = 0.5; //puede modificarse
     private int hC = 36; //cantidad de horas maximas de envios continentales
@@ -32,7 +27,7 @@ public class Grasp implements Algoritmo {
     private GestorAlgoritmo gestorAlgoritmo;
 
     @Override
-    public List<AlgoritmoVueloAgendado> run(AlgoritmoPaquete paquete, List<AlgoritmoVueloAgendado> vuelosAgendados, List<AlgoritmoVueloAgendado> vuelosTerminados, List<AlgoritmoOficina> oficinas) {
+    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendados, List<VueloAgendado> vuelosTerminados, List<Oficina> oficinas) {
         Integer cantidadDias = 1;
         gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, vuelosTerminados, oficinas);
 
@@ -44,7 +39,7 @@ public class Grasp implements Algoritmo {
         
         listaRuta = new ArrayList<>();
         //Primera parte del algoritmo
-        List<AlgoritmoVueloAgendado> lista = grasp(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaRegistro(), paquete.getFechaRegistro());
+        List<VueloAgendado> lista = grasp(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete.getFechaIngreso());
         //decidir el alpha que sera el LIMITE de la ruta 
         int numE = lista.size();//devuelve tamaño de ruta
         int ind = (int) (numE * alpha);
@@ -55,8 +50,8 @@ public class Grasp implements Algoritmo {
             }
             listaRuta = lista;
             //con bfs se calcula el resto de la ruta
-            lista = dfs(lista.get(ind - 1).getOficinaDestino(), paquete.getOficinaDestino(), lista.get(ind - 1).getFechaFin(), paquete.getFechaRegistro());//oficina de origen , oficina destino,tiempo de envio inicial
-            for (AlgoritmoVueloAgendado va : lista) {
+            lista = dfs(lista.get(ind - 1).getOficinaDestino(), paquete.getOficinaDestino(), lista.get(ind - 1).getFechaFin(), paquete.getFechaIngreso());//oficina de origen , oficina destino,tiempo de envio inicial
+            for (VueloAgendado va : lista) {
                 listaRuta.add(va);
             }
         }
@@ -66,9 +61,9 @@ public class Grasp implements Algoritmo {
         return listaRuta;
     }
 
-//    private static void bfs(AlgoritmoOficina oficinaI,AlgoritmoOficina oficinaF,LocalDateTime tRAlgoritmoPaquete){
-//        List<AlgoritmoVueloAgendado> frontera = new ArrayList<>(flightByOriginOffice.get(oficinaI).tailMap(tRAlgoritmoPaquete).values());
-//        List<AlgoritmoVueloAgendado> visitados = new ArrayList<>();
+//    private static void bfs(Oficina oficinaI,Oficina oficinaF,LocalDateTime tRPaquete){
+//        List<VueloAgendado> frontera = new ArrayList<>(flightByOriginOffice.get(oficinaI).tailMap(tRPaquete).values());
+//        List<VueloAgendado> visitados = new ArrayList<>();
 //        
 //        while(!frontera.isEmpty()){
 //            
@@ -76,57 +71,57 @@ public class Grasp implements Algoritmo {
 //                break;
 //        }
 //    }
-    private List<AlgoritmoVueloAgendado> dfs(AlgoritmoOficina origen, AlgoritmoOficina destino, LocalDateTime start, LocalDateTime regP) {
-//        List<AlgoritmoVueloAgendado> listaV = new ArrayList<>(flightByOriginOffice.get(origen).tailMap(start).values());
-        List<AlgoritmoVueloAgendado> listaV = gestorAlgoritmo.obtenerValidos(origen, start);
+    private List<VueloAgendado> dfs(Oficina origen, Oficina destino, LocalDateTime start, LocalDateTime regP) {
+//        List<VueloAgendado> listaV = new ArrayList<>(flightByOriginOffice.get(origen).tailMap(start).values());
+        List<VueloAgendado> listaV = gestorAlgoritmo.obtenerValidos(origen, start);
         listaV = mejoresVuelos(listaV, origen, regP);
-        for (AlgoritmoVueloAgendado va : listaV) {
-            List<AlgoritmoVueloAgendado> list = new ArrayList<>();
+        for (VueloAgendado va : listaV) {
+            List<VueloAgendado> list = new ArrayList<>();
             list.add(va);
             if (va.getOficinaDestino() == destino) {
                 return list;
             } else {
-                List<AlgoritmoVueloAgendado> nextSteps = dfs(va.getOficinaDestino(), destino, va.getFechaFin(), regP);
+                List<VueloAgendado> nextSteps = dfs(va.getOficinaDestino(), destino, va.getFechaFin(), regP);
                 if (!nextSteps.isEmpty()) {
                     list.addAll(nextSteps);
                     return list;
                 }
             }
         }
-        return new ArrayList<AlgoritmoVueloAgendado>();
+        return new ArrayList<VueloAgendado>();
     }
 
-//    private static List<AlgoritmoVueloAgendado> ordenxFit(List<AlgoritmoVueloAgendado> vuelos,AlgoritmoOficina origen,LocalDateTime tRAlgoritmoPaquete){
+//    private static List<VueloAgendado> ordenxFit(List<VueloAgendado> vuelos,Oficina origen,LocalDateTime tRPaquete){
 //        ArrayList<Double> listFit = new ArrayList<>();
-//        List<AlgoritmoVueloAgendado> mejoresV = new ArrayList<>();
+//        List<VueloAgendado> mejoresV = new ArrayList<>();
 //        if(vuelos.isEmpty()){
 //            return mejoresV;//devuelve lista vacia
 //        }
-//        List<AlgoritmoVueloAgendado> listA = new ArrayList<>(vuelos);
-//        for(AlgoritmoVueloAgendado va : vuelos){//remueve todos los vuelos de la lista que llegan a la oficina
+//        List<VueloAgendado> listA = new ArrayList<>(vuelos);
+//        for(VueloAgendado va : vuelos){//remueve todos los vuelos de la lista que llegan a la oficina
 //            if(va.getOficinaDestino()==origen)
 //                listA.remove(va);
 //        }
 //        vuelos = listA;
-//        for(AlgoritmoVueloAgendado va : vuelos){
-//            double fit = fitness(va,tRAlgoritmoPaquete);
+//        for(VueloAgendado va : vuelos){
+//            double fit = fitness(va,tRPaquete);
 //            listFit.add(fit);
 //        }
 //        
 //        return vuelos;
 //    }
-    public List<AlgoritmoVueloAgendado> grasp(AlgoritmoOficina origen, AlgoritmoOficina destino, LocalDateTime start, LocalDateTime tRAlgoritmoPaquete) {
-        AlgoritmoOficina origenN;
+    public List<VueloAgendado> grasp(Oficina origen, Oficina destino, LocalDateTime start, LocalDateTime tRPaquete) {
+        Oficina origenN;
         LocalDateTime startN;
         Random generadorAleatorios = new Random();//decidir el vuelo
-        List<AlgoritmoVueloAgendado> listaT = gestorAlgoritmo.obtenerValidos(origen, start);
+        List<VueloAgendado> listaT = gestorAlgoritmo.obtenerValidos(origen, start);
 
-        List<AlgoritmoVueloAgendado> bestL = mejoresVuelos(listaT, origen, tRAlgoritmoPaquete);
+        List<VueloAgendado> bestL = mejoresVuelos(listaT, origen, tRPaquete);
         while (!bestL.isEmpty()) {//mientras la lista esta llena 
             int indA = generadorAleatorios.nextInt(bestL.size());//decide el vuelo aleatoriamente
-            AlgoritmoVueloAgendado ve = bestL.get(indA);
-            List<AlgoritmoVueloAgendado> vuelosF = new ArrayList<>(gestorAlgoritmo.obtenerValidos(ve.getOficinaDestino(), ve.getFechaFin()));
-            vuelosF = mejoresVuelos(vuelosF, origen, tRAlgoritmoPaquete);
+            VueloAgendado ve = bestL.get(indA);
+            List<VueloAgendado> vuelosF = new ArrayList<>(gestorAlgoritmo.obtenerValidos(ve.getOficinaDestino(), ve.getFechaFin()));
+            vuelosF = mejoresVuelos(vuelosF, origen, tRPaquete);
             LocalDateTime lastStatus;
             Integer variacion;
             try {
@@ -146,32 +141,32 @@ public class Grasp implements Algoritmo {
             } else {//si no hay mas vuelos hacia destino o la capacidad sobrepasa el limite
                 bestL.remove(ve);
                 listaT.remove(ve);
-                bestL = mejoresVuelos(listaT, origen, tRAlgoritmoPaquete);
+                bestL = mejoresVuelos(listaT, origen, tRPaquete);
                 continue;
             }
-            if (!grasp(origenN, destino, startN, tRAlgoritmoPaquete).isEmpty()) {//si obtuvo solucion
+            if (!grasp(origenN, destino, startN, tRPaquete).isEmpty()) {//si obtuvo solucion
                 return listaRuta;
             }
             listaRuta.remove(ve);//remueve el vuelo que no sirve
             bestL.remove(ve);//remueve el veulo de la lista que no sirve
         }
-        return new ArrayList<AlgoritmoVueloAgendado>();
+        return new ArrayList<VueloAgendado>();
     }
 
-    private List<AlgoritmoVueloAgendado> mejoresVuelos(List<AlgoritmoVueloAgendado> vuelos, AlgoritmoOficina origen, LocalDateTime tRAlgoritmoPaquete) {
+    private List<VueloAgendado> mejoresVuelos(List<VueloAgendado> vuelos, Oficina origen, LocalDateTime tRPaquete) {
         double minF = 99999.999, maxF = -1.000;
         ArrayList<Double> listFit = new ArrayList<>();
-        List<AlgoritmoVueloAgendado> mejoresV = new ArrayList<>();
+        List<VueloAgendado> mejoresV = new ArrayList<>();
         if (!vuelos.isEmpty()) {
-            List<AlgoritmoVueloAgendado> listA = new ArrayList<>(vuelos);
-            for (AlgoritmoVueloAgendado va : vuelos) {
+            List<VueloAgendado> listA = new ArrayList<>(vuelos);
+            for (VueloAgendado va : vuelos) {
                 if (va.getOficinaDestino() == origen) {
                     listA.remove(va);
                 }
             }
             vuelos = listA;
-            for (AlgoritmoVueloAgendado va : vuelos) {
-                double fit = fitness(va, tRAlgoritmoPaquete);
+            for (VueloAgendado va : vuelos) {
+                double fit = fitness(va, tRPaquete);
                 if (fit < minF) {
                     minF = fit;
                 }
@@ -194,9 +189,11 @@ public class Grasp implements Algoritmo {
         return mejoresV;
     }
 
-    private double fitness(AlgoritmoVueloAgendado vuelo, LocalDateTime tRAlgoritmoPaquete) {//suma de porcentaje usado del avion , oficina y timepo transcurrido
-       // return vuelo.getPorcentajeUsado() + vuelo.getOficinaDestino().getPorcentajeUsado() + (ChronoUnit.MINUTES.between(tRAlgoritmoPaquete, vuelo.getFechaFin()) / tiempoMax);
+    private double fitness(VueloAgendado vuelo, LocalDateTime tRPaquete) {//suma de porcentaje usado del avion , oficina y timepo transcurrido
+       // return vuelo.getPorcentajeUsado() + vuelo.getOficinaDestino().getPorcentajeUsado() + (ChronoUnit.MINUTES.between(tRPaquete, vuelo.getFechaFin()) / tiempoMax);
         return 0;
     }
+
+   
 
 }

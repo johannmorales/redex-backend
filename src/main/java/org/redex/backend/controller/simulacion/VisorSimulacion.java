@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
 
 @Component
 public class VisorSimulacion {
@@ -22,55 +25,57 @@ public class VisorSimulacion {
     @Autowired
     GestorPaquetes gestorPaquetes;
 
-    Map<String, AlgoritmoOficina> oficinas;
+    Map<String, Oficina> oficinas;
 
-    List<AlgoritmoOficina> oficinasList;
+    List<Oficina> oficinasList;
 
     VisorSimulacion() {
         this.oficinas = new HashMap<>();
         this.oficinasList = new ArrayList<>();
     }
 
-    public void setOficinas(List<AlgoritmoOficina> oficinas) {
+    public void setOficinas(List<Oficina> oficinas) {
         this.oficinas = new HashMap<>();
         this.oficinasList = oficinas;
 
-        for (AlgoritmoOficina ofi : this.oficinasList) {
+        for (Oficina ofi : this.oficinasList) {
             this.oficinas.put(ofi.getCodigo(), ofi);
         }
+        
+        logger.info("{} oficinas agregadas");
     }
 
-    public Map<String, AlgoritmoOficina> getOficinas() {
+    public Map<String, Oficina> getOficinas() {
         return this.oficinas;
     }
 
     private List<SimulacionAccionWrapper> acciones(Ventana ventana) {
-        List<AlgoritmoVueloAgendado> vuelosAgendados = gestorVuelosAgendados.allPartenEnVentana(ventana);
-        List<AlgoritmoPaquete> paquetes = gestorPaquetes.allEntranVentana(ventana);
+        List<VueloAgendado> vuelosAgendados = gestorVuelosAgendados.allPartenEnVentana(ventana);
+        List<Paquete> paquetes = gestorPaquetes.allEntranVentana(ventana);
 
         List<SimulacionAccionWrapper> acciones = new ArrayList<>();
 
-        for (AlgoritmoVueloAgendado vuelosAgendado : vuelosAgendados) {
+        for (VueloAgendado vuelosAgendado : vuelosAgendados) {
             acciones.add(SimulacionAccionWrapper.of(vuelosAgendado));
         }
 
-        for (AlgoritmoPaquete paquete : paquetes) {
+        for (Paquete paquete : paquetes) {
             acciones.add(SimulacionAccionWrapper.of(paquete));
             if(paquete.getRutaGenerada()){
                 continue;
             }
-            LocalDateTime fechaInicio = paquete.getFechaRegistro();
+            LocalDateTime fechaInicio = paquete.getFechaIngreso();
             LocalDateTime fechaFin = paquete.getOficinaOrigen().getPais().getContinente() == paquete.getOficinaDestino().getPais().getContinente()
                     ? fechaInicio.plusHours(24L)
                     : fechaInicio.plusHours(48L);
 
-            List<AlgoritmoVueloAgendado> vas = gestorVuelosAgendados.allAlgoritmo(fechaInicio, fechaFin);
+            List<VueloAgendado> vas = gestorVuelosAgendados.allAlgoritmo(fechaInicio, fechaFin);
 
             Evolutivo e = new Evolutivo();
             try {
-                List<AlgoritmoVueloAgendado> ruta = e.run(paquete, vas, new ArrayList<>(), oficinasList);
+                List<VueloAgendado> ruta = e.run(paquete, vas, new ArrayList<>(), oficinasList);
                 int cont = 0;
-                for (AlgoritmoVueloAgendado item : ruta) {
+                for (VueloAgendado item : ruta) {
                     cont++;
                     if (cont == ruta.size()) {
                         item.setCantidadSalida(item.getCantidadSalida() + 1);

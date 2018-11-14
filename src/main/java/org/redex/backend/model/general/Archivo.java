@@ -20,11 +20,11 @@ public class Archivo extends RegistroAuditable {
     @NotEmpty
     @Column(nullable = false)
     private String directorio;
-    
+
     @NotEmpty
     @Column(nullable = false)
     private String mimetype;
-    
+
     @NotEmpty
     @Column(nullable = false)
     private String nombreServidor;

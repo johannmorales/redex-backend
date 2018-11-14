@@ -1,14 +1,15 @@
 package org.redex.backend.algorithm.astar420;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import org.redex.backend.model.rrhh.Oficina;
 
 public class Node {
 
     private Oficina oficina;
-    private ZonedDateTime hora;
+    private LocalDateTime hora;
 
-    public Node(Oficina o, ZonedDateTime h) {
+    public Node(Oficina o, LocalDateTime h) {
         this.oficina = o;
         this.hora = h;
     }
@@ -21,11 +22,11 @@ public class Node {
         this.oficina = oficina;
     }
 
-    public ZonedDateTime getHora() {
+    public LocalDateTime getHora() {
         return hora;
     }
 
-    public void setHora(ZonedDateTime hora) {
+    public void setHora(LocalDateTime hora) {
         this.hora = hora;
     }
 

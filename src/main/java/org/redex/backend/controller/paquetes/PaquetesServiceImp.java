@@ -215,7 +215,7 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Override
     public Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds) {
-                        return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
+        return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
 
 //        switch (ds.getRol().getCodigo()){
 //            case ADMINISTRADOR:
@@ -230,7 +230,6 @@ public class PaquetesServiceImp implements PaquetesService {
     }
 
     public void generarRuta(Paquete p) {
-        Evolutivo e = new Evolutivo();
 
         List<Oficina> oficinas = oficinasRepository.findAll();
 
@@ -245,7 +244,8 @@ public class PaquetesServiceImp implements PaquetesService {
 
         List<VueloAgendado> vuelosTerminados = vuelosAgendadosRepository.findAllTerminados(fechaInicio, fechaFin);
 
-        List<VueloAgendado> va = AlgoritmoWrapper.sistemaRun(p, vuelosAgendados, vuelosTerminados, oficinas);
+        Evolutivo e = new Evolutivo();
+        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelosTerminados, oficinas);
 
         int aux = 0;
         for (VueloAgendado vva : va) {

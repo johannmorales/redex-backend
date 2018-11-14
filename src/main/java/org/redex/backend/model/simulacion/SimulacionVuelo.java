@@ -24,7 +24,7 @@ public class SimulacionVuelo implements Serializable {
 
     @Column(nullable = false)
     private Integer capacidad;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina_origen", nullable = false)
     private SimulacionOficina oficinaOrigen;
@@ -33,8 +33,8 @@ public class SimulacionVuelo implements Serializable {
     @JoinColumn(name = "id_oficina_destino", nullable = false)
     private SimulacionOficina oficinaDestino;
 
-    public boolean esDeUnDia(){
-        if(horaInicio.isBefore(horaFin)){
+    public boolean esDeUnDia() {
+        if (horaInicio.isBefore(horaFin)) {
             return true;
         } else {
             return false;
@@ -96,5 +96,5 @@ public class SimulacionVuelo implements Serializable {
     public void setOficinaDestino(SimulacionOficina oficinaDestino) {
         this.oficinaDestino = oficinaDestino;
     }
-    
+
 }

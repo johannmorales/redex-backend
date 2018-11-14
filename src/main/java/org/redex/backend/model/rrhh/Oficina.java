@@ -50,18 +50,13 @@ public class Oficina implements Serializable {
     @Column(nullable = false)
     private Integer capacidadMaxima;
 
-    @NotNull
-    @Column(nullable = false)
-    private Integer zonaHoraria;
-
-    
     public Oficina() {
     }
 
-    public Oficina(Long id){
+    public Oficina(Long id) {
         this.id = id;
     }
-    
+
     public double getPorcentajeUsado() {
         return getCapacidadActual() / getCapacidadMaxima() * 100;
     }
@@ -125,14 +120,6 @@ public class Oficina implements Serializable {
 
     public void setCapacidadMaxima(Integer capacidadMaxima) {
         this.capacidadMaxima = capacidadMaxima;
-    }
-
-    public Integer getZonaHoraria() {
-        return zonaHoraria;
-    }
-
-    public void setZonaHoraria(Integer zonaHoraria) {
-        this.zonaHoraria = zonaHoraria;
     }
 
     public EstadoEnum getEstado() {

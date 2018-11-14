@@ -5,26 +5,26 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import org.redex.backend.algorithm.Algoritmo;
-import org.redex.backend.algorithm.AlgoritmoOficina;
-import org.redex.backend.algorithm.AlgoritmoPaquete;
-import org.redex.backend.algorithm.AlgoritmoVueloAgendado;
 import org.redex.backend.algorithm.gestor.GestorAlgoritmo;
 import org.redex.backend.algorithm.PathNotFoundException;
+import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
 
 public class AStar implements Algoritmo {
 
     private GestorAlgoritmo gestorAlgoritmo;
 
     @Override
-    public List<AlgoritmoVueloAgendado> run(AlgoritmoPaquete paquete, List<AlgoritmoVueloAgendado> vuelosAgendados, List<AlgoritmoVueloAgendado> vuelosTerminados, List<AlgoritmoOficina> oficinas) {
+    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendados, List<VueloAgendado> vuelosTerminados, List<Oficina> oficinas) {
 
         gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, vuelosTerminados, oficinas);
 
         PriorityQueue<Item> priorityQueue = new PriorityQueue<>(Comparator.comparing(Item::getCost));
-        List<AlgoritmoVueloAgendado> vuelosAgendaods = gestorAlgoritmo.obtenerValidos(paquete.getOficinaOrigen(), paquete.getFechaRegistro());
+        List<VueloAgendado> vuelosAgendaods = gestorAlgoritmo.obtenerValidos(paquete.getOficinaOrigen(), paquete.getFechaIngreso());
 
-        for (AlgoritmoVueloAgendado vueloAgendado : vuelosAgendaods) {
-            List<AlgoritmoVueloAgendado> vAux = new ArrayList<>();
+        for (VueloAgendado vueloAgendado : vuelosAgendaods) {
+            List<VueloAgendado> vAux = new ArrayList<>();
             vAux.add(vueloAgendado);
             priorityQueue.add(new Item(vAux));
         }
@@ -37,12 +37,12 @@ public class AStar implements Algoritmo {
                 return itemElegido.getCurrentFlights();
             }
 
-            AlgoritmoVueloAgendado lastFlight = itemElegido.getLastFlight();
+            VueloAgendado lastFlight = itemElegido.getLastFlight();
 
-            List<AlgoritmoVueloAgendado> vuelosPosible = gestorAlgoritmo.obtenerValidos(lastFlight.getOficinaDestino(), lastFlight.getFechaFin());
+            List<VueloAgendado> vuelosPosible = gestorAlgoritmo.obtenerValidos(lastFlight.getOficinaDestino(), lastFlight.getFechaFin());
 
-            for (AlgoritmoVueloAgendado vueloPosible : vuelosPosible) {
-                List<AlgoritmoVueloAgendado> vAux2 = new ArrayList<>(itemElegido.getCurrentFlights());
+            for (VueloAgendado vueloPosible : vuelosPosible) {
+                List<VueloAgendado> vAux2 = new ArrayList<>(itemElegido.getCurrentFlights());
                 vAux2.add(vueloPosible);
                 priorityQueue.add(new Item(vAux2));
             }

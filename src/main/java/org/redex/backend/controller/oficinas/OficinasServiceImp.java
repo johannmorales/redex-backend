@@ -114,7 +114,6 @@ public class OficinasServiceImp implements OficinasService {
         oficina.setPais(mapPaises.get(linea));
         oficina.setCapacidadActual(0);
         oficina.setCapacidadMaxima(100);
-        oficina.setZonaHoraria(-5);
         oficina.setEstado(EstadoEnum.ACTIVO);
 
         return oficina;
@@ -164,7 +163,6 @@ public class OficinasServiceImp implements OficinasService {
             throw new AppException("El codigo seleccionado ya se encuentra en uso");
         }
 
-        oficina.setZonaHoraria(10);
         oficina.setCapacidadActual(0);
         oficina.setEstado(EstadoEnum.ACTIVO);
         oficinasRepository.save(oficina);
