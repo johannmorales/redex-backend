@@ -201,7 +201,7 @@ public class SimulacionServiceImp implements SimulacionService {
                 + " " + datos.get(2).substring(0, 2) + datos.get(2).substring(2), formatter);
         
         
-        Pais pI = oficinas.get(datos.get(3)).getPais();
+        Pais pI = oficinas.get(datos.get(0).substring(0, 4)).getPais();
         
         date = date.plus(pI.getHusoHorario()*-1, ChronoUnit.HOURS);
         p.setFechaIngreso(date);
