@@ -58,12 +58,16 @@ public class GestorVuelosAgendados {
     }
 
     public void eliminarHasta(LocalDateTime hasta) {
-        System.out.printf("TBD");
+
     }
 
     public List<VueloAgendado> allPartenEnVentana(Ventana ventana) {
         SortedMap<LocalDateTime, List<VueloAgendado>> submap = this.vuelosAgendadosPorInicio.tailMap(ventana.getInicio());
-        return submap.headMap(ventana.getFin()).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        return submap.headMap(ventana.getFin()).values()
+                .stream()
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(VueloAgendado::getFechaInicio))
+                .collect(Collectors.toList());
     }
 
     public void crearVuelosAgendadosNecesarios(Ventana ventana) {
@@ -89,7 +93,7 @@ public class GestorVuelosAgendados {
     }
 
     public void setVuelos(List<Vuelo> nuevosVuelos) {
-        System.out.println(String.format("%d vuelos agregados", nuevosVuelos.size()));
+        logger.info("{} vuelos agregados", nuevosVuelos.size());
         this.vuelos = nuevosVuelos;
     }
 }

@@ -3,6 +3,7 @@ package org.redex.backend.controller.simulacion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.*;
+import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Pais;
 import org.redex.backend.model.simulacion.*;
 import org.redex.backend.repository.*;
@@ -32,6 +33,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.Character.isDigit;
+
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.rrhh.Oficina;
@@ -199,11 +201,11 @@ public class SimulacionServiceImp implements SimulacionService {
         LocalDateTime date = LocalDateTime.parse(datos.get(1).substring(0, 4) + "-"
                 + datos.get(1).substring(4, 6) + "-" + datos.get(1).substring(6, 8)
                 + " " + datos.get(2).substring(0, 2) + datos.get(2).substring(2), formatter);
-        
-        
+
+
         Pais pI = oficinas.get(datos.get(3)).getPais();
-        
-        date = date.plus(pI.getHusoHorario()*-1, ChronoUnit.HOURS);
+
+        date = date.plus(pI.getHusoHorario() * -1, ChronoUnit.HOURS);
         p.setFechaIngreso(date);
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
@@ -217,20 +219,20 @@ public class SimulacionServiceImp implements SimulacionService {
         oficina.setPais(mapPaises.get(linea));
         oficina.setCapacidadActual(0);
         oficina.setCapacidadMaxima(250);
-
+        oficina.setEstado(EstadoEnum.ACTIVO);
         return oficina;
     }
 
     private Vuelo leerVuelo(String codeOffice1, String codeOffice2,
-                                     String horaIni, String horaFin, Map<String, Oficina> mapOficinas) {
+                            String horaIni, String horaFin, Map<String, Oficina> mapOficinas) {
         Vuelo vuelo = new Vuelo();
         Pais pI = mapOficinas.get(codeOffice1).getPais();
         Pais pF = mapOficinas.get(codeOffice2).getPais();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
         vuelo.setOficinaOrigen(mapOficinas.get(codeOffice1));
         vuelo.setOficinaDestino(mapOficinas.get(codeOffice2));
-        vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter).plusHours(pI.getHusoHorario()*-1));
-        vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter).plusHours(pF.getHusoHorario()*-1));
+        vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter).plusHours(pI.getHusoHorario() * -1));
+        vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter).plusHours(pF.getHusoHorario() * -1));
         vuelo.setCapacidad(500);
 
         return vuelo;
