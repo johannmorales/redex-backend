@@ -131,6 +131,7 @@ public class PersonasServiceImp implements PersonasService {
     }
     
     @Override
+    @Transactional
     public void editar(Persona persona){
 		Persona p = personaRepository.getOne(persona.getId());
 		
