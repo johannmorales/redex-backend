@@ -1,5 +1,6 @@
-package org.redex.backend.controller.simulacion;
+package org.redex.backend.controller.simulacion.simulador;
 
+import org.redex.backend.controller.simulacion.Ventana;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -38,5 +39,9 @@ public class GestorPaquetes {
 
     public List<Paquete> allEntranVentana(Ventana ventana) {
         return paquetes.tailMap(ventana.getInicio()).headMap(ventana.getFin()).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    public void inicializar() {
+        this.paquetes = new TreeMap<>();
     }
 }

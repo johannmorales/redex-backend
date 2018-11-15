@@ -2,15 +2,21 @@ package org.redex.backend.controller.simulacion;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.redex.backend.algorithm.*;
+import org.redex.backend.controller.simulacion.simulador.GestorPaquetes;
+import org.redex.backend.controller.simulacion.simulador.GestorVuelosAgendados;
+import org.redex.backend.controller.simulacion.simulador.Simulador;
+import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.model.envios.PlanVuelo;
+import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Pais;
-import org.redex.backend.model.simulacion.*;
-import org.redex.backend.repository.*;
-import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.repository.OficinasRepository;
+import org.redex.backend.repository.PaisesRepository;
+import org.redex.backend.repository.PlanVueloRepository;
+import org.redex.backend.repository.VuelosRepository;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,10 +40,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.Character.isDigit;
 
-import org.redex.backend.model.envios.Paquete;
-import org.redex.backend.model.envios.Vuelo;
-import org.redex.backend.model.rrhh.Oficina;
-
 @Service
 @Transactional(readOnly = true)
 public class SimulacionServiceImp implements SimulacionService {
@@ -45,33 +47,29 @@ public class SimulacionServiceImp implements SimulacionService {
     private final Logger logger = LogManager.getLogger(SimulacionServiceImp.class);
 
     @Autowired
-    SimulacionOficinasRepository simulacionOficinasRepository;
-
-    @Autowired
-    SimulacionRepository simulacionRepository;
-
-    @Autowired
-    PaisesRepository paisesRepository;
-
-    @Autowired
-    SimulacionAccionRepository accionRepository;
-
-    @Autowired
-    GestorPaquetes gestorPaquetes;
+    Simulador simulador;
 
     @Autowired
     GestorVuelosAgendados gestorVuelosAgendados;
 
     @Autowired
-    VisorSimulacion visorSimulacion;
+    GestorPaquetes gestorPaquetes;
 
     @Autowired
-    SimulacionPaquetesRepository simulacionPaquetesRepository;
+    PaisesRepository paisesRepository;
+
+    @Autowired
+    OficinasRepository oficinasRepository;
+
+    @Autowired
+    PlanVueloRepository planVueloRepository;
+
+    @Autowired
+    VuelosRepository vuelosRepository;
 
     @Override
-    @Transactional
-    public CargaDatosResponse cargaPaquetes(Long id, MultipartFile file) {
-        Map<String, Oficina> oficinas = visorSimulacion.getOficinas();
+    public CargaDatosResponse cargaPaquetes(MultipartFile file) {
+        Map<String, Oficina> oficinas = simulador.getOficinas();
 
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
@@ -101,13 +99,12 @@ public class SimulacionServiceImp implements SimulacionService {
     }
 
     @Override
-    @Transactional
-    public CargaDatosResponse cargaVuelos(Long id, MultipartFile file) {
+    public CargaDatosResponse cargaVuelos(MultipartFile file) {
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
 
-        Map<String, Oficina> oficinas = visorSimulacion.getOficinas();
+        Map<String, Oficina> oficinas = simulador.getOficinas();
 
         List<Vuelo> nuevosVuelos = new ArrayList<>();
 
@@ -151,13 +148,12 @@ public class SimulacionServiceImp implements SimulacionService {
     }
 
     @Override
-    @Transactional
-    public CargaDatosResponse cargaOficinas(Long id, MultipartFile file) {
+    public CargaDatosResponse cargaOficinas(MultipartFile file) {
         Integer cantidadRegistros = 0;
         Integer cantidadErrores = 0;
         List<String> errores = new ArrayList<>();
 
-        Map<String, Oficina> oficinas = visorSimulacion.getOficinas();
+        Map<String, Oficina> oficinas = simulador.getOficinas();
 
         oficinas.clear();
 
@@ -186,12 +182,21 @@ public class SimulacionServiceImp implements SimulacionService {
                 contLinea++;
             }
 
-            visorSimulacion.setOficinas(nuevasOficinas);
+            simulador.setOficinas(nuevasOficinas);
 
         } catch (IOException ex) {
         }
 
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
+    }
+
+    @Override
+    public void crear() {
+        List<Oficina> oficinas = oficinasRepository.findAllByEstado(EstadoEnum.ACTIVO);
+        simulador.setOficinas(oficinas);
+
+        PlanVuelo pv = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
+        simulador.setVuelos(pv.getVuelos());
     }
 
     private Paquete leePaquete(List<String> datos, Map<String, Oficina> oficinas) {
@@ -203,8 +208,7 @@ public class SimulacionServiceImp implements SimulacionService {
                 + " " + datos.get(2).substring(0, 2) + datos.get(2).substring(2), formatter);
 
 
-        Pais pI = oficinas.get(datos.get(3)).getPais();
-
+        Pais pI = oficinas.get(datos.get(0).substring(0, 4)).getPais();
         date = date.plus(pI.getHusoHorario() * -1, ChronoUnit.HOURS);
         p.setFechaIngreso(date);
         p.setOficinaDestino(oficinas.get(datos.get(3)));
@@ -236,43 +240,6 @@ public class SimulacionServiceImp implements SimulacionService {
         vuelo.setCapacidad(500);
 
         return vuelo;
-    }
-
-    @Override
-    public Simulacion crear() {
-        Simulacion s = new Simulacion();
-        s.setCantidadOficinas(0);
-        s.setCantidadPaquetes(0);
-        s.setEstado(SimulacionEstadoEnum.INTEGRANDO);
-        s.setFechaFin(null);
-        s.setFechaInicio(null);
-
-        return s;
-    }
-
-    @Override
-    public void eliminar(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Page<Simulacion> crimsonList(CrimsonTableRequest request) {
-        return Page.empty();
-    }
-
-    @Override
-    public List<SimulacionOficina> listOficinas(Long id) {
-        return simulacionOficinasRepository.findAllBySimulacion(new Simulacion(id));
-    }
-
-    @Override
-    @Transactional
-    public void resetear(Long id) {
-        Simulacion s = simulacionRepository.getOne(id);
-        s.setFechaFin(null);
-        simulacionRepository.save(s);
-//        simulacionVueloAgendadoRepository.deleteBySimulacion(s);
-        accionRepository.deleteBySimulacion(s);
     }
 
 }

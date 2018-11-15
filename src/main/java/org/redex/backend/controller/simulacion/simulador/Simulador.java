@@ -1,10 +1,12 @@
-package org.redex.backend.controller.simulacion;
+package org.redex.backend.controller.simulacion.simulador;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.*;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
+import org.redex.backend.controller.simulacion.Ventana;
 import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
+import org.redex.backend.model.envios.Vuelo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +17,9 @@ import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
 
 @Component
-public class VisorSimulacion {
+public class Simulador {
 
-    private static Logger logger = LogManager.getLogger(VisorSimulacion.class);
+    private static Logger logger = LogManager.getLogger(Simulador.class);
 
     @Autowired
     GestorVuelosAgendados gestorVuelosAgendados;
@@ -29,24 +31,9 @@ public class VisorSimulacion {
 
     List<Oficina> oficinasList;
 
-    VisorSimulacion() {
+    Simulador() {
         this.oficinas = new HashMap<>();
         this.oficinasList = new ArrayList<>();
-    }
-
-    public void setOficinas(List<Oficina> oficinas) {
-        this.oficinas = new HashMap<>();
-        this.oficinasList = oficinas;
-
-        for (Oficina ofi : this.oficinasList) {
-            this.oficinas.put(ofi.getCodigo(), ofi);
-        }
-        
-        logger.info("{} oficinas agregadas", this.oficinas.size());
-    }
-
-    public Map<String, Oficina> getOficinas() {
-        return this.oficinas;
     }
 
     private List<SimulacionAccionWrapper> acciones(Ventana ventana) {
@@ -84,10 +71,10 @@ public class VisorSimulacion {
                         item.setCapacidadActual(item.getCapacidadActual() + 1);
                     }
                 }
-                logger.info("RUTA: () [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
+                logger.info("RUTA: {} [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
 
             } catch (PathNotFoundException pex) {
-                logger.error("RUTA: () [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
+                logger.error("RUTA: {} [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
             }
         }
 
@@ -106,6 +93,43 @@ public class VisorSimulacion {
         this.gestorPaquetes.eliminarHasta(ventana.getFin());
 
         return acciones;
+    }
+
+
+
+    public List<Vuelo> getVuelos() {
+        return this.gestorVuelosAgendados.getVuelos();
+    }
+
+    public void eliminar() {
+        this.gestorPaquetes.inicializar();
+        this.gestorVuelosAgendados.inicializar();
+        this.oficinas = new HashMap<>();
+        this.oficinasList = new ArrayList<>();
+    }
+
+    public void resetear() {
+        this.gestorVuelosAgendados.reiniciar();
+        this.gestorPaquetes.inicializar();
+    }
+
+    public void setVuelos(List<Vuelo> vuelos) {
+        this.gestorVuelosAgendados.setVuelos(vuelos);
+    }
+
+    public void setOficinas(List<Oficina> oficinas) {
+        this.oficinas = new HashMap<>();
+        this.oficinasList = oficinas;
+
+        for (Oficina ofi : this.oficinasList) {
+            this.oficinas.put(ofi.getCodigo(), ofi);
+        }
+
+        logger.info("{} oficinas agregadas", this.oficinas.size());
+    }
+
+    public Map<String, Oficina> getOficinas() {
+        return this.oficinas;
     }
 
 }

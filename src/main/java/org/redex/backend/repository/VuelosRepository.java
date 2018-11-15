@@ -41,6 +41,6 @@ public interface VuelosRepository extends JpaRepository<Vuelo, Long> {
             + "  order by v.id desc")
     Page<Vuelo> crimsonList(@Param("pvuelo") PlanVuelo pv, @Param("q") String q, Pageable pageable);
 
-    public List<Vuelo> findAllByPlanVueloAndEstado(PlanVuelo pv, EstadoEnum estadoEnum);
+    List<Vuelo> findAllByPlanVueloAndEstado(PlanVuelo pv, EstadoEnum estadoEnum);
     
 }
