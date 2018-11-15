@@ -37,19 +37,19 @@ public class SimulacionController {
 
     }
 
-    @PostMapping("crear")
+    @GetMapping("crear")
     public ResponseEntity<?> crear() {
         service.crear();
         return ResponseEntity.ok(ApplicationResponse.of("Simulacion creada"));
     }
 
-    @PostMapping("eliminar")
+    @GetMapping("eliminar")
     public ResponseEntity<?> borrar() {
         simulador.eliminar();
         return ResponseEntity.ok(ApplicationResponse.of("Simulacion eliminada"));
     }
 
-    @PostMapping("resetear")
+    @GetMapping("resetear")
     public ResponseEntity<?> resetear() {
         simulador.resetear();
         return ResponseEntity.ok(ApplicationResponse.of("Simulacion reseteada"));

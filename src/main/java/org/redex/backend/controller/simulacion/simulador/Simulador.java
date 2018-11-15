@@ -27,9 +27,9 @@ public class Simulador {
     @Autowired
     GestorPaquetes gestorPaquetes;
 
-    Map<String, Oficina> oficinas;
+    private Map<String, Oficina> oficinas;
 
-    List<Oficina> oficinasList;
+    private List<Oficina> oficinasList;
 
     Simulador() {
         this.oficinas = new HashMap<>();
@@ -48,17 +48,18 @@ public class Simulador {
 
         for (Paquete paquete : paquetes) {
             acciones.add(SimulacionAccionWrapper.of(paquete));
-            if(paquete.getRutaGenerada()){
+            if (paquete.getRutaGenerada()) {
                 continue;
             }
             LocalDateTime fechaInicio = paquete.getFechaIngreso();
             LocalDateTime fechaFin = paquete.getOficinaOrigen().getPais().getContinente() == paquete.getOficinaDestino().getPais().getContinente()
-                    ? fechaInicio.plusHours(24L)
-                    : fechaInicio.plusHours(48L);
+                    ? fechaInicio.plusHours(25L)
+                    : fechaInicio.plusHours(49L);
 
             List<VueloAgendado> vas = gestorVuelosAgendados.allAlgoritmo(fechaInicio, fechaFin);
 
             Evolutivo e = new Evolutivo();
+            
             try {
                 List<VueloAgendado> ruta = e.run(paquete, vas, new ArrayList<>(), oficinasList);
                 int cont = 0;
@@ -72,14 +73,11 @@ public class Simulador {
                     }
                 }
                 logger.info("RUTA: {} [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
-
             } catch (PathNotFoundException pex) {
                 logger.error("RUTA: {} [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
             }
         }
-
         Collections.sort(acciones, Comparator.comparing(SimulacionAccionWrapper::getFechaSalida));
-
         return acciones;
     }
 
@@ -94,8 +92,6 @@ public class Simulador {
 
         return acciones;
     }
-
-
 
     public List<Vuelo> getVuelos() {
         return this.gestorVuelosAgendados.getVuelos();
@@ -115,6 +111,7 @@ public class Simulador {
 
     public void setVuelos(List<Vuelo> vuelos) {
         this.gestorVuelosAgendados.setVuelos(vuelos);
+        logger.info("{} vuelos agregados", vuelos.size());
     }
 
     public void setOficinas(List<Oficina> oficinas) {

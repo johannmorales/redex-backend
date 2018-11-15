@@ -1,32 +1,17 @@
 package org.redex.backend.zelper.pdf;
 
-import org.redex.backend.zelper.email.MailEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
-
-import static org.thymeleaf.templatemode.TemplateMode.HTML;
 
 @Service
 public class PdfContentBuilder {
 
+    @Autowired
     private TemplateEngine templateEngine;
 
     private static final String UTF_8 = "UTF-8";
-
-    @Autowired
-    public PdfContentBuilder(TemplateEngine templateEngine) {
-        this.templateEngine = templateEngine;
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("/pdf/");
-        templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode(HTML);
-        templateResolver.setCharacterEncoding(UTF_8);
-        templateResolver.setCacheable(false);
-        this.templateEngine.setTemplateResolver(templateResolver);
-    }
 
     private Data exampleDataForJohnDoe() {
         Data data = new Data();
@@ -92,6 +77,6 @@ public class PdfContentBuilder {
         Context context = new Context();
         context.setVariable("data", data);
 
-        return templateEngine.process( pdf.getTemplate(), context);
+        return templateEngine.process("pdf/"+ pdf.getTemplate(), context);
     }
 }

@@ -35,19 +35,10 @@ public class PdfClient {
             ITextRenderer renderer = new ITextRenderer();
             String baseUrl = FileSystems
                     .getDefault()
-                    .getPath("src", "main", "resources", "pdf")
+                    .getPath("src", "main", "resources", "templates", "pdf")
                     .toUri()
                     .toURL()
                     .toString();
-            System.out.println(baseUrl);
-            System.out.println(baseUrl);
-
-            System.out.println(baseUrl);
-
-            System.out.println(baseUrl);
-            System.out.println(baseUrl);
-            System.out.println(baseUrl);
-
             renderer.setDocumentFromString(xHtml, baseUrl);
             renderer.layout();
             OutputStream outputStream = new FileOutputStream("salida.pdf");

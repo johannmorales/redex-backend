@@ -14,10 +14,10 @@ public class Index {
 @Autowired
     PdfClient pdfClient;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, value = "/")
     public String index(){
         pdfClient.generate(PdfEnum.PLAN_VUELO, new Context());
-        return "RedEX - Backend";
+        return "RedEx - Backend";
     }
 }
 
