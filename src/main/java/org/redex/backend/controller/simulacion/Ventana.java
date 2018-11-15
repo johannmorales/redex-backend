@@ -3,6 +3,7 @@ package org.redex.backend.controller.simulacion;
 import java.time.LocalDateTime;
 
 public class Ventana {
+    
     private LocalDateTime inicio;
 
     private LocalDateTime fin;

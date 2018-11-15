@@ -161,11 +161,9 @@ public class SimulacionServiceImp implements SimulacionService {
                 .stream()
                 .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
 
-
         List<Oficina> nuevasOficinas = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
-
             List<String> lineasList = reader.lines().collect(Collectors.toList());
             int contLinea = 1;
             for (String linea : lineasList) {
@@ -181,10 +179,9 @@ public class SimulacionServiceImp implements SimulacionService {
                 }
                 contLinea++;
             }
-
             simulador.setOficinas(nuevasOficinas);
-
         } catch (IOException ex) {
+            
         }
 
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
@@ -206,7 +203,6 @@ public class SimulacionServiceImp implements SimulacionService {
         LocalDateTime date = LocalDateTime.parse(datos.get(1).substring(0, 4) + "-"
                 + datos.get(1).substring(4, 6) + "-" + datos.get(1).substring(6, 8)
                 + " " + datos.get(2).substring(0, 2) + datos.get(2).substring(2), formatter);
-
 
         Pais pI = oficinas.get(datos.get(0).substring(0, 4)).getPais();
         date = date.plus(pI.getHusoHorario() * -1, ChronoUnit.HOURS);

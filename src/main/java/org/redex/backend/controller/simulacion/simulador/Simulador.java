@@ -48,6 +48,10 @@ public class Simulador {
 
         for (Paquete paquete : paquetes) {
             acciones.add(SimulacionAccionWrapper.of(paquete));
+            
+            if(paquete.getOficinaOrigen().getCodigo().equals("LSZB") || paquete.getOficinaDestino().getCodigo().equals("LSZB")){
+                continue;
+            }
             if (paquete.getRutaGenerada()) {
                 continue;
             }
