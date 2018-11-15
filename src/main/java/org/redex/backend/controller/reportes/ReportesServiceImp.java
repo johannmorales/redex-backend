@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import org.redex.backend.model.general.Archivo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public class ReportesServiceImp implements ReportesService{
     private EntityManagerFactory emf;
     
     @Override
-    public void paquetesXvuelo(Long id){
+    public Archivo paquetesXvuelo(Long id){
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -82,11 +83,11 @@ public class ReportesServiceImp implements ReportesService{
         } catch (Exception e) {
             Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
         }
-
+        return null;
     }
     
     @Override    
-    public String enviosXfechas(String fI,String fF){
+    public Archivo enviosXfechas(String fI,String fF){
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -144,15 +145,15 @@ public class ReportesServiceImp implements ReportesService{
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
-            return filename;
         } catch (Exception e) {
             Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
             return null;
         }
+        return null;
     }
     
     @Override    
-    public void paquetesXusuario(Long id){
+    public Archivo paquetesXusuario(Long id){
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -214,11 +215,11 @@ public class ReportesServiceImp implements ReportesService{
         } catch (Exception e) {
             Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
         }
-        
+        return null;
     }
     
     @Override    
-    public void accionesXusuarioXoficinaXfecha(){
-        
+    public Archivo accionesXusuarioXoficinaXfecha(){
+        return null;
     }
 }

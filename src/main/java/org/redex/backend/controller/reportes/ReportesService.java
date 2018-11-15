@@ -5,18 +5,20 @@
  */
 package org.redex.backend.controller.reportes;
 
+import org.redex.backend.model.general.Archivo;
+
 /**
  *
  * @author Oscar
  */
 public interface ReportesService {
 
-    public void paquetesXvuelo(Long id);
+    public Archivo paquetesXvuelo(Long id);
     
-    public String enviosXfechas(String fI,String fF);
+    public Archivo enviosXfechas(String fI,String fF);
     
-    public void paquetesXusuario(Long id);
+    public Archivo paquetesXusuario(Long id);
     
-    public void accionesXusuarioXoficinaXfecha();
+    public Archivo accionesXusuarioXoficinaXfecha();
     
 }
