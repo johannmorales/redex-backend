@@ -10,6 +10,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileOutputStream;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,6 +19,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import org.redex.backend.model.general.Archivo;
+import org.redex.backend.repository.ArchivosRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +32,9 @@ public class ReportesServiceImp implements ReportesService{
     @PersistenceUnit
     private EntityManagerFactory emf;
     
+    
     @Override
-    public Archivo paquetesXvuelo(Long id){
+    public String paquetesXvuelo(Long id){
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -76,10 +80,12 @@ public class ReportesServiceImp implements ReportesService{
             sheet.autoSizeColumn(i);
         }
         try {
-            FileOutputStream fileOut = new FileOutputStream("Reporte_paquete_vuelo.xlsx");
+            String filename = "Reporte_paquete_vuelo_"+Instant.now() +"xlsx";
+            FileOutputStream fileOut = new FileOutputStream(filename);
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
+            return filename;
         } catch (Exception e) {
             Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
         }
@@ -87,7 +93,7 @@ public class ReportesServiceImp implements ReportesService{
     }
     
     @Override    
-    public Archivo enviosXfechas(String fI,String fF){
+    public String enviosXfechas(String fI,String fF){
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -140,20 +146,20 @@ public class ReportesServiceImp implements ReportesService{
             sheet.autoSizeColumn(i);
         }
         try {
-            String filename = "Reporte_envio_fecha.xlsx";
+            String filename = "Reporte_envio_fecha_"+Instant.now() +"xlsx";
             FileOutputStream fileOut = new FileOutputStream(filename);
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
+            return filename;
         } catch (Exception e) {
             Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
             return null;
         }
-        return null;
     }
     
     @Override    
-    public Archivo paquetesXusuario(Long id){
+    public String paquetesXusuario(Long id){
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -208,10 +214,12 @@ public class ReportesServiceImp implements ReportesService{
         
         
         try {
-            FileOutputStream fileOut = new FileOutputStream("Reporte_paquete_usuario.xlsx");
-            workbook.write(fileOut);
+            
+            String filename = "Reporte_envio_fecha_"+Instant.now() +"xlsx";
+            FileOutputStream fileOut = new FileOutputStream("Reporte_paquete_usuario_"+Instant.now() +".xlsx");
             fileOut.close();
             workbook.close();
+            return filename;
         } catch (Exception e) {
             Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
         }
@@ -219,7 +227,7 @@ public class ReportesServiceImp implements ReportesService{
     }
     
     @Override    
-    public Archivo accionesXusuarioXoficinaXfecha(){
+    public String accionesXusuarioXoficinaXfecha(){
         return null;
     }
 }

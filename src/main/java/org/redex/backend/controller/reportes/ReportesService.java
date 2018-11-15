@@ -13,12 +13,12 @@ import org.redex.backend.model.general.Archivo;
  */
 public interface ReportesService {
 
-    public Archivo paquetesXvuelo(Long id);
+    public String paquetesXvuelo(Long id);
     
-    public Archivo enviosXfechas(String fI,String fF);
+    public String enviosXfechas(String fI,String fF);
     
-    public Archivo paquetesXusuario(Long id);
+    public String paquetesXusuario(Long id);
     
-    public Archivo accionesXusuarioXoficinaXfecha();
+    public String accionesXusuarioXoficinaXfecha();
     
 }
