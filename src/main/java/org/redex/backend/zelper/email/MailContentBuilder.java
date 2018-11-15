@@ -12,6 +12,6 @@ public class MailContentBuilder {
     private TemplateEngine templateEngine;
 
     public String build(MailEnum mail, Context ctx) {
-        return templateEngine.process(mail.getTemplate(), ctx);
+        return templateEngine.process("mail/" + mail.getTemplate(), ctx);
     }
 }
