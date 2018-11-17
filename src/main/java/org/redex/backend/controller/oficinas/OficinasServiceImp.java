@@ -151,6 +151,7 @@ public class OficinasServiceImp implements OficinasService {
     }
 
     @Override
+    @Transactional
     public void save(Oficina oficina) {
         Oficina o = oficinasRepository.findByPais(oficina.getPais());
         if (o != null) {

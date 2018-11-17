@@ -24,7 +24,7 @@ public class Index {
 
         Context ctx = new Context();
         ctx.setVariable("miCadena", "HOLA MUNDO");
-        mailClient.prepareAndSend("a20105430@pucp.pe", MailEnum.REESTABLECER_CONTRASENA, ctx);
+        //mailClient.prepareAndSend("a20105430@pucp.pe", MailEnum.REESTABLECER_CONTRASENA, ctx);
         return "RedEx - Backend";
     }
 }
