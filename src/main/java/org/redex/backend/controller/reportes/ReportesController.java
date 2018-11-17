@@ -48,7 +48,7 @@ public class ReportesController {
     private ResponseEntity<Resource> download(String archivo) {
         try {
 
-            Resource resource = new UrlResource(archivo);
+            Resource resource = new UrlResource("file",archivo);
             if (!resource.exists()) {
                 throw new MyFileNotFoundException("Archivo no encontrado " + archivo);
             }

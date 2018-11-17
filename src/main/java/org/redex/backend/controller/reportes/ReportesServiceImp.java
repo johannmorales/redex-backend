@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
@@ -62,7 +63,7 @@ public class ReportesServiceImp implements ReportesService{
                     "where " +
                     "p.id_oficina_origen = o1.id and o2.codigo=p.id_oficina_destino " +
                     "and pr.id_vuelo_agendado="+id;
-        List<Object[]> arr_cust = (List<Object[]>)em.createQuery(q)
+        List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
                               .getResultList();
         Iterator it = arr_cust.iterator();
         int cont = 1;
@@ -80,7 +81,8 @@ public class ReportesServiceImp implements ReportesService{
             sheet.autoSizeColumn(i);
         }
         try {
-            String filename = "Reporte_paquete_vuelo_"+Instant.now() +"xlsx";
+            Random r = new Random();
+            String filename = "Reporte_paquete_vuelo_"+Instant.now().toString().substring(0, 10) +r.nextInt(100000)+".xlsx";
             FileOutputStream fileOut = new FileOutputStream(filename);
             workbook.write(fileOut);
             fileOut.close();
@@ -122,9 +124,10 @@ public class ReportesServiceImp implements ReportesService{
             "vuelo_agendado va " +
             "where p.id_oficina_origen = o.id and p.id_oficina_destino = o2.id and " +
             "aux.id_paquete = p.id and aux.id_vuelo_agendado = va.id and " +
-            "p.fecha_ingreso between '"+fI+"' and '"+fF+"';";
-        List<Object[]> arr_cust = (List<Object[]>)em.createQuery(q)
-                              .getResultList();
+            "p.fecha_ingreso between '"+fI+"' and '"+fF+"'";
+        //String q = "select p.codigo_rastreo, p.estado, p.fecha_ingreso, va.fecha_fin,o.codigo as origen, o2.codigo as destino from oficina o, paquete p, oficina o2, (select id_paquete,id_vuelo_agendado, max(orden) from paquete_ruta ) aux,vuelo_agendado va where p.id_oficina_origen = o.id and p.id_oficina_destino = o2.id and aux.id_paquete = p.id and aux.id_vuelo_agendado = va.id and p.fecha_ingreso between '16-11-2018' and '18-11-2018'";
+        
+        List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q).getResultList();
         Iterator it = arr_cust.iterator();
         int cont = 1;
         
@@ -142,11 +145,12 @@ public class ReportesServiceImp implements ReportesService{
         
         
         
-        for(int i = 0; i < columns.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
+//        for(int i = 0; i < columns.length; i++) {
+//            sheet.autoSizeColumn(i);
+//        }
         try {
-            String filename = "Reporte_envio_fecha_"+Instant.now() +"xlsx";
+            Random r = new Random();
+            String filename = "envio_fecha_"+Instant.now().toString().substring(0,10) +r.nextInt(100000)+".xlsx";
             FileOutputStream fileOut = new FileOutputStream(filename);
             workbook.write(fileOut);
             fileOut.close();
@@ -188,8 +192,8 @@ public class ReportesServiceImp implements ReportesService{
             "vuelo_agendado va " +
             "where p.id_oficina_origen = o.id and p.id_oficina_destino = o2.id and " +
             "aux.id_paquete = p.id and aux.id_vuelo_agendado = va.id and " +
-            "p.id_persona_origen = pr.id and pr.numero_documento_identidad="+id+";";
-        List<Object[]> arr_cust = (List<Object[]>)em.createQuery(q)
+            "p.id_persona_origen = pr.id and pr.numero_documento_identidad="+id;
+        List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
                               .getResultList();
         Iterator it = arr_cust.iterator();
         int cont = 1;
@@ -214,9 +218,9 @@ public class ReportesServiceImp implements ReportesService{
         
         
         try {
-            
-            String filename = "Reporte_envio_fecha_"+Instant.now() +"xlsx";
-            FileOutputStream fileOut = new FileOutputStream("Reporte_paquete_usuario_"+Instant.now() +".xlsx");
+            Random r = new Random();
+            String filename = "Reporte_paquete_usuario_"+Instant.now().toString().substring(0, 10) +r.nextInt(100000)+".xlsx";
+            FileOutputStream fileOut = new FileOutputStream(filename);
             fileOut.close();
             workbook.close();
             return filename;
