@@ -9,5 +9,6 @@ public interface VuelosAgendadosService {
     public Page<VueloAgendado> crimsonList(CrimsonTableRequest request);
 
     public Integer generar(GenerarPayload payload);
-    
+
+    void eliminarInnecesarios();
 }
