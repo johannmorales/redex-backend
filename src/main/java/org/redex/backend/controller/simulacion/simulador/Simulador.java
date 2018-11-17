@@ -57,8 +57,8 @@ public class Simulador {
             }
             LocalDateTime fechaInicio = paquete.getFechaIngreso();
             LocalDateTime fechaFin = paquete.getOficinaOrigen().getPais().getContinente() == paquete.getOficinaDestino().getPais().getContinente()
-                    ? fechaInicio.plusHours(25L)
-                    : fechaInicio.plusHours(49L);
+                    ? fechaInicio.plusHours(24L)
+                    : fechaInicio.plusHours(48L);
 
             List<VueloAgendado> vas = gestorVuelosAgendados.allAlgoritmo(fechaInicio, fechaFin);
 

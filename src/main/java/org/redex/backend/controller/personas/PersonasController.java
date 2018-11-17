@@ -24,7 +24,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 @RestController
 @RequestMapping("personas")
-public class PersonasController {
+public class  PersonasController {
 
     @Autowired
     PersonasService service;

@@ -29,6 +29,7 @@ public class MailClient {
         try {
             mailSender.send(messagePreparator);
         } catch (MailException e) {
+            e.printStackTrace();
         }
     }
 

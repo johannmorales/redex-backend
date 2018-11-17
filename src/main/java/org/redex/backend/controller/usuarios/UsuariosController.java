@@ -71,8 +71,6 @@ public class UsuariosController {
         return ResponseEntity.ok(ApplicationResponse.of("Usuario activado"));
     }
 
-    // johana!!
-    // el metodo save lo llamas con localhost:5000/usuarios/save
     @PostMapping("/save")
     public void carga(@RequestBody UsuariosPayload payload) {
         service.crearUsuario(payload);

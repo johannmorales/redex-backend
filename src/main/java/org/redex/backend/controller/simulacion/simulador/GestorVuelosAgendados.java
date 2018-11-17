@@ -21,6 +21,7 @@ public class GestorVuelosAgendados {
     private LocalDate finGeneracionVuelosAgendados;
     private List<Vuelo> vuelos;
     private SortedMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorInicio;
+    private SortedMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorFin;
 
     public GestorVuelosAgendados() {
         this.inicializar();
@@ -29,12 +30,14 @@ public class GestorVuelosAgendados {
     public void inicializar() {
         this.finGeneracionVuelosAgendados = null;
         this.vuelosAgendadosPorInicio = new TreeMap<>();
+        this.vuelosAgendadosPorFin = new TreeMap<>();
         this.vuelos = new ArrayList<>();
     }
 
     public void reiniciar() {
         this.finGeneracionVuelosAgendados = null;
         this.vuelosAgendadosPorInicio = new TreeMap<>();
+        this.vuelosAgendadosPorFin = new TreeMap<>();
     }
 
     private void crearUnDiaVuelosAgendados(LocalDate dia) {

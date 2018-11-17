@@ -34,6 +34,9 @@ public class Persona {
     private String telefono;
 
     @Column
+    private String direccion;
+
+    @Column
     private String celular;
 
     @Column
@@ -130,5 +133,13 @@ public class Persona {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 }
