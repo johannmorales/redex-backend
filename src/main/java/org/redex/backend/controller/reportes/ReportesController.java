@@ -1,21 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.redex.backend.controller.reportes;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.redex.backend.controller.archivos.ArchivosController;
-import org.redex.backend.controller.personas.PersonasService;
 import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.general.Archivo;
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.zelper.exception.MyFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- *
- * @author Oscar
- */
+import java.net.MalformedURLException;
+
+@RestController
 public class ReportesController {
     
     private static final Logger logger = LogManager.getLogger(ReportesController.class);

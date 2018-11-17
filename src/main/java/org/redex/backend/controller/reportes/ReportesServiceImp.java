@@ -61,7 +61,7 @@ public class ReportesServiceImp implements ReportesService{
                     "paquete p, paquete_ruta pr, oficina o1, oficina o2 " +
                     "where " +
                     "p.id_oficina_origen = o1.id and o2.codigo=p.id_oficina_destino " +
-                    "and pr.id_vuelo_agendado="+id+";";
+                    "and pr.id_vuelo_agendado="+id;
         List<Object[]> arr_cust = (List<Object[]>)em.createQuery(q)
                               .getResultList();
         Iterator it = arr_cust.iterator();
