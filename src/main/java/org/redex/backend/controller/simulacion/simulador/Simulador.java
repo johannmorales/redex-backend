@@ -48,13 +48,17 @@ public class Simulador {
 
         for (Paquete paquete : paquetes) {
             acciones.add(SimulacionAccionWrapper.of(paquete));
+            
+            if(paquete.getOficinaOrigen().getCodigo().equals("LSZB") || paquete.getOficinaDestino().getCodigo().equals("LSZB")){
+                continue;
+            }
             if (paquete.getRutaGenerada()) {
                 continue;
             }
             LocalDateTime fechaInicio = paquete.getFechaIngreso();
             LocalDateTime fechaFin = paquete.getOficinaOrigen().getPais().getContinente() == paquete.getOficinaDestino().getPais().getContinente()
-                    ? fechaInicio.plusHours(25L)
-                    : fechaInicio.plusHours(49L);
+                    ? fechaInicio.plusHours(24L)
+                    : fechaInicio.plusHours(48L);
 
             List<VueloAgendado> vas = gestorVuelosAgendados.allAlgoritmo(fechaInicio, fechaFin);
 

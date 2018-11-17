@@ -14,5 +14,7 @@ public interface PaisesService {
     public Page<Pais> crimsonList(CrimsonTableRequest request);
 
     public Pais find(Long id);
+
+    public void save(Pais p);
     
 }

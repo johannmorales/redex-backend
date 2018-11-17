@@ -19,6 +19,9 @@ public class PersonaRegistro {
 
     private String correoElectronico;
 
+
+    private String direccion;
+
     public Persona crearPersona () {
         Persona p = new Persona();
         p.setNumeroDocumentoIdentidad(this.docIdentidad);
@@ -27,6 +30,7 @@ public class PersonaRegistro {
         p.setNombres(nombres);
         p.setTelefono(telefono);
         p.setMaterno(apMaterno);
+        p.setDireccion(direccion);
         p.setTipoDocumentoIdentidad(new TipoDocumentoIdentidad(idDocumento));
         return p;
     }
@@ -87,4 +91,11 @@ public class PersonaRegistro {
         this.correoElectronico = correoElectronico;
     }
 
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
 }

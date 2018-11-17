@@ -9,21 +9,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface UsuariosService {
 
-    public CargaDatosResponse carga(MultipartFile file);
+    CargaDatosResponse carga(MultipartFile file);
 
-    public List<Usuario> all();
+    List<Usuario> all();
 
-    public void crearUsuario(UsuariosPayload usuario);
+    void crearUsuario(UsuariosPayload usuario);
 
-    public void restablecerContraseña(UsuariosPayload usuario);
+    void restablecerContraseña(UsuariosPayload usuario);
 
-    public Page<Usuario> crimsonList(CrimsonTableRequest request);
+    Page<Usuario> crimsonList(CrimsonTableRequest request);
 
-    public void desactivar(Long id);
+    void desactivar(Long id);
 
-    public void activar(Long id);
+    void activar(Long id);
 
-    public void editar(Usuario usuario);
+    void editar(Usuario usuario);
 
-    public Usuario find(Long id);
+    Usuario find(Long id);
 }

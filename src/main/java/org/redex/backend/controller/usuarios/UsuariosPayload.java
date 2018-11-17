@@ -1,55 +1,99 @@
 package org.redex.backend.controller.usuarios;
 
-import org.redex.backend.model.general.Persona;
+import org.redex.backend.model.general.TipoDocumentoIdentidad;
+import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.model.seguridad.Rol;
 
 
 public class UsuariosPayload {
 
-    private Persona persona;
-    private String codUsuario;
-    private String password;
-    
-    /**
-     * @return the persona
-     */
-    public Persona getPersona() {
-        return persona;
+    private String nombres;
+
+    private String aPaterno;
+
+    private String aMaterno;
+
+    private TipoDocumentoIdentidad tipDoc;
+
+    private String docId;
+
+    private String email;
+
+    private String telefono;
+
+    private Rol rol;
+
+    private Oficina oficina;
+
+    public String getNombres() {
+        return nombres;
     }
 
-    /**
-     * @param persona the persona to set
-     */
-    public void setPersona(Persona persona) {
-        this.persona = persona;
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
     }
 
-    /**
-     * @return the codUsuario
-     */
-    public String getCodUsuario() {
-        return codUsuario;
+    public String getaPaterno() {
+        return aPaterno;
     }
 
-    /**
-     * @param codUsuario the codUsuario to set
-     */
-    public void setCodUsuario(String codUsuario) {
-        this.codUsuario = codUsuario;
+    public void setaPaterno(String aPaterno) {
+        this.aPaterno = aPaterno;
     }
 
-    /**
-     * @return the password
-     */
-    public String getPassword() {
-        return password;
+    public String getaMaterno() {
+        return aMaterno;
     }
 
-    /**
-     * @param password the password to set
-     */
-    public void setPassword(String password) {
-        this.password = password;
+    public void setaMaterno(String aMaterno) {
+        this.aMaterno = aMaterno;
     }
-    
-    
+
+    public TipoDocumentoIdentidad getTipDoc() {
+        return tipDoc;
+    }
+
+    public void setTipDoc(TipoDocumentoIdentidad tipDoc) {
+        this.tipDoc = tipDoc;
+    }
+
+    public String getDocId() {
+        return docId;
+    }
+
+    public void setDocId(String docId) {
+        this.docId = docId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
+
+    public Oficina getOficina() {
+        return oficina;
+    }
+
+    public void setOficina(Oficina oficina) {
+        this.oficina = oficina;
+    }
 }

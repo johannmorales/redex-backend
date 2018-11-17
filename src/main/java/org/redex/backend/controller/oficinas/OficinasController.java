@@ -91,7 +91,7 @@ public class OficinasController {
 
     @PostMapping("/save")
     public void save(@RequestBody Oficina oficina) {
-        if (oficina.getId() != null) {
+        if (oficina.getId() == null) {
             service.save(oficina);
         } else {
             service.update(oficina);

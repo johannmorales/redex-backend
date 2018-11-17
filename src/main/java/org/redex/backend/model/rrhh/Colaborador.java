@@ -23,7 +23,6 @@ public class Colaborador implements Serializable {
     @JoinColumn(name = "id_oficina", nullable = false)
     private Oficina oficina;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CargoEnum cargo;
 
@@ -32,7 +31,6 @@ public class Colaborador implements Serializable {
     private EstadoEnum estado;
 
     @Email
-    @NotBlank
     @Column(nullable = false)
     private String email;
 

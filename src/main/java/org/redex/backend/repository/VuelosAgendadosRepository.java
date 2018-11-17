@@ -77,4 +77,9 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             + " join fetch v.oficinaDestino od ")
     List<VueloAgendado> findAll();
 
+    @Modifying(clearAutomatically = true)
+    @Query(" delete from VueloAgendado va where capacidadActual = 0 and fecha_fin < :fecha ")
+    void deleteAllBeforeFecha(@Param("fecha") LocalDateTime fecha);
+
+
 }

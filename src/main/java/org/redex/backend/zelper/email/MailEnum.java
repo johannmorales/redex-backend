@@ -3,7 +3,7 @@ package org.redex.backend.zelper.email;
 public enum MailEnum {
 
     NUEVO_USUARIO("usuarios/nuevoUsuario", "Cuenta registrada"),
-    REESTABLECER_CONTRASENA("usuarios/restablecerContrasena", "Su contrasena ha sido reestablecida");
+    REESTABLECER_CONTRASENA("restablecerContrasena", "Su contrasena ha sido reestablecida");
 
     private String template;
 

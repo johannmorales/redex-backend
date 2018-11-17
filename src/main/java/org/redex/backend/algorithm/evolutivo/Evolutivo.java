@@ -118,7 +118,7 @@ public class Evolutivo implements Algoritmo {
     private List<VueloAgendado> buildRandomLimitedPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, LocalDateTime limit) {
         List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current)
                 .stream()
-                .filter(va -> va.getFechaInicio().isBefore(limit) || va.getFechaInicio().isEqual(limit))
+                .filter(va -> va.getFechaFin().isBefore(limit) || va.getFechaFin().isEqual(limit))
                 .collect(Collectors.toList());
 
         if (!posibles.isEmpty()) {
