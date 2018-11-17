@@ -19,82 +19,50 @@ import java.net.MalformedURLException;
 
 @RestController
 public class ReportesController {
-    
+
     private static final Logger logger = LogManager.getLogger(ReportesController.class);
-    
+
     @Autowired
     ReportesService service;
-    
+
     @PostMapping("/reportes/paquetesXvuelo")
-    public ResponseEntity<Resource> paquetesXvuelo(@RequestBody VueloAgendado va){
+    public ResponseEntity<Resource> paquetesXvuelo(@RequestBody VueloAgendado va) {
         String archivo = service.paquetesXvuelo(va.getId());
-        try {
-          
-           
-           Resource resource = new UrlResource(archivo);
-           
-            if (!resource.exists()) {
-                throw new MyFileNotFoundException("Archivo no encontrado " + archivo);
-            }
-            
-            String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo+ "\"")
-                    .body(resource);
+        return download(archivo);
 
-        } catch (MalformedURLException ex) {
-            throw new MyFileNotFoundException("Archivo no encontrado " , ex);
-        }
     }
-    
+
     @PostMapping("/reportes/paquetesXusuario")
-    public ResponseEntity<Resource> paquetesXusuario(@RequestBody Persona p){
+    public ResponseEntity<Resource> paquetesXusuario(@RequestBody Persona p) {
         String archivo = service.paquetesXusuario(p.getId());
-        try {
+        return download(archivo);
 
-           
-           Resource resource = new UrlResource(archivo);
-           
-            if (!resource.exists()) {
-                throw new MyFileNotFoundException("Archivo no encontrado " + archivo);
-            }
-            
-            String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo+ "\"")
-                    .body(resource);
-
-        } catch (MalformedURLException ex) {
-            throw new MyFileNotFoundException("Archivo no encontrado " , ex);
-        }
     }
-    
+
     @PostMapping("/reportes/enviosXfechas")
-    public ResponseEntity<Resource> enviosXfechas(@RequestBody RangoFechas r){
-        String archivo = service.enviosXfechas(r.fecha_ini,r.fecha_fin);
+    public ResponseEntity<Resource> enviosXfechas(@RequestBody RangoFechas r) {
+        String archivo = service.enviosXfechas(r.fecha_ini, r.fecha_fin);
+        return download(archivo);
+    }
+
+    private ResponseEntity<Resource> download(String archivo) {
         try {
-            
-           
-           Resource resource = new UrlResource(archivo);
-           
+
+            Resource resource = new UrlResource(archivo);
             if (!resource.exists()) {
                 throw new MyFileNotFoundException("Archivo no encontrado " + archivo);
             }
-            
+
             String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            
+
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo+ "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo + "\"")
                     .body(resource);
 
         } catch (MalformedURLException ex) {
-            throw new MyFileNotFoundException("Archivo no encontrado " , ex);
+            throw new MyFileNotFoundException("Archivo no encontrado ", ex);
         }
     }
+
 }
