@@ -49,4 +49,10 @@ public class VuelosAgendadosController {
         return ResponseEntity.ok(registros);
     }
 
+    @PostMapping("/eliminar")
+    public ResponseEntity<?> eliminar() {
+        service.eliminarInnecesarios();
+        return ResponseEntity.ok("Vuelos agendados eliminados");
+    }
+
 }

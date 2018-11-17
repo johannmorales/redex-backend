@@ -1,10 +1,12 @@
 package org.redex.backend.controller.vuelosagendados;
 
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.jni.Local;
 import org.redex.backend.model.envios.PlanVuelo;
 import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
@@ -63,5 +65,11 @@ public class VuelosAgendadosServiceImp implements VuelosAgendadosService {
         }
         return cont;
     }
-    
+
+    @Override
+    @Transactional
+    public void eliminarInnecesarios() {
+        vuelosAgendadosRepository.deleteAllBeforeFecha(LocalDateTime.now());
+    }
+
 }

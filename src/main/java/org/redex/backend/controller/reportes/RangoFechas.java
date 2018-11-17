@@ -5,10 +5,6 @@
  */
 package org.redex.backend.controller.reportes;
 
-/**
- *
- * @author Oscar
- */
 public class RangoFechas {
     public String fecha_ini;
     public String fecha_fin;
