@@ -11,19 +11,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author Oscar
  */
+@RestController
 public class GraficosController {
     
     @Autowired
     GraficosService service;
     
     @PostMapping("/graficos/paquetesXoficinaXfecha_linea")
-    public ResponseEntity<?> paquetesXoficinaXfecha_linea(@RequestBody RangoFechas rf, int idOf){
-        ObjectNode s = service.paquetesXoficinaXfecha_linea(idOf,rf.fecha_ini,rf.fecha_fin);
+    public ResponseEntity<?> paquetesXoficinaXfecha_linea(@RequestBody ObjectNode payload){
+        String fechaInicio = payload.get("fecha_ini").asText();
+        String fechaFin = payload.get("fecha_fin").asText();
+        int idOficina = payload.get("idOf").asInt();
+
+        ObjectNode s = service.paquetesXoficinaXfecha_linea(idOficina, fechaInicio, fechaFin);
         return ResponseEntity.ok(s);
     }
     
