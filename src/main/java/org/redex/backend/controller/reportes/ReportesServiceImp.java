@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+
+import org.redex.backend.model.AppConstants;
 import org.redex.backend.model.general.Archivo;
 import org.redex.backend.repository.ArchivosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -219,7 +221,7 @@ public class ReportesServiceImp implements ReportesService{
         
         try {
             Random r = new Random();
-            String filename = "Reporte_paquete_usuario_"+Instant.now().toString().substring(0, 10) +r.nextInt(100000)+".xlsx";
+            String filename = AppConstants.TMP_DIR + "Reporte_paquete_usuario_"+Instant.now().toString().substring(0, 10) +r.nextInt(100000)+".xlsx";
             FileOutputStream fileOut = new FileOutputStream(filename);
             fileOut.close();
             workbook.close();
