@@ -5,16 +5,18 @@
  */
 package org.redex.backend.controller.graficos;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
  *
  * @author Oscar
  */
 public interface GraficosService {
     
-    public void paquetesXoficinaXfecha_linea(int id,String fechaI,String fechaF);
+    public ObjectNode paquetesXoficinaXfecha_linea(int id,String fechaI,String fechaF);
     
-    public void paquetesXvuelosXfecha(String fechaI,String fechaF);
+    public ObjectNode paquetesXvuelosXfecha(String fechaI,String fechaF);
     
-    public void paquetesXoficinasXfecha_barra(String fechaI,String fechaF);
+    public ObjectNode paquetesXoficinasXfecha_barra(String fechaI,String fechaF);
     
 }
