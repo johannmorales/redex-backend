@@ -1,12 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.redex.backend.controller.graficos;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +14,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import org.apache.poi.ss.usermodel.Row;
 import static org.hibernate.internal.util.collections.CollectionHelper.arrayList;
+
+import org.redex.backend.dao.dashboard.PaquetesVueloDAO;
+import org.redex.backend.model.dashboard.PaquetesVuelo;
 import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.repository.OficinasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
-/**
- *
- * @author Oscar
- */
 @Service
 @Transactional(readOnly = true)
 public class GraficosServiceImp implements GraficosService{
-    
+
+    @Autowired
+    PaquetesVueloDAO paquetesVueloDAO;
     @PersistenceUnit
     private EntityManagerFactory emf;
     
@@ -70,35 +68,8 @@ public class GraficosServiceImp implements GraficosService{
     }
     
     @Override
-    public ObjectNode paquetesXvuelosXfecha(String fechaI,String fechaF){
-        
-        Map<Long, Oficina> oficinas = oficinasRepository.findAll()
-                .stream()
-                .collect(Collectors.toMap(oficina -> oficina.getId(), oficina -> oficina));
-        
-        EntityManager em = emf.createEntityManager();
-        String q = "select count(*), id_oficina_origen from paquete " +
-            "where  instante_registro between '"+fechaI+"' and '"+fechaF+"'" +
-            "group by id_oficina_origen ;";
-        List<Object[]> arr_cust = (List<Object[]>)em.createQuery(q)
-                              .getResultList();
-        Grafico_PVF gpvf = new Grafico_PVF();
-        List<PVF> lAux = new ArrayList<PVF>();
-        gpvf.setFechaI(fechaI);
-        gpvf.setFechaF(fechaF);
-        for (Object[] a : arr_cust) {
-            PVF pvf = new PVF();
-            pvf.setCantidad((int)a[0]);
-            pvf.setOficina(oficinas.get((int)a[1]).getCodigo());
-            lAux.add(pvf);
-        }
-        gpvf.setPvf(lAux);
-        ObjectNode graficoJson = JsonHelper.createJson(gpvf, JsonNodeFactory.instance, new String []{
-          "fechaI",
-          "fechaF",
-          "pvf.*"
-        });
-        return graficoJson;
+    public List<PaquetesVuelo> paquetesXvuelosXfecha(LocalDate inicio, LocalDate fin){
+       return paquetesVueloDAO.top(inicio, fin , 10);
     }
     
     @Override
