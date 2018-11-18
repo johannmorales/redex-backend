@@ -59,12 +59,10 @@ public class ReportesServiceImp implements ReportesService{
         dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MM-yyyy"));
         
         EntityManager em = emf.createEntityManager();
-        String q = "select p.codigo_rastreo,p.fecha_ingreso, o1.codigo as origen ,o2.codigo as destino " +
-                    "from " +
-                    "paquete p, paquete_ruta pr, oficina o1, oficina o2 " +
-                    "where " +
-                    "p.id_oficina_origen = o1.id and o2.codigo=p.id_oficina_destino " +
-                    "and pr.id_vuelo_agendado="+id;
+        String q = "select p.codigo_rastreo, p.fecha_ingreso, o.codigo as origen, o2.codigo as destino " +
+            "from paquete_ruta pr, paquete p, oficina o, oficina o2  " +
+            "where pr.id_vuelo_agendado="+id+" and " +
+            "pr.id_paquete =p.id  and o.id = p.id_oficina_origen and o2.id = p.id_oficina_destino";
         List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
                               .getResultList();
         Iterator it = arr_cust.iterator();
@@ -120,14 +118,14 @@ public class ReportesServiceImp implements ReportesService{
         dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MM-yyyy"));
 
         EntityManager em = emf.createEntityManager();
-        String q ="select p.codigo_rastreo, p.estado, p.fecha_ingreso, va.fecha_fin,o.codigo as origen, o2.codigo as destino " +
-            "from oficina o, paquete p, oficina o2, " +
-            "(select id_paquete,id_vuelo_agendado, max(orden) from paquete_ruta ) aux," +
-            "vuelo_agendado va " +
-            "where p.id_oficina_origen = o.id and p.id_oficina_destino = o2.id and " +
-            "aux.id_paquete = p.id and aux.id_vuelo_agendado = va.id and " +
-            "p.fecha_ingreso between '"+fI+"' and '"+fF+"'";
-        //String q = "select p.codigo_rastreo, p.estado, p.fecha_ingreso, va.fecha_fin,o.codigo as origen, o2.codigo as destino from oficina o, paquete p, oficina o2, (select id_paquete,id_vuelo_agendado, max(orden) from paquete_ruta ) aux,vuelo_agendado va where p.id_oficina_origen = o.id and p.id_oficina_destino = o2.id and aux.id_paquete = p.id and aux.id_vuelo_agendado = va.id and p.fecha_ingreso between '16-11-2018' and '18-11-2018'";
+        String q ="select p.codigo_rastreo,p.fecha_ingreso, o1.codigo as Inicio, o2.codigo as Fin, va.fecha_fin " +
+            "from paquete p, oficina o1, oficina o2,vuelo_agendado va, " +
+            "(select id_paquete, id_vuelo_agendado, max(orden) from paquete_ruta group by id_paquete) aux " +
+            "where  " +
+            "p.fecha_ingreso between STR_TO_DATE('"+fI+"','%d-%m-%Y') and STR_TO_DATE('"+fI+"','%d-%m-%Y') " +
+            "and p.id_oficina_origen = o1.id and p.id_oficina_destino = o2.id and p.id = aux.id_paquete " +
+            "and va.id = aux.id_vuelo_agendado;";
+        
         
         List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q).getResultList();
         Iterator it = arr_cust.iterator();
@@ -194,7 +192,7 @@ public class ReportesServiceImp implements ReportesService{
             "vuelo_agendado va " +
             "where p.id_oficina_origen = o.id and p.id_oficina_destino = o2.id and " +
             "aux.id_paquete = p.id and aux.id_vuelo_agendado = va.id and " +
-            "p.id_persona_origen = pr.id and pr.numero_documento_identidad="+id;
+            "p.id_persona_origen = pr.id and pr.numero_documento_identidad='"+id+"'";
         List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
                               .getResultList();
         Iterator it = arr_cust.iterator();
