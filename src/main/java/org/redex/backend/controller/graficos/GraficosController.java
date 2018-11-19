@@ -40,17 +40,11 @@ public class GraficosController {
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (PaquetesVuelo datum : data) {
-            ObjectNode item = JsonHelper.createJson(datum, JsonNodeFactory.instance, new String[]{
-                "cantidad",
-                "vuelo.oficinaOrigen.codigo",
-                "vuelo.oficinaDestino.codigo",
-                "vuelo.horaInicio",
-                "vuelo.horaFin"
-            });
-
+            ObjectNode item = new ObjectNode(JsonNodeFactory.instance);
+            item.put("vuelo", String.format("%s - %s", datum.getVuelo().getOficinaOrigen().getPais().getNombre(), datum.getVuelo().getOficinaDestino().getPais().getNombre()));
+            item.put("cantidad", datum.getCantidad());
             item.put("horaInicio", datum.getVuelo().getHoraInicioString());
             item.put("horaFin", datum.getVuelo().getHoraFinString());
-
             array.add(item);
         }
 
