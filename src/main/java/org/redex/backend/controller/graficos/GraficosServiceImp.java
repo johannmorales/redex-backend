@@ -75,7 +75,7 @@ public class GraficosServiceImp implements GraficosService{
     @Override
     public ObjectNode paquetesXoficinasXfecha_barra(String fechaI,String fechaF){
         EntityManager em = emf.createEntityManager();
-        String q = "sselect sum(va.capacidad_actual), va.id_vuelo, time(v.hora_inicio), o.codigo as origen " +
+        String q = "select sum(va.capacidad_actual), va.id_vuelo, time(v.hora_inicio), o.codigo as origen " +
             ", o2.codigo as destino from  " +
             "vuelo_agendado va, vuelo v, plan_vuelo pv, oficina o, oficina o2 " +
             "where va.id_vuelo = v.id  and v.id_plan_vuelo= pv.id and pv.estado = 'ACTIVO' " +
