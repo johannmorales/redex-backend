@@ -41,8 +41,8 @@ public class GraficosServiceImp implements GraficosService{
     public ObjectNode paquetesXoficinaXfecha_linea(int id,String fechaI,String fechaF){
         EntityManager em = emf.createEntityManager();
         String q = "select count(*),date(instante_registro) from paquete " +
-            "where id_oficina_origen= "+ id +"and instante_registro between '"+fechaI+"' and '"+fechaF+"' " +
-            "group by date(instante_registro);";
+            "where id_oficina_origen= "+ id +"and instante_registro between STR_TO_DATE('"+fechaI+"','%d-%m-%Y') and STR_TO_DATE('"+fechaF+"','%d-%m-%Y') " +
+            "group by date(instante_registro)";
         List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
                               .getResultList();
         
@@ -75,13 +75,15 @@ public class GraficosServiceImp implements GraficosService{
     @Override
     public ObjectNode paquetesXoficinasXfecha_barra(String fechaI,String fechaF){
         EntityManager em = emf.createEntityManager();
-        String q = "select sum(va.capacidad_actual) Suma,o1.codigo Inicio,o2.codigo Fin,time(v.hora_inicio) as hora  " +
-            "from vuelo_agendado va, vuelo v, plan_vuelo pv,oficina o1, " +
-            "oficina o2 " +
-            "where va.id_vuelo = v.id and pv.estado = 'ACTIVO' and v.id_plan_vuelo=pv.id " +
-            "and v.id_oficina_origen = o1.id and v.id_oficina_destino = o2.id and va.fecha_fin  between '"+fechaI+"' and '"+fechaF+"'" +
-            "group by va.id_vuelo " +
-            "order by sum(va.capacidad_actual) desc limit 10;";
+        String q = "sselect sum(va.capacidad_actual), va.id_vuelo, time(v.hora_inicio), o.codigo as origen " +
+            ", o2.codigo as destino from  " +
+            "vuelo_agendado va, vuelo v, plan_vuelo pv, oficina o, oficina o2 " +
+            "where va.id_vuelo = v.id  and v.id_plan_vuelo= pv.id and pv.estado = 'ACTIVO' " +
+            "and v.id_oficina_origen = o.id and v.id_oficina_destino=o2.id " +
+            "and va.fecha_inicio  " +
+            " between STR_TO_DATE('"+fechaI+"','%d-%m-%Y') and STR_TO_DATE('"+fechaF+"','%d-%m-%Y') " +
+            "group by va.id_vuelo  " +
+            "order by sum(va.capacidad_actual) desc";
         List<Object[]> arr_cust = (List<Object[]>)em.createQuery(q)
                               .getResultList();
         Barra_POF gpvf = new Barra_POF();

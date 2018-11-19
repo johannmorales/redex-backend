@@ -122,9 +122,9 @@ public class ReportesServiceImp implements ReportesService{
             "from paquete p, oficina o1, oficina o2,vuelo_agendado va, " +
             "(select id_paquete, id_vuelo_agendado, max(orden) from paquete_ruta group by id_paquete) aux " +
             "where  " +
-            "p.fecha_ingreso between STR_TO_DATE('"+fI+"','%d-%m-%Y') and STR_TO_DATE('"+fI+"','%d-%m-%Y') " +
+            "p.fecha_ingreso between STR_TO_DATE('"+fI+"','%d-%m-%Y') and STR_TO_DATE('"+fF+"','%d-%m-%Y') " +
             "and p.id_oficina_origen = o1.id and p.id_oficina_destino = o2.id and p.id = aux.id_paquete " +
-            "and va.id = aux.id_vuelo_agendado;";
+            "and va.id = aux.id_vuelo_agendado";
         
         
         List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q).getResultList();
