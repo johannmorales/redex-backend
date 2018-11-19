@@ -84,7 +84,7 @@ public class GraficosServiceImp implements GraficosService{
             " between STR_TO_DATE('"+fechaI+"','%d-%m-%Y') and STR_TO_DATE('"+fechaF+"','%d-%m-%Y') " +
             "group by va.id_vuelo  " +
             "order by sum(va.capacidad_actual) desc";
-        List<Object[]> arr_cust = (List<Object[]>)em.createQuery(q)
+        List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
                               .getResultList();
         Barra_POF gpvf = new Barra_POF();
         List<BPVF> lAux = new ArrayList<BPVF>();
