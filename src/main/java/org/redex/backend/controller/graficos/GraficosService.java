@@ -1,5 +1,6 @@
 package org.redex.backend.controller.graficos;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.redex.backend.model.dashboard.PaquetesVuelo;
 
@@ -12,6 +13,6 @@ public interface GraficosService {
     
     List<PaquetesVuelo> paquetesXvuelosXfecha(LocalDate inicio, LocalDate fin);
     
-    ObjectNode paquetesXoficinasXfecha_barra(String fechaI,String fechaF);
+    ArrayNode paquetesXoficinasXfecha_barra(String fechaI,String fechaF);
     
 }

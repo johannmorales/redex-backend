@@ -53,7 +53,7 @@ public class GraficosController {
 
     @PostMapping("/paquetesXoficinasXfecha_barra")
     public ResponseEntity<?> paquetesXoficinasXfecha_barra(@RequestBody RangoFechas rf) {
-        ObjectNode s = service.paquetesXoficinasXfecha_barra(rf.fecha_ini, rf.fecha_fin);
-        return ResponseEntity.ok(s);
+        ArrayNode arr = service.paquetesXoficinasXfecha_barra(rf.fecha_ini, rf.fecha_fin);
+        return ResponseEntity.ok(arr);
     }
 }
