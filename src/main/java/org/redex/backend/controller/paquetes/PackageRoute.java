@@ -5,6 +5,8 @@
  */
 package org.redex.backend.controller.paquetes;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author Oscar
@@ -14,56 +16,56 @@ public class PackageRoute {
     /**
      * @return the latF
      */
-    public int getLatF() {
+    public BigDecimal getLatF() {
         return latF;
     }
 
     /**
      * @param latF the latF to set
      */
-    public void setLatF(int latF) {
+    public void setLatF(BigDecimal latF) {
         this.latF = latF;
     }
 
     /**
      * @return the lonF
      */
-    public int getLonF() {
+    public BigDecimal getLonF() {
         return lonF;
     }
 
     /**
      * @param lonF the lonF to set
      */
-    public void setLonF(int lonF) {
+    public void setLonF(BigDecimal lonF) {
         this.lonF = lonF;
     }
 
     /**
      * @return the latI
      */
-    public int getLatI() {
+    public BigDecimal getLatI() {
         return latI;
     }
 
     /**
      * @param latI the latI to set
      */
-    public void setLatI(int latI) {
+    public void setLatI(BigDecimal latI) {
         this.latI = latI;
     }
 
     /**
      * @return the lonI
      */
-    public int getLonI() {
+    public BigDecimal getLonI() {
         return lonI;
     }
 
     /**
      * @param lonI the lonI to set
      */
-    public void setLonI(int lonI) {
+    public void setLonI(BigDecimal lonI) {
         this.lonI = lonI;
     }
 
@@ -159,9 +161,9 @@ public class PackageRoute {
     private String fechaInicio;
     private String fechaFin;
     private String paisI;
-    private int latI;
-    private int lonI;
+    private BigDecimal latI;
+    private BigDecimal lonI;
     private String paisF;
-    private int latF;
-    private int lonF;
+    private BigDecimal latF;
+    private BigDecimal lonF;
 }

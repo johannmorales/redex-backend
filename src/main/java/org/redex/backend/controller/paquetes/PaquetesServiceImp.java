@@ -1,11 +1,16 @@
 package org.redex.backend.controller.paquetes;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -13,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +57,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 @Service
 @Transactional(readOnly = true)
@@ -280,6 +287,24 @@ public class PaquetesServiceImp implements PaquetesService {
     public ObjectNode estadoPaquete(String trackNum){
         
         EntityManager em = emf.createEntityManager();
+        TrackReport response = new TrackReport();
+        
+        String q2 = "Select estado from paquete where codigo_rastreo='"+ trackNum+"'";
+        List<Object[]> paquete = (List<Object[]>)em.createNativeQuery(q2)
+                              .getResultList();
+        Iterator it2 = paquete.iterator();
+        
+        if (!it2.hasNext()){
+            ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
+            "status"
+             });
+            return trackingJson;
+        }
+        String eActual = "";
+        while(it2.hasNext()){
+            eActual = (String)it2.next();
+        }
+        
         String q = "SELECT pr.orden,pr.estado, va.fecha_inicio, va.fecha_fin, pa.nombre as nI ,pa.latitud as laI, pa.longitud as loI, pa2.nombre as nF, pa.latitud as laF,pa.longitud as loF " +
             "FROM redex.paquete_ruta pr, paquete p, vuelo_agendado va, vuelo v, " +
             "oficina o, pais pa, oficina o2, pais pa2 " +
@@ -289,13 +314,19 @@ public class PaquetesServiceImp implements PaquetesService {
             "and v.id_oficina_destino= o2.id and o2.id_pais =pa2.id";
         
         
+        
+        
         List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
                               .getResultList();
-        TrackReport response = new TrackReport();
+        
+        
         Iterator it = arr_cust.iterator();
         if (!it.hasNext()){
             response.setStatus(0);
-            return null;
+            ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
+            "status"
+             });
+            return trackingJson;
         }
         List<PackageRoute> tr = new ArrayList<PackageRoute>();
         int firstActive = -1;
@@ -305,23 +336,47 @@ public class PaquetesServiceImp implements PaquetesService {
             PackageRoute tAux = new PackageRoute();
             tAux.setOrden((int)obj[0]);
             tAux.setEstado((String)obj[1]);
-            tAux.setFechaInicio((String)obj[2]);
-            tAux.setFechaFin((String)obj[3]);
+            Date date = new Date(((Timestamp)obj[2]).getTime());
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+            String strDate = dateFormat.format(date);
+            tAux.setFechaInicio(strDate);
+            Date dated = new Date(((Timestamp)obj[3]).getTime());
+            String strDateF = dateFormat.format(dated);
+            tAux.setFechaFin(strDateF);
             tAux.setPaisI((String)obj[4]);
-            tAux.setLatI((int)obj[5]);
-            tAux.setLonI((int)obj[6]);
+            tAux.setLatI(((BigDecimal)obj[5]));
+            tAux.setLonI(((BigDecimal)obj[6]));
             tAux.setPaisF((String)obj[7]);
-            tAux.setLatF((int)obj[8]);
-            tAux.setLonF((int)obj[9]);
+            tAux.setLatF(((BigDecimal)obj[8]));
+            tAux.setLonF(((BigDecimal)obj[9]));
             if(firstActive == -1 && tAux.getEstado().equals("ACTIVO")){
                 firstActive = cont;
             }
             tr.add(tAux);
             cont++;
         }
+        response.setPlan(tr);
+        PackageRoute actual = tr.get(firstActive);
+        response.setStatus(1);
+        response.setEstado(eActual);
+        response.setDestino(actual.getPaisF());
+        response.setOrigen(actual.getPaisI());
+        if(eActual.equals("EN_VUELO")){
+            response.setLocalizacion(eActual);
+        } else {
+            response.setLocalizacion(actual.getPaisI());
+        }
         
+        ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
+            "status",
+            "estado",
+            "origen",
+            "destino",
+            "localizacion",
+            "plan.*"
+            
+        });
         
-        
-        return null;
+        return trackingJson;
     }
 }
