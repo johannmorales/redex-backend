@@ -79,7 +79,9 @@ public class GraficosServiceImp implements GraficosService {
                 + "     p.instante_registro between STR_TO_DATE('" + fechaI + "','%d-%m-%Y') and STR_TO_DATE('" + fechaF + "','%d-%m-%Y') "
                 + " group by o.id  "
                 + " order by co desc ";
+        
         List<Object[]> arr_cust = (List<Object[]>) em.createNativeQuery(q)
+                .setMaxResults(10)
                 .getResultList();
 
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
