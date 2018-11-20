@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<h1> Su paquete acaba de ser enviado</h1>
+<thead>
+<th> Estimado cliente, su paquete acaba de ser enviado en el siguiente vuelo:
+    <p>Ciudad de origen:<span th:text="${miVuelo.vuelo.oficinaOrigen.pais.nombre}">nombrePaisOrigen</span><p>
+    <p>Ciudad de destino:<span th:text="${miVuelo.vuelo.oficinaDestino.pais.nombre}">nombrePaisDestino</span></p>
+    <p>Hora de partida:<span th:text="${miVuelo.fechaInicio}">fechaInicio</span></p>
+    <p>Hora de llegada:<span th:text="${miVuelo.fechaFin}">fechaFin</span></p>
+    <p>Gracias por su preferencia.</p>
+</th>
+</thead>
+</body>
+</html>
