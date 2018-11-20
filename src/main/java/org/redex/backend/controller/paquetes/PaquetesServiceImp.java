@@ -212,7 +212,7 @@ public class PaquetesServiceImp implements PaquetesService {
     @Transactional
     public void save(Paquete paquete) {
         paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
-        paquete.setEstado(PaqueteEstadoEnum.REGISTRADO);
+        paquete.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());
 
         Oficina oo = oficinasRepository.findById(paquete.getOficinaOrigen().getId())
