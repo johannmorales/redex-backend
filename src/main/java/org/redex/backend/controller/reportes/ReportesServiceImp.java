@@ -77,9 +77,7 @@ public class ReportesServiceImp implements ReportesService{
             row.createCell(3).setCellValue(obj[3].toString());
             cont++;
         }
-        for(int i = 0; i < columns.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
+        
         try {
             Random r = new Random();
             String filename = "Reporte_paquete_vuelo_"+Instant.now().toString().substring(0, 10) +r.nextInt(100000)+".xlsx";
@@ -212,10 +210,7 @@ public class ReportesServiceImp implements ReportesService{
         
         
         
-        for(int i = 0; i < columns.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
-        
+      
         
         try {
             Random r = new Random();

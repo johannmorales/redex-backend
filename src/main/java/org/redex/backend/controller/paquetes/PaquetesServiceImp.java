@@ -1,5 +1,6 @@
 package org.redex.backend.controller.paquetes;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,11 +13,16 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Row;
 import org.redex.backend.algorithm.AlgoritmoWrapper;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
 import org.redex.backend.model.envios.Paquete;
@@ -76,6 +82,9 @@ public class PaquetesServiceImp implements PaquetesService {
     @Autowired
     PaqueteRutaRepository paqueteRutaRepository;
 
+    @PersistenceUnit
+    private EntityManagerFactory emf;
+    
     @Override
     public List<Paquete> list() {
         return paquetesRepository.findAll();
@@ -266,5 +275,53 @@ public class PaquetesServiceImp implements PaquetesService {
         p.setFechaSalida(va.get(aux - 1).getFechaFin());
         paquetesRepository.save(p);
     }
-
+    
+    @Override
+    public ObjectNode estadoPaquete(String trackNum){
+        
+        EntityManager em = emf.createEntityManager();
+        String q = "SELECT pr.orden,pr.estado, va.fecha_inicio, va.fecha_fin, pa.nombre as nI ,pa.latitud as laI, pa.longitud as loI, pa2.nombre as nF, pa.latitud as laF,pa.longitud as loF " +
+            "FROM redex.paquete_ruta pr, paquete p, vuelo_agendado va, vuelo v, " +
+            "oficina o, pais pa, oficina o2, pais pa2 " +
+            "where p.codigo_rastreo ='"+trackNum+"' " +
+            "and p.id = pr.id_paquete and pr.id_vuelo_agendado = va.id and " +
+            "va.id_vuelo= v.id and v.id_oficina_origen = o.id and o.id_pais = pa.id " +
+            "and v.id_oficina_destino= o2.id and o2.id_pais =pa2.id";
+        
+        
+        List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
+                              .getResultList();
+        TrackReport response = new TrackReport();
+        Iterator it = arr_cust.iterator();
+        if (!it.hasNext()){
+            response.setStatus(0);
+            return null;
+        }
+        List<PackageRoute> tr = new ArrayList<PackageRoute>();
+        int firstActive = -1;
+        int cont = 0;
+        while (it.hasNext()) {
+            Object[] obj = (Object[])it.next();
+            PackageRoute tAux = new PackageRoute();
+            tAux.setOrden((int)obj[0]);
+            tAux.setEstado((String)obj[1]);
+            tAux.setFechaInicio((String)obj[2]);
+            tAux.setFechaFin((String)obj[3]);
+            tAux.setPaisI((String)obj[4]);
+            tAux.setLatI((int)obj[5]);
+            tAux.setLonI((int)obj[6]);
+            tAux.setPaisF((String)obj[7]);
+            tAux.setLatF((int)obj[8]);
+            tAux.setLonF((int)obj[9]);
+            if(firstActive == -1 && tAux.getEstado().equals("ACTIVO")){
+                firstActive = cont;
+            }
+            tr.add(tAux);
+            cont++;
+        }
+        
+        
+        
+        return null;
+    }
 }

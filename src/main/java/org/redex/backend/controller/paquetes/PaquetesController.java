@@ -104,5 +104,11 @@ public class PaquetesController {
         service.save(paquete);
         return ResponseEntity.ok("Paquete guardado");
     }
+    
+    @GetMapping
+    public ResponseEntity<?> rastrear(@RequestParam String trackNumber){
+        
+        return null;
+    }
 
 }

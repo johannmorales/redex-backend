@@ -1,5 +1,6 @@
 package org.redex.backend.controller.paquetes;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.security.DataSession;
@@ -19,4 +20,6 @@ public interface PaquetesService {
     void save(Paquete paquete);
 
     Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds);
+    
+    ObjectNode estadoPaquete(String trackNum);
 }
