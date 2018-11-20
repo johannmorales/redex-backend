@@ -47,10 +47,11 @@ public interface PaquetesRepository extends JpaRepository<Paquete, Long> {
             + "         concat(pd.nombres, ' ', pd.materno, ' ', pd.paterno) like %:q% or "
             + "         concat(pd.paterno, ' ', pd.materno, ' ', pd.nombres) like %:q% or "
             + "         concat(pd.nombres, ' ', pd.materno, ' ', pd.paterno) like %:q% or "
-            + "         concat(tdocpd.simbolo, ' ', pd.numeroDocumentoIdentidad) like %:q% "
+            + "         concat(tdocpd.simbolo, ' ', pd.numeroDocumentoIdentidad) like %:q% or "
+            + "         oo.id ="
             + "     ) "
             + "     order by paq.id desc ")
-    Page<Paquete> crimsonList(@Param("q") String q, Pageable pagination);
+    Page<Paquete> crimsonList(@Param("q") String q, Pageable pagination, Long o);
 
     @Query(""
             + " select paq from Paquete paq "
