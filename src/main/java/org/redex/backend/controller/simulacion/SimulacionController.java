@@ -89,6 +89,7 @@ public class SimulacionController {
             });
             arr.add(oficinaNode);
         }
+        
         return arr;
     }
 

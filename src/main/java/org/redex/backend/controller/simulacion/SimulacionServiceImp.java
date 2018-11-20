@@ -138,7 +138,7 @@ public class SimulacionServiceImp implements SimulacionService {
                 contLinea++;
             }
 
-            gestorVuelosAgendados.setVuelos(nuevosVuelos);
+            simulador.setVuelos(nuevosVuelos);
 
         } catch (IOException ex) {
 
@@ -169,6 +169,7 @@ public class SimulacionServiceImp implements SimulacionService {
             for (String linea : lineasList) {
                 if (!linea.isEmpty() && isDigit(linea.charAt(0))) {
                     String code = linea.substring(5, 9);
+                    System.out.println(linea);
                     if (code.isEmpty()) {
                         cantidadErrores = cantidadErrores + 1;
                         errores.add("La linea " + contLinea + " no tiene pais");
@@ -218,7 +219,7 @@ public class SimulacionServiceImp implements SimulacionService {
         oficina.setCodigo(linea);
         oficina.setPais(mapPaises.get(linea));
         oficina.setCapacidadActual(0);
-        oficina.setCapacidadMaxima(250);
+        oficina.setCapacidadMaxima(1000);
         oficina.setEstado(EstadoEnum.ACTIVO);
         return oficina;
     }
@@ -233,7 +234,7 @@ public class SimulacionServiceImp implements SimulacionService {
         vuelo.setOficinaDestino(mapOficinas.get(codeOffice2));
         vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter).plusHours(pI.getHusoHorario() * -1));
         vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter).plusHours(pF.getHusoHorario() * -1));
-        vuelo.setCapacidad(500);
+        vuelo.setCapacidad(300);
 
         return vuelo;
     }
