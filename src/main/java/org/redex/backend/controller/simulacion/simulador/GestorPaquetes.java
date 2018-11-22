@@ -21,9 +21,7 @@ public class GestorPaquetes {
         for (Paquete paquete : paquetes) {
             this.agregarUno(paquete);
         }
-
         logger.info("{} paquetes agregados", paquetes.size());
-
     }
 
     public void agregarUno(Paquete paquete) {
@@ -38,7 +36,10 @@ public class GestorPaquetes {
     }
 
     public List<Paquete> allEntranVentana(Ventana ventana) {
-        return paquetes.tailMap(ventana.getInicio()).headMap(ventana.getFin()).values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        return paquetes.tailMap(ventana.getInicio()).headMap(ventana.getFin()).values()
+                .stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     public void inicializar() {

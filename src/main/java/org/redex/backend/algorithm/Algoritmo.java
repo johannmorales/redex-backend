@@ -7,6 +7,6 @@ import org.redex.backend.model.rrhh.Oficina;
 
 public interface Algoritmo {
 
-    List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendados, List<VueloAgendado> vuelosSalida, List<Oficina> oficinas);
+    List<VueloAgendado> run(Paquete paquete,List<VueloAgendado> vuelosAgendadosTodos, List<VueloAgendado> vuelosAgendadosLimitados, List<VueloAgendado> vuelosInicio,List<VueloAgendado> vuelosSalida, List<Oficina> oficinas);
 
 }

@@ -69,6 +69,7 @@ public class SimulacionServiceImp implements SimulacionService {
 
     @Override
     public CargaDatosResponse cargaPaquetes(MultipartFile file) {
+        logger.info("entrnado a la carga de paquetes");
         Map<String, Oficina> oficinas = simulador.getOficinas();
 
         Integer cantidadRegistros = 0;
@@ -91,9 +92,10 @@ public class SimulacionServiceImp implements SimulacionService {
                     }
                 }
             }
+            logger.info("Finalizando la cawrgad de paquetes, se leyeromm {}", nuevosPaquetes.size());
             gestorPaquetes.agregarLista(nuevosPaquetes);
         } catch (IOException ex) {
-
+            ex.printStackTrace();
         }
         return new CargaDatosResponse(cantidadErrores, cantidadRegistros, "Carga finalizada con exito", errores);
     }
@@ -191,6 +193,9 @@ public class SimulacionServiceImp implements SimulacionService {
     @Override
     public void crear() {
         List<Oficina> oficinas = oficinasRepository.findAllByEstado(EstadoEnum.ACTIVO);
+        for (Oficina oficina : oficinas) {
+            oficina.setCapacidadActual(0);
+        }
         simulador.setOficinas(oficinas);
 
         PlanVuelo pv = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);

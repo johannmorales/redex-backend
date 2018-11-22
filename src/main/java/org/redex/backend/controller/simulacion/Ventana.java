@@ -23,4 +23,11 @@ public class Ventana {
     public void setFin(LocalDateTime fin) {
         this.fin = fin;
     }
+
+    public static Ventana of(LocalDateTime inicio, LocalDateTime fin){
+        Ventana v = new Ventana();
+        v.setInicio(inicio);
+        v.setFin(fin);
+        return v;
+    }
 }

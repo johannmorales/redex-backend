@@ -16,9 +16,9 @@ public class AStar implements Algoritmo {
     private GestorAlgoritmo gestorAlgoritmo;
 
     @Override
-    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendados, List<VueloAgendado> vuelosTerminados, List<Oficina> oficinas) {
+    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendadosTodos, List<VueloAgendado> vuelosAgendados,List<VueloAgendado> vuelosIniciando,  List<VueloAgendado> vuelosTerminados, List<Oficina> oficinas) {
 
-        gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, vuelosTerminados, oficinas);
+        gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados,vuelosAgendados, vuelosTerminados, oficinas);
 
         PriorityQueue<Item> priorityQueue = new PriorityQueue<>(Comparator.comparing(Item::getCost));
         List<VueloAgendado> vuelosAgendaods = gestorAlgoritmo.obtenerValidos(paquete.getOficinaOrigen(), paquete.getFechaIngreso());

@@ -264,7 +264,7 @@ public class PaquetesServiceImp implements PaquetesService {
         List<VueloAgendado> vuelosTerminados = vuelosAgendadosRepository.findAllTerminados(fechaInicio, fechaFin);
 
         Evolutivo e = new Evolutivo();
-        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelosTerminados, oficinas);
+        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelosAgendados,vuelosAgendados, vuelosTerminados, oficinas);
 
         int aux = 0;
         for (VueloAgendado vva : va) {
