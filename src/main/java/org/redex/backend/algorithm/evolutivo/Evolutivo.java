@@ -26,13 +26,13 @@ public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
-    private int iteraciones = 10;
+    private int iteraciones = 3;
     private int populationSize = 10;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
 
     private int K1 = 2000;
-    private int K2 = 4000;
+    private int K2 = 9000;
 
     private static final Comparator<Cromosoma> byCost = Comparator.comparingDouble(Cromosoma::getCosto);
     private static final Supplier<TreeMultiset<Cromosoma>> supplier = () -> TreeMultiset.create(byCost);
@@ -65,6 +65,9 @@ public class Evolutivo implements Algoritmo {
 
 
         Cromosoma winner = population.firstEntry().getElement();
+//        List<Double> costos = population.stream().map(Cromosoma::getCosto).collect(Collectors.toList());
+//        logger.info("Costos : {
+//   }", costos);
         return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
     }
 

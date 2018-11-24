@@ -1,6 +1,7 @@
 package org.redex.backend.controller.simulacion;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Ventana {
     
@@ -29,5 +30,11 @@ public class Ventana {
         v.setInicio(inicio);
         v.setFin(fin);
         return v;
+    }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return String.format("[%s => %s]", dtf.format(inicio), dtf.format(fin));
     }
 }

@@ -8,17 +8,19 @@ import org.redex.backend.zelper.exception.MyFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.MalformedURLException;
+import java.time.LocalDate;
 
 @RestController
 public class ReportesController {
 
-    private static final Logger logger = LogManager.getLogger(ReportesController.class);
+    private final Logger logger = LogManager.getLogger(ReportesController.class);
 
     @Autowired
     ReportesService service;
@@ -37,16 +39,39 @@ public class ReportesController {
 
     }
 
-    @PostMapping("/reportes/enviosXfechas")
-    public ResponseEntity<Resource> enviosXfechas(@RequestBody RangoFechas r) {
-        String archivo = service.enviosXfechas(r.fecha_ini, r.fecha_fin);
+    @GetMapping("/reportes/enviosXfechas")
+    public ResponseEntity<Resource> enviosXfechas(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin
+    ) {
+        String archivo = service.enviosXfechas(inicio, fin);
         return download(archivo);
     }
 
+    @GetMapping("/reportes/enviosXoficina")
+    public ResponseEntity<Resource> enviosXoficina(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin
+    ) {
+        String archivo = service.enviosXoficina(inicio, fin);
+        return download(archivo);
+    }
+
+    @GetMapping("/reportes/enviosFinalizados")
+    public ResponseEntity<Resource> enviosFinalizados(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin
+    ) {
+        String archivo = service.enviosFinalizados(inicio, fin);
+        return download(archivo);
+    }
+
+
     private ResponseEntity<Resource> download(String archivo) {
+        logger.info("REPORTE {}", archivo);
         try {
 
-            Resource resource = new UrlResource("file",archivo);
+            Resource resource = new UrlResource("file", archivo);
             if (!resource.exists()) {
                 throw new MyFileNotFoundException("Archivo no encontrado " + archivo);
             }
@@ -62,5 +87,10 @@ public class ReportesController {
             throw new MyFileNotFoundException("Archivo no encontrado ", ex);
         }
     }
+
+
+    // reporte de envios para cada oficina mensual johana manda las fechas
+
+    // reporte de envios finalizados en rango de fecha
 
 }

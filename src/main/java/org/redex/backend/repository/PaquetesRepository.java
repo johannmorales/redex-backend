@@ -1,5 +1,6 @@
 package org.redex.backend.repository;
 
+import org.apache.tomcat.jni.Local;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.rrhh.Oficina;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -26,6 +28,17 @@ public interface PaquetesRepository extends JpaRepository<Paquete, Long> {
             "   join fetch od.pais " +
             " order by paq.id desc ")
     List<Paquete> findAll();
+
+    @Query("" +
+            " select paq from Paquete paq " +
+            "   join fetch paq.oficinaOrigen oo " +
+            "   join fetch paq.oficinaDestino od " +
+            " where " +
+            "   paq.fechaIngreso >= :ini and" +
+            "   paq.fechaIngreso <= :fin" +
+            " order by paq.id desc ")
+    List<Paquete> findAllByRangoInicio(@Param("ini")LocalDateTime inicio, @Param("fin")LocalDateTime fin);
+
 
     @Query(""
             + " select paq from Paquete paq "
@@ -64,7 +77,7 @@ public interface PaquetesRepository extends JpaRepository<Paquete, Long> {
 //            + "       join fetch oo.pais paiso"
 //            + "       join fetch od.pais paisd"
 //            + " where"
-//            + "     (oo = :o or od = :o) and "
+//            + "     (oo = :o or od = :o) and true "
 //            + "     ( "
 //            + "         paq.codigoRastreo like %:q% or "
 //            + "         concat(po.nombres, ' ', po.materno, ' ', po.paterno) like %:q% or "

@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
 import org.redex.backend.algorithm.AlgoritmoWrapper;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
+import org.redex.backend.controller.auditoria.AuditoriaService;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
 import org.redex.backend.model.envios.PaqueteRuta;
@@ -88,6 +89,9 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Autowired
     PaqueteRutaRepository paqueteRutaRepository;
+
+    @Autowired
+    AuditoriaService auditoriaService;
 
     @PersistenceUnit
     private EntityManagerFactory emf;
@@ -169,7 +173,7 @@ public class PaquetesServiceImp implements PaquetesService {
         System.out.println(datos.get(0).substring(0, 4));
 
         p.setCodigoRastreo(datos.get(0));
-        p.setEstado(PaqueteEstadoEnum.REGISTRADO);
+        p.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")).toLocalDateTime());
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
@@ -210,7 +214,8 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Override
     @Transactional
-    public void save(Paquete paquete) {
+    public void save(Paquete paquete, DataSession ds) {
+        auditoriaService.auditar(ds.get);
         paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());

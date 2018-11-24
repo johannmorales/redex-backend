@@ -15,7 +15,7 @@ public class Movimiento implements Comparable<Movimiento> {
 
     }
 
-    private enum Tipo {
+    public enum Tipo {
         ENTRADA, SALIDA
     }
 
@@ -25,7 +25,7 @@ public class Movimiento implements Comparable<Movimiento> {
 
     LocalDateTime momento;
 
-    private Tipo tipo;
+    public Tipo tipo;
 
     public void process() {
         if (this.tipo == Tipo.SALIDA) {

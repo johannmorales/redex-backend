@@ -134,7 +134,7 @@ public class Paquete extends ModificacionAuditable implements Serializable {
         return String.format("%s -> %s (%s) [%s]",
                 getOficinaOrigen().getCodigo(),
                 getOficinaDestino().getCodigo(),
-                DateTimeFormatter.ofPattern("dd/MM HH:mm").format(this.getInstanteRegistro()),
+                DateTimeFormatter.ofPattern("dd/MM HH:mm").format(this.getFechaIngreso()),
                 esIntercontinental() ? "INTERCONTINENTAL" : "CONTINENTAL");
     }
 
