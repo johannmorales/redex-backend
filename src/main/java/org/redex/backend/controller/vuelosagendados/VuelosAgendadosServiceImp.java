@@ -14,6 +14,7 @@ import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosAgendadosRepository;
 import org.redex.backend.repository.VuelosRepository;
+import org.redex.backend.security.DataSession;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,15 @@ public class VuelosAgendadosServiceImp implements VuelosAgendadosService {
     VuelosAgendadosRepository vuelosAgendadosRepository;
     
     @Override
-    public Page<VueloAgendado> crimsonList(CrimsonTableRequest request) {
+    public Page<VueloAgendado> crimsonList(CrimsonTableRequest request, DataSession ds) {
+        switch (ds.getRol().getCodigo()){
+            case EMPLEADO:
+            case JEFE_OFICINA:
+                return vuelosAgendadosRepository.crimsonListLimitado(request.getSearch(), request.createPagination(), ds.getOficina());
+            case ADMINISTRADOR:
+            case GERENTE_GENERAL:
+                return vuelosAgendadosRepository.crimsonList(request.getSearch(), request.createPagination());
+        }
         return vuelosAgendadosRepository.crimsonList(request.getSearch(), request.createPagination());
     }
 

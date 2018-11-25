@@ -241,18 +241,16 @@ public class PaquetesServiceImp implements PaquetesService {
     @Override
     public Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds) {
         
-        return paquetesRepository.crimsonList(request.getSearch(), request.createPagination(),ds.getOficina().getId());
-
-//        switch (ds.getRol().getCodigo()){
-//            case ADMINISTRADOR:
-//            case GERENTE_GENERAL:
-//                return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
-//            case EMPLEADO:
-//            case JEFE_OFICINA:
-//                return paquetesRepository.crimsonListByOficina(request.getSearch(), ds.getOficina(), request.createPagination());
-//            default:
-//                return null;
-//        }
+        switch (ds.getRol().getCodigo()){
+            case ADMINISTRADOR:
+            case GERENTE_GENERAL:
+                return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
+            case EMPLEADO:
+            case JEFE_OFICINA:
+                return paquetesRepository.crimsonListByOficina(request.getSearch(), ds.getOficina(), request.createPagination());
+            default:
+                return null;
+        }
     }
 
     
