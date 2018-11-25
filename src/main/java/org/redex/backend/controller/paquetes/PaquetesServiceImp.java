@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.redex.backend.algorithm.AlgoritmoWrapper;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
 import org.redex.backend.controller.auditoria.AuditoriaService;
+import org.redex.backend.model.auditoria.AuditoriaTipoEnum;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
 import org.redex.backend.model.envios.PaqueteRuta;
@@ -214,8 +215,8 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Override
     @Transactional
-    public void save(Paquete paquete, DataSession ds) {
-        auditoriaService.auditar(ds.get);
+    public void save(Paquete paquete) {
+        auditoriaService.auditar(AuditoriaTipoEnum.REGISTRO_PAQUETES);
         paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());

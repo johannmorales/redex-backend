@@ -17,10 +17,9 @@ public class AuditoriaServiceImp implements AuditoriaService {
 
     @Override
     @Transactional
-    public void auditar(Usuario usuario, AuditoriaTipoEnum tipo) {
+    public void auditar(AuditoriaTipoEnum tipo) {
         Auditoria aut = new Auditoria();
         aut.setTipo(tipo);
-        aut.setUsuario(usuario);
         auditoriaRepository.save(aut);
     }
 }

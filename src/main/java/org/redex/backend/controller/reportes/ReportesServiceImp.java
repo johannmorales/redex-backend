@@ -118,12 +118,6 @@ public class ReportesServiceImp implements ReportesService {
                 "Oficina Destino"
         };
 
-        for (int i = 0; i < columns.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columns[i]);
-            cell.setCellStyle(headerCellStyle);
-        }
-
         CellStyle dateCellStyle = workbook.createCellStyle();
 
         dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MM-yyyy"));
@@ -133,25 +127,14 @@ public class ReportesServiceImp implements ReportesService {
         int cont = 1;
 
         for (Paquete paquete : paquetes) {
-            Row row = sheet.createRow(cont++);
-            row.createCell(0).setCellValue(paquete.getCodigoRastreo());
-            row.createCell(1).setCellValue(paquete.getFechaIngresoString());
-            row.createCell(2).setCellValue(paquete.getOficinaOrigen().getCodigo());
-            row.createCell(3).setCellValue(paquete.getOficinaDestino().getCodigo());
+            ExcelHelper.replaceVal(sheet, cont, 0, paquete.getCodigoRastreo());
+            ExcelHelper.replaceVal(sheet, cont, 1, paquete.getFechaIngresoString());
+            ExcelHelper.replaceVal(sheet, cont, 2, paquete.getOficinaOrigen().getCodigo());
+            ExcelHelper.replaceVal(sheet, cont, 3, paquete.getOficinaDestino().getCodigo());
+            cont++;
         }
 
-        try {
-            Random r = new Random();
-            String filename = "envio_fecha_" + Instant.now().toString().substring(0, 10) + r.nextInt(100000) + ".xlsx";
-            FileOutputStream fileOut = new FileOutputStream(filename);
-            workbook.write(fileOut);
-            workbook.close();
-            fileOut.close();
-            return filename;
-        } catch (Exception e) {
-            Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
-            return null;
-        }
+        return write(workbook, "envios_fecha");
     }
 
 
@@ -217,17 +200,7 @@ public class ReportesServiceImp implements ReportesService {
 //            sheet.autoSizeColumn(i);
         }
 
-        try {
-            Random r = new Random();
-            String filename = AppConstants.TMP_DIR + "Reporte_paquete_usuario_" + Instant.now().toString().substring(0, 10) + r.nextInt(100000) + ".xlsx";
-            FileOutputStream fileOut = new FileOutputStream(filename);
-            fileOut.close();
-            workbook.close();
-            return filename;
-        } catch (Exception e) {
-            Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
-        }
-        return null;
+        return write(workbook, "paquetes_usuario");
     }
 
     @Override
@@ -244,4 +217,22 @@ public class ReportesServiceImp implements ReportesService {
     public String enviosFinalizados(LocalDate inicio, LocalDate fin) {
         return null;
     }
+
+
+    private String write(Workbook workbook, String prefifo){
+        try {
+            String filename =  String.format("%s%s_%s.xlsx", AppConstants.TMP_DIR, prefifo, System.currentTimeMillis());
+            System.out.println(filename);
+            FileOutputStream fileOut = new FileOutputStream(filename);
+            workbook.write(fileOut);
+            fileOut.close();
+            workbook.close();
+            return filename;
+        } catch (Exception e) {
+            Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
+            return null;
+        }
+    }
+
+
 }
