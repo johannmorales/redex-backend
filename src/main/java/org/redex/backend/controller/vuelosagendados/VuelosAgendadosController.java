@@ -2,6 +2,8 @@ package org.redex.backend.controller.vuelosagendados;
 
 import javax.validation.Valid;
 import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.security.CurrentUser;
+import org.redex.backend.security.DataSession;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.crimsontable.CrimsonTableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +23,8 @@ public class VuelosAgendadosController {
     VuelosAgendadosService service;
 
     @GetMapping
-    public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request) {
-        Page<VueloAgendado> list = service.crimsonList(request);
+    public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request, @CurrentUser DataSession ds) {
+        Page<VueloAgendado> list = service.crimsonList(request, ds);
 
         return CrimsonTableResponse.of(list, new String[]{
             "id",

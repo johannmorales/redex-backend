@@ -13,7 +13,7 @@ public class TipoDocumentoIdentidad implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pais")
     private Pais pais;
 

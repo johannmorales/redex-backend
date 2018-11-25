@@ -1,18 +1,20 @@
 package org.redex.backend.algorithm.gestor;
 
 import com.google.common.collect.TreeMultiset;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.Algoritmo;
+import org.redex.backend.controller.simulacion.simulador.Movimiento;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 public class GestorAlgoritmo {
 
@@ -20,19 +22,32 @@ public class GestorAlgoritmo {
 
     private List<Oficina> oficinas;
 
+    private HashMap<Oficina, TreeMap<LocalDateTime, Integer>> variacionCapacidadAlmacen;
+
     private SortedMap<LocalDateTime, Map<Oficina, List<VueloAgendado>>> vuelosAgendadosPorOrigen;
 
-    private SortedMap<LocalDateTime, Map<Oficina, Integer>> variacionCapacidadAlmacen;
+//    private SortedMap<LocalDateTime, Map<Oficina, Integer>> variacionCapacidadAlmacen;
 
-    public GestorAlgoritmo(List<VueloAgendado> planeados, List<VueloAgendado> terminan, List<Oficina> oficinas) {
+    public GestorAlgoritmo(List<VueloAgendado> vuelosCumplen, List<VueloAgendado> vuelosParten, List<VueloAgendado> vuelosLlegan, List<Oficina> oficinas) {
         this.vuelosAgendadosPorOrigen = new TreeMap<>();
-        this.variacionCapacidadAlmacen = new TreeMap<>();
+        this.variacionCapacidadAlmacen = new HashMap<>();
         this.oficinas = new ArrayList<>(oficinas);
-        this.procesarVariacionEnCapacidades(planeados);
 
-        for (VueloAgendado planeado : planeados) {
+        Long t1 = System.currentTimeMillis();
+
+        this.procesarVariacionEnCapacidades(vuelosParten, vuelosLlegan);
+
+        Long t2 = System.currentTimeMillis();
+
+        for (VueloAgendado planeado : vuelosCumplen) {
             this.agregarVueloAgendado(planeado);
         }
+
+        Long t3 = System.currentTimeMillis();
+
+//        logger.info("variaciones {} ms", t2-t1);
+//        logger.info("agregar     {} ms", t3-t2);
+
     }
 
     public List<VueloAgendado> obtenerValidos(Oficina oficina, LocalDateTime momento) {
@@ -45,47 +60,67 @@ public class GestorAlgoritmo {
     }
 
     public Integer obtenerCapacidadEnMomento(Oficina oficina, LocalDateTime momento) {
-        if (variacionCapacidadAlmacen.containsKey(momento)) {
-            return variacionCapacidadAlmacen.get(momento).get(oficina);
-        } else {
-            LocalDateTime lastKey = variacionCapacidadAlmacen.headMap(momento).lastKey();
-            return variacionCapacidadAlmacen.get(lastKey).get(oficina);
+        TreeMap<LocalDateTime, Integer> variaciones = variacionCapacidadAlmacen.get(oficina);
+        NavigableMap<LocalDateTime, Integer> limitado = variaciones.headMap(momento, true);
+
+        if (limitado.isEmpty()) {
+            return 0;
         }
+
+        return limitado.lastEntry().getValue();
 
     }
 
-    private void procesarVariacionEnCapacidades(List<VueloAgendado> planeados) {
-        TreeMultiset<AlgoritmoMovimiento> movimientoVuelos = TreeMultiset.create();
+    private void addMovimiento( TreeMap<LocalDateTime, List<AlgoritmoMovimiento>> movimientos,AlgoritmoMovimiento mov){
+        if(!movimientos.containsKey(mov.getMomento())){
+            movimientos.put(mov.getMomento(), new ArrayList<>());
+        }
+        movimientos.get(mov.getMomento()).add(mov);
+    }
 
-        for (VueloAgendado planeado : planeados) {
-            movimientoVuelos.add(AlgoritmoMovimiento.crearEntradaVuelo(planeado));
-            movimientoVuelos.add(AlgoritmoMovimiento.crearSalidaPaquetes(planeado));
+    private void procesarVariacionEnCapacidades(List<VueloAgendado> vuelosParten, List<VueloAgendado> vuelosLlegan) {
+        TreeMap<LocalDateTime, List<AlgoritmoMovimiento>> movimientos = new TreeMap<>();
+
+        for (VueloAgendado parte : vuelosParten) {
+            if (parte.getCapacidadActual() > 0) {
+                AlgoritmoMovimiento mov = AlgoritmoMovimiento.crearSalidaVuelo(parte);
+                addMovimiento(movimientos, mov);
+            }
         }
 
-        Map<Oficina, Integer> mapActual = oficinas.stream().collect(Collectors.toMap(x -> x, x -> 0));
-
-        for (AlgoritmoMovimiento movimientoVuelo : movimientoVuelos) {
-            if (!mapActual.containsKey(movimientoVuelo.getOficina())) {
-                mapActual.put(movimientoVuelo.getOficina(), movimientoVuelo.getVariacion());
-            } else {
-                Integer variacionAntigua = mapActual.get(movimientoVuelo.getOficina());
-                mapActual.replace(movimientoVuelo.getOficina(), variacionAntigua + movimientoVuelo.getVariacion());
+        for (VueloAgendado llega : vuelosLlegan) {
+            if (llega.getCapacidadActual() > 0) {
+                AlgoritmoMovimiento algoEntrada = AlgoritmoMovimiento.crearEntradaVuelo(llega);
+                AlgoritmoMovimiento algoSalida = AlgoritmoMovimiento.crearSalidaPaquetes(llega);
+                addMovimiento(movimientos, algoEntrada);
+                addMovimiento(movimientos, algoSalida);
             }
-
-            LocalDateTime momento = movimientoVuelo.getMomento();
-            Oficina oficina = movimientoVuelo.getOficina();
-            Integer variacion = mapActual.get(oficina);
-
-            if (variacionCapacidadAlmacen.containsKey(momento)) {
-                Map<Oficina, Integer> variacionesEnMomento = variacionCapacidadAlmacen.get(momento);
-                variacionesEnMomento.put(oficina, 0);
-            } else {
-                Map<Oficina, Integer> variacionesEnMomento = new HashMap<>(mapActual);
-                variacionCapacidadAlmacen.put(momento, variacionesEnMomento);
-            }
-
-            variacionCapacidadAlmacen.get(momento).replace(oficina, variacion);
         }
+
+
+        List<AlgoritmoMovimiento> movimientosList = movimientos.values()
+                .stream()
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(AlgoritmoMovimiento::getMomento))
+                .collect(Collectors.toList());
+
+
+        for (Oficina oficina : oficinas) {
+            this.variacionCapacidadAlmacen.put(oficina, new TreeMap<>());
+        }
+
+        for (AlgoritmoMovimiento movimiento : movimientosList) {
+            TreeMap<LocalDateTime, Integer> variaciones = this.variacionCapacidadAlmacen.get(movimiento.getOficina());
+
+            if (variaciones.containsKey(movimiento.getMomento())) {
+                Integer actual = variaciones.get(movimiento.getMomento());
+                variaciones.replace(movimiento.getMomento(), actual + movimiento.getVariacion());
+            } else {
+                Integer last = this.obtenerCapacidadEnMomento(movimiento.getOficina(), movimiento.getMomento());
+                variaciones.put(movimiento.getMomento(), last + movimiento.getVariacion());
+            }
+        }
+
     }
 
     private void agregarVueloAgendado(VueloAgendado va) {

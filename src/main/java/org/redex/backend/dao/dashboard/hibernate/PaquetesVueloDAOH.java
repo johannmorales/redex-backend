@@ -2,6 +2,8 @@ package org.redex.backend.dao.dashboard.hibernate;
 
 import org.redex.backend.dao.dashboard.PaquetesVueloDAO;
 import org.redex.backend.model.dashboard.PaquetesVuelo;
+import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.envios.VueloAgendadoEstadoEnum;
 import org.redex.backend.model.general.EstadoEnum;
 import org.springframework.stereotype.Repository;
 
@@ -40,6 +42,8 @@ public class PaquetesVueloDAOH implements PaquetesVueloDAO {
         sql.setParameter("FIN",  LocalDateTime.of(fin, LocalTime.MAX));
 
         sql.setMaxResults(cantidad);
+
+
 
         return sql.getResultList();
     }

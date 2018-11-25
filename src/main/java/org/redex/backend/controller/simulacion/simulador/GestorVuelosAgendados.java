@@ -1,5 +1,6 @@
 package org.redex.backend.controller.simulacion.simulador;
 
+import io.jsonwebtoken.lang.Assert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redex.backend.controller.simulacion.Ventana;
@@ -20,8 +21,8 @@ public class GestorVuelosAgendados {
 
     private LocalDate finGeneracionVuelosAgendados;
     private List<Vuelo> vuelos;
-    private SortedMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorInicio;
-    private SortedMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorFin;
+    private TreeMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorInicio;
+    private TreeMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorFin;
 
     public GestorVuelosAgendados() {
         this.inicializar();
@@ -69,19 +70,57 @@ public class GestorVuelosAgendados {
         if (!this.vuelosAgendadosPorInicio.containsKey(sva.getFechaInicio())) {
             this.vuelosAgendadosPorInicio.put(sva.getFechaInicio(), new ArrayList<>());
         }
+
         this.vuelosAgendadosPorInicio.get(sva.getFechaInicio()).add(sva);
+
+        if (!this.vuelosAgendadosPorFin.containsKey(sva.getFechaFin())) {
+            this.vuelosAgendadosPorFin.put(sva.getFechaFin(), new ArrayList<>());
+        }
+
+        this.vuelosAgendadosPorFin.get(sva.getFechaFin()).add(sva);
     }
 
     public List<VueloAgendado> allAlgoritmo(LocalDateTime inicio, LocalDateTime fin) {
-        return vuelosAgendadosPorInicio.tailMap(inicio).values().stream().flatMap(Collection::stream).filter(va -> va.getFechaFin().isBefore(fin) && va.getCapacidadActual() < va.getCapacidadMaxima()).collect(Collectors.toList());
+        return vuelosAgendadosPorInicio.tailMap(inicio).values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(va -> va.getFechaFin().isBefore(fin))
+                .collect(Collectors.toList());
     }
 
     public void eliminarHasta(LocalDateTime hasta) {
 
     }
 
+    public List<VueloAgendado> allLleganEnVentana(Ventana ventana) {
+        SortedMap<LocalDateTime, List<VueloAgendado>> submap;
+
+        if (ventana.getInicio() != null) {
+            submap = this.vuelosAgendadosPorFin.tailMap(ventana.getInicio());
+        } else {
+            submap = this.vuelosAgendadosPorFin;
+        }
+
+        List<VueloAgendado> vueloAgendados = submap.headMap(ventana.getFin()).values()
+                .stream()
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(VueloAgendado::getFechaFin))
+                .collect(Collectors.toList());
+
+        for (VueloAgendado vueloAgendado : vueloAgendados) {
+            Assert.isTrue(vueloAgendado.getFechaFin().isBefore(ventana.getFin()));
+        }
+
+        return vueloAgendados;
+    }
+
     public List<VueloAgendado> allPartenEnVentana(Ventana ventana) {
-        SortedMap<LocalDateTime, List<VueloAgendado>> submap = this.vuelosAgendadosPorInicio.tailMap(ventana.getInicio());
+        SortedMap<LocalDateTime, List<VueloAgendado>> submap;
+        if (ventana.getInicio() != null) {
+            submap = this.vuelosAgendadosPorInicio.tailMap(ventana.getInicio());
+        } else {
+            submap = this.vuelosAgendadosPorInicio;
+        }
         return submap.headMap(ventana.getFin()).values()
                 .stream()
                 .flatMap(Collection::stream)

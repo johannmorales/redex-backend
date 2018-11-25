@@ -17,9 +17,10 @@ public interface PaquetesService {
 
     CargaDatosResponse carga(MultipartFile file);
 
-    void save(Paquete paquete);
+    void save(Paquete paquete, DataSession ds);
 
     Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds);
     
     ObjectNode estadoPaquete(String trackNum);
+
 }

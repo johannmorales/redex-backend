@@ -1,10 +1,12 @@
 package org.redex.backend.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.rrhh.Colaborador;
 import org.redex.backend.model.rrhh.Oficina;
@@ -25,15 +27,17 @@ public class DataSession implements UserDetails {
     private Oficina oficina;
 
     private Rol rol;
-    
+
     private Colaborador colaborador;
+
+    private Usuario usuario;
 
     @JsonIgnore
     private String password;
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public DataSession(Long id, String username, String password, Colaborador colaborador, Oficina oficina, Persona persona, Rol rol, Collection<? extends GrantedAuthority> authorities) {
+    public DataSession(Long id, String username, String password, Colaborador colaborador, Oficina oficina, Persona persona, Rol rol, Usuario u, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -42,6 +46,7 @@ public class DataSession implements UserDetails {
         this.oficina = oficina;
         this.persona = persona;
         this.rol = rol;
+        this.usuario = u;
     }
 
     public static DataSession create(Usuario user) {
@@ -55,6 +60,7 @@ public class DataSession implements UserDetails {
                 user.getColaborador().getOficina(),
                 user.getColaborador().getPersona(),
                 user.getRol(),
+                user,
                 authorities
         );
     }
@@ -164,4 +170,11 @@ public class DataSession implements UserDetails {
         this.rol = rol;
     }
 
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 }

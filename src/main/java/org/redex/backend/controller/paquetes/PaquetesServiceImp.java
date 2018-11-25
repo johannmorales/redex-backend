@@ -26,11 +26,15 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import javax.xml.crypto.Data;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
 import org.redex.backend.algorithm.AlgoritmoWrapper;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
+import org.redex.backend.controller.auditoria.AuditoriaService;
+import org.redex.backend.model.auditoria.AuditoriaTipoEnum;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
 import org.redex.backend.model.envios.PaqueteRuta;
@@ -88,6 +92,9 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Autowired
     PaqueteRutaRepository paqueteRutaRepository;
+
+    @Autowired
+    AuditoriaService auditoriaService;
 
     @PersistenceUnit
     private EntityManagerFactory emf;
@@ -169,11 +176,12 @@ public class PaquetesServiceImp implements PaquetesService {
         System.out.println(datos.get(0).substring(0, 4));
 
         p.setCodigoRastreo(datos.get(0));
-        p.setEstado(PaqueteEstadoEnum.REGISTRADO);
+        p.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")).toLocalDateTime());
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
         Persona pO = personas.get(datos.get(12));
+
         if (pO == null) {
             pO = new Persona();
             pO.setNombres(datos.get(4));
@@ -210,7 +218,8 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Override
     @Transactional
-    public void save(Paquete paquete) {
+    public void save(Paquete paquete, DataSession ds) {
+        auditoriaService. auditar(AuditoriaTipoEnum.REGISTRO_PAQUETES, ds);
         paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());
@@ -232,18 +241,16 @@ public class PaquetesServiceImp implements PaquetesService {
     @Override
     public Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds) {
         
-        return paquetesRepository.crimsonList(request.getSearch(), request.createPagination(),ds.getOficina().getId());
-
-//        switch (ds.getRol().getCodigo()){
-//            case ADMINISTRADOR:
-//            case GERENTE_GENERAL:
-//                return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
-//            case EMPLEADO:
-//            case JEFE_OFICINA:
-//                return paquetesRepository.crimsonListByOficina(request.getSearch(), ds.getOficina(), request.createPagination());
-//            default:
-//                return null;
-//        }
+        switch (ds.getRol().getCodigo()){
+            case ADMINISTRADOR:
+            case GERENTE_GENERAL:
+                return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
+            case EMPLEADO:
+            case JEFE_OFICINA:
+                return paquetesRepository.crimsonListByOficina(request.getSearch(), ds.getOficina(), request.createPagination());
+            default:
+                return null;
+        }
     }
 
     
@@ -264,7 +271,7 @@ public class PaquetesServiceImp implements PaquetesService {
         List<VueloAgendado> vuelosTerminados = vuelosAgendadosRepository.findAllTerminados(fechaInicio, fechaFin);
 
         Evolutivo e = new Evolutivo();
-        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelosTerminados, oficinas);
+        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelosAgendados,vuelosAgendados, vuelosTerminados, oficinas);
 
         int aux = 0;
         for (VueloAgendado vva : va) {

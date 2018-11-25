@@ -42,7 +42,7 @@ public class GraficosController {
         for (PaquetesVuelo datum : data) {
             ObjectNode item = new ObjectNode(JsonNodeFactory.instance);
             item.put("vuelo", String.format("%s - %s", datum.getVuelo().getOficinaOrigen().getPais().getNombre(), datum.getVuelo().getOficinaDestino().getPais().getNombre()));
-            item.put("cantidad", datum.getCantidad());
+            item.put("capacidad", datum.getCantidad());
             item.put("horaInicio", datum.getVuelo().getHoraInicioString());
             item.put("horaFin", datum.getVuelo().getHoraFinString());
             array.add(item);

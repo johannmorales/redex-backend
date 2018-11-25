@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
+import javax.xml.crypto.Data;
+
 @RestController
 @RequestMapping("paquetes")
 public class PaquetesController {
@@ -100,11 +102,11 @@ public class PaquetesController {
     }
     
     @PostMapping("/save")
-    public ResponseEntity<?> save(@RequestBody Paquete paquete){
-        service.save(paquete);
+    public ResponseEntity<?> save(@RequestBody Paquete paquete, @CurrentUser DataSession ds){
+        service.save(paquete, ds);
         return ResponseEntity.ok("Paquete guardado");
     }
-    
+
     @GetMapping("/tracking")
     public ResponseEntity<?> rastrear(@RequestParam String trackNumber){
         ObjectNode s = service.estadoPaquete(trackNumber);

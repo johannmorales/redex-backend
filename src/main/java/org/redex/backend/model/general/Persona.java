@@ -15,7 +15,7 @@ public class Persona {
     private TipoDocumentoIdentidad tipoDocumentoIdentidad;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_pais", nullable = false)
+    @JoinColumn(name = "id_pais", nullable = true)
     private Pais pais;
 
     @Column(nullable = false)
