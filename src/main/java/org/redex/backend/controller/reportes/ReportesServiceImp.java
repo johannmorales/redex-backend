@@ -25,8 +25,10 @@ import org.redex.backend.BackendApplication;
 import org.redex.backend.controller.auditoria.AuditoriaService;
 import org.redex.backend.model.AppConstants;
 import org.redex.backend.model.auditoria.AuditoriaTipoEnum;
+import org.redex.backend.model.auditoria.AuditoriaView;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.repository.AuditoriaViewRepository;
 import org.redex.backend.repository.PaquetesRepository;
 import org.redex.backend.security.CurrentUser;
 import org.redex.backend.security.DataSession;
@@ -48,8 +50,13 @@ public class ReportesServiceImp implements ReportesService {
     @Autowired
     PaquetesRepository paquetesRepository;
 
+
+    @Autowired
+    AuditoriaViewRepository auditoriaViewRepository;
+
     @Autowired
     AuditoriaService auditoriaService;
+
 
     @Override
     public String paquetesXvuelo(Long id, DataSession ds) {
@@ -155,7 +162,7 @@ public class ReportesServiceImp implements ReportesService {
     }
 
 
-//  El sistema debera poder generar un reporte de los envíos seleccionando un
+    //  El sistema debera poder generar un reporte de los envíos seleccionando un
 //  rango de fecha. El reporte tendrá los siguientes datos: El rango de fechas
 //  que se a defido para generar le reporte, el codigo del paquete, la fecha de
 //  llegada y el estado
@@ -209,8 +216,8 @@ public class ReportesServiceImp implements ReportesService {
             row.createCell(0).setCellValue(obj[0].toString());
             row.createCell(1).setCellValue(obj[1].toString());
             row.createCell(2).setCellValue(obj[2].toString());
-            row.createCell(3).setCellValue(obj[3].toString());
-            row.createCell(4).setCellValue(obj[4].toString());
+            row.createCell(4).setCellValue(obj[3].toString());
+            row.createCell(5).setCellValue(obj[4].toString());
             //row.createCell(5).setCellValue(obj[5].toString());
             cont++;
         }
@@ -260,15 +267,31 @@ public class ReportesServiceImp implements ReportesService {
     @Override
     public String auditoria(LocalDate inicio, LocalDate fin, Long idOficina, DataSession ds) {
         auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_AUDITORIA, ds);
+        List<AuditoriaView> list = auditoriaViewRepository.allByOficinaVentana(inicio.atStartOfDay(), fin.atTime(LocalTime.MAX), new Oficina(idOficina));
 
-        return null;
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Auditoria");
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        Integer cont = 1;
+
+        for (AuditoriaView au : list) {
+            ExcelHelper.replaceVal(sheet, cont, 0, au.getMomento().format(dtf));
+            ExcelHelper.replaceVal(sheet, cont, 1, au.getUsuario().getUsername());
+            ExcelHelper.replaceVal(sheet, cont, 2, au.getUsuario().getColaborador().getPersona().getNombreCompleto());
+            ExcelHelper.replaceVal(sheet, cont, 3, au.getOficina().getCodigo());
+            ExcelHelper.replaceVal(sheet, cont, 4, au.getTipo().getDescripcion());
+            cont++;
+        }
+
+        return write(workbook, "auditoria");
     }
 
 
     private String write(Workbook workbook, String prefifo) {
         try {
             String filename = String.format("%s%s_%s.xlsx", AppConstants.TMP_DIR, prefifo, System.currentTimeMillis());
-            System.out.println(filename);
             FileOutputStream fileOut = new FileOutputStream(filename);
             workbook.write(fileOut);
             fileOut.close();
