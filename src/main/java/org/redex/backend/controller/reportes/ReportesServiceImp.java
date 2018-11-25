@@ -11,26 +11,35 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 
+import org.redex.backend.BackendApplication;
+import org.redex.backend.controller.auditoria.AuditoriaService;
 import org.redex.backend.model.AppConstants;
+import org.redex.backend.model.auditoria.AuditoriaTipoEnum;
 import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.repository.PaquetesRepository;
+import org.redex.backend.security.CurrentUser;
+import org.redex.backend.security.DataSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = false)
 public class ReportesServiceImp implements ReportesService {
 
     @PersistenceContext
@@ -39,8 +48,13 @@ public class ReportesServiceImp implements ReportesService {
     @Autowired
     PaquetesRepository paquetesRepository;
 
+    @Autowired
+    AuditoriaService auditoriaService;
+
     @Override
-    public String paquetesXvuelo(Long id) {
+    public String paquetesXvuelo(Long id, DataSession ds) {
+        auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_PAQUETES_POR_VUELO, ds);
+
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -65,6 +79,7 @@ public class ReportesServiceImp implements ReportesService {
                 + " from paquete_ruta pr, paquete p, oficina o, oficina o2  "
                 + " where pr.id_vuelo_agendado=" + id + " and "
                 + " pr.id_paquete =p.id  and o.id = p.id_oficina_origen and o2.id = p.id_oficina_destino";
+
         List<Object[]> arr_cust = (List<Object[]>) em.createNativeQuery(q)
                 .getResultList();
 
@@ -99,7 +114,9 @@ public class ReportesServiceImp implements ReportesService {
     }
 
     @Override
-    public String enviosXfechas(LocalDate inicio, LocalDate fin) {
+    public String enviosXfechas(LocalDate inicio, LocalDate fin, DataSession ds) {
+        auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_ENVIOS_POR_FECHAS, ds);
+
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -138,12 +155,14 @@ public class ReportesServiceImp implements ReportesService {
     }
 
 
-    //  El sistema debera poder generar un reporte de los envíos seleccionando un
+//  El sistema debera poder generar un reporte de los envíos seleccionando un
 //  rango de fecha. El reporte tendrá los siguientes datos: El rango de fechas
 //  que se a defido para generar le reporte, el codigo del paquete, la fecha de
 //  llegada y el estado
     @Override
-    public String paquetesXusuario(Long id) {
+    public String paquetesXusuario(Long id, DataSession ds) {
+        auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_PAQUETES_POR_USUARIO, ds);
+
         Workbook workbook = new XSSFWorkbook();
         CreationHelper createHelper = workbook.getCreationHelper();
         Sheet sheet = workbook.createSheet("Reporte");
@@ -204,29 +223,51 @@ public class ReportesServiceImp implements ReportesService {
     }
 
     @Override
-    public String accionesXusuarioXoficinaXfecha() {
+    public String enviosXoficina(LocalDate inicio, LocalDate fin, DataSession ds) {
+        auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_ENVIOS_POR_OFICINAS, ds);
+
+        Workbook workbook = new XSSFWorkbook();
+
+        List<Paquete> paquetes = paquetesRepository.findAllByRangoInicio(inicio.atStartOfDay(), fin.atTime(LocalTime.MAX));
+        Map<Oficina, List<Paquete>> map = paquetes.stream().collect(Collectors.groupingBy(Paquete::getOficinaOrigen));
+
+        for (Map.Entry<Oficina, List<Paquete>> entry : map.entrySet()) {
+            Oficina oficina = entry.getKey();
+            List<Paquete> paqs = entry.getValue();
+
+            Sheet sheet = workbook.createSheet(oficina.getCodigo());
+
+            Integer cont = 1;
+
+            for (Paquete paquete : paqs) {
+                ExcelHelper.replaceVal(sheet, cont, 0, paquete.getCodigoRastreo());
+                ExcelHelper.replaceVal(sheet, cont, 1, paquete.getFechaIngresoString());
+                ExcelHelper.replaceVal(sheet, cont, 2, paquete.getOficinaDestino().getCodigo());
+                cont++;
+            }
+        }
+
+        return write(workbook, "envios_por_oficina");
+    }
+
+    @Override
+    public String enviosFinalizados(LocalDate inicio, LocalDate fin, DataSession ds) {
+        auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_ENVIOS_FINALIZADOS, ds);
+
         return null;
     }
 
     @Override
-    public String enviosXoficina(LocalDate inicio, LocalDate fin) {
-        return null;
-    }
+    public String auditoria(LocalDate inicio, LocalDate fin, Long idOficina, DataSession ds) {
+        auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_AUDITORIA, ds);
 
-    @Override
-    public String enviosFinalizados(LocalDate inicio, LocalDate fin) {
-        return null;
-    }
-
-    @Override
-    public String auditoria(LocalDate inicio, LocalDate fin, Long idOficina) {
         return null;
     }
 
 
-    private String write(Workbook workbook, String prefifo){
+    private String write(Workbook workbook, String prefifo) {
         try {
-            String filename =  String.format("%s%s_%s.xlsx", AppConstants.TMP_DIR, prefifo, System.currentTimeMillis());
+            String filename = String.format("%s%s_%s.xlsx", AppConstants.TMP_DIR, prefifo, System.currentTimeMillis());
             System.out.println(filename);
             FileOutputStream fileOut = new FileOutputStream(filename);
             workbook.write(fileOut);

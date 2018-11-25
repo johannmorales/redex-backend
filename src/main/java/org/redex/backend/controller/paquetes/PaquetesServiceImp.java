@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import javax.xml.crypto.Data;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
@@ -179,6 +181,7 @@ public class PaquetesServiceImp implements PaquetesService {
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
         Persona pO = personas.get(datos.get(12));
+
         if (pO == null) {
             pO = new Persona();
             pO.setNombres(datos.get(4));
@@ -215,8 +218,8 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Override
     @Transactional
-    public void save(Paquete paquete) {
-        auditoriaService.auditar(AuditoriaTipoEnum.REGISTRO_PAQUETES);
+    public void save(Paquete paquete, DataSession ds) {
+        auditoriaService. auditar(AuditoriaTipoEnum.REGISTRO_PAQUETES, ds);
         paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());
