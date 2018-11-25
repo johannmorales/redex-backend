@@ -218,6 +218,11 @@ public class ReportesServiceImp implements ReportesService {
         return null;
     }
 
+    @Override
+    public String auditoria(LocalDate inicio, LocalDate fin, Long idOficina) {
+        return null;
+    }
+
 
     private String write(Workbook workbook, String prefifo){
         try {

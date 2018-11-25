@@ -66,6 +66,17 @@ public class ReportesController {
         return download(archivo);
     }
 
+    @GetMapping("auditoria")
+    public ResponseEntity<Resource> auditoria(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
+            @RequestParam Long idOficina
+
+    ) {
+        String archivo = service.auditoria(inicio, fin, idOficina);
+        return download(archivo);
+    }
+
 
     private ResponseEntity<Resource> download(String archivo) {
         try {

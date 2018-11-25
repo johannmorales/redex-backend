@@ -15,4 +15,6 @@ public interface ReportesService {
     String enviosXoficina(LocalDate inicio, LocalDate fin);
 
     String enviosFinalizados(LocalDate inicio, LocalDate fin);
+
+    String auditoria(LocalDate inicio, LocalDate fin, Long idOficina);
 }
