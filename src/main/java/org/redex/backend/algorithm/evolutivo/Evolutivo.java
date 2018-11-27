@@ -24,7 +24,7 @@ public class Evolutivo implements Algoritmo {
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
     private int iteraciones = 10;
-    private int populationSize = 20;
+    private int populationSize = 5;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
 
@@ -109,7 +109,6 @@ public class Evolutivo implements Algoritmo {
         for (Cromosoma cromosoma : syncList) {
             population.add(cromosoma);
         }
-
 
         return population;
     }

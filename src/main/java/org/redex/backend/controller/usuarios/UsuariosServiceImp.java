@@ -36,6 +36,7 @@ import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -266,6 +267,14 @@ public class UsuariosServiceImp implements UsuariosService {
     @Override
     public Usuario find(Long id){
         return usuariosRepository.getOne(id);
+    }
+
+    @Override
+    @Transactional
+    public void actualizarPassword(Usuario usuario) {
+        Usuario uBD = usuariosRepository.getOne(usuario.getId());
+        uBD.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
+        usuariosRepository.save(uBD);
     }
 
 }

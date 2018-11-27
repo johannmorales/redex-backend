@@ -26,4 +26,6 @@ public interface UsuariosService {
     void editar(Usuario usuario);
 
     Usuario find(Long id);
+
+    void actualizarPassword(Usuario usuario);
 }

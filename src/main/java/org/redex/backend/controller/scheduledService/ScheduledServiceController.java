@@ -13,9 +13,9 @@ public class ScheduledServiceController {
     @Scheduled(fixedRate=10000)
     public void despachoVuelo(){
         
-        //service.llegadaVuelos();
+        service.llegadaVuelos();
         //generarRutas();
-        //service.salidaVuelos();
+        service.salidaVuelos();
         
         System.out.println("hola");
     }

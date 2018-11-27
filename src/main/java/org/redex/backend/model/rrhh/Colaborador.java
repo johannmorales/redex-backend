@@ -31,7 +31,7 @@ public class Colaborador implements Serializable {
     private EstadoEnum estado;
 
     @Email
-    @Column(nullable = false)
+    @Column
     private String email;
 
     @Column
