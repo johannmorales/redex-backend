@@ -92,6 +92,7 @@ public class UsuariosController {
             "colaborador.oficina.codigo",
             "persona.nombreCorto",
             "username",
+                "id",
             "rol.id",
             "rol.nombre",
             "rol.codigo"
