@@ -19,9 +19,10 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
             + "  concat(p.nombres, ' ', p.materno, ' ', p.paterno) like %:q% or "
             + "  concat(p.paterno, ' ', p.materno, ' ', p.nombres) like %:q% or "
             + "  concat(p.nombres, ' ', p.materno, ' ', p.paterno) like %:q% or "
-            + "  concat(tdoc.simbolo, ' ', p.numeroDocumentoIdentidad) like %:q% ")
+            + "  concat(tdoc.simbolo, ' ', p.numeroDocumentoIdentidad) like %:q% " +
+            " order by p.id desc")
     Page<Persona> crimsonList(@Param("q") String q, Pageable pageable);
 
-    public Persona findByTipoDocumentoIdentidadAndNumeroDocumentoIdentidad(TipoDocumentoIdentidad tipoDocumentoIdentidad, String numeroDocumentoIdentidad);
+    Persona findByTipoDocumentoIdentidadAndNumeroDocumentoIdentidad(TipoDocumentoIdentidad tipoDocumentoIdentidad, String numeroDocumentoIdentidad);
 
 }
