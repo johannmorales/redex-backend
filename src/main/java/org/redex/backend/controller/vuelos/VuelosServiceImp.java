@@ -2,6 +2,7 @@ package org.redex.backend.controller.vuelos;
 
 import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.general.EstadoEnum;
+import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosRepository;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class VuelosServiceImp implements VuelosService {
 
     @Autowired
+    PlanVueloRepository planVueloRepository;
+
+    @Autowired
     VuelosRepository vuelosRepository;
 
     @Override
@@ -20,6 +24,7 @@ public class VuelosServiceImp implements VuelosService {
     public Vuelo save(Vuelo wrapper) {
         Vuelo v = wrapper;
         v.setEstado(EstadoEnum.ACTIVO);
+        v.setPlanVuelo(planVueloRepository.findByEstado(EstadoEnum.ACTIVO));
         vuelosRepository.save(v);
 
         return v;

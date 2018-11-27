@@ -1,5 +1,7 @@
 package org.redex.backend.controller;
 
+import org.redex.backend.zelper.email.MailClient;
+import org.redex.backend.zelper.email.MailEnum;
 import org.redex.backend.zelper.pdf.PdfClient;
 import org.redex.backend.zelper.pdf.PdfEnum;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +13,19 @@ import org.thymeleaf.context.Context;
 @RestController
 public class Index {
 
-@Autowired
+    @Autowired
     PdfClient pdfClient;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public String index(){
-        pdfClient.generate(PdfEnum.PLAN_VUELO, new Context());
-        return "RedEX - Backend";
+    @Autowired
+    MailClient mailClient;
+
+    @RequestMapping(method = RequestMethod.GET, value = "/")
+    public String index() {
+
+        Context ctx = new Context();
+        ctx.setVariable("miCadena", "HOLA MUNDO");
+        //mailClient.prepareAndSend("a20105430@pucp.pe", MailEnum.REESTABLECER_CONTRASENA, ctx);
+        return "RedEx - Backend";
     }
 }
 

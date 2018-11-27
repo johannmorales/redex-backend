@@ -1,126 +1,122 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.redex.backend.controller.reportes;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.redex.backend.controller.archivos.ArchivosController;
-import org.redex.backend.controller.personas.PersonasService;
-import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.general.Archivo;
-import org.redex.backend.model.general.Persona;
+import org.redex.backend.security.CurrentUser;
+import org.redex.backend.security.DataSession;
 import org.redex.backend.zelper.exception.MyFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- *
- * @author Oscar
- */
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.time.LocalDate;
+
+@RestController
+@RequestMapping("reportes")
 public class ReportesController {
-    
-    private static final Logger logger = LogManager.getLogger(ReportesController.class);
-    
+
     @Autowired
     ReportesService service;
-    
-    @PostMapping("/reportes/paquetesXvuelo")
-    public ResponseEntity<Resource> paquetesXvuelo(@RequestBody VueloAgendado va){
-        Archivo archivo = service.paquetesXvuelo(va.getId());
-        try {
-            
-           Path path = Paths.get(archivo.getDirectorio())
-                .toAbsolutePath().normalize();
 
-           Path filePath = path.resolve(archivo.getNombreServidor()).normalize();
-           
-           Resource resource = new UrlResource(filePath.toUri());
-           
-            if (!resource.exists()) {
-                throw new MyFileNotFoundException("Archivo no encontrado " + archivo.getNombreOriginal());
+    @GetMapping("paquetesXvuelo")
+    public ResponseEntity<Resource> paquetesXvuelo(
+            @RequestParam Long idVueloAgendado,
+            @CurrentUser DataSession ds
+    ) {
+        String archivo = service.paquetesXvuelo(idVueloAgendado, ds);
+        return download(archivo);
+
+    }
+
+    @GetMapping("paquetesXusuario")
+    public ResponseEntity<Resource> paquetesXusuario(
+            @RequestParam Long idUsuario,
+            @CurrentUser DataSession ds
+    ) {
+        String archivo = service.paquetesXusuario(idUsuario, ds);
+        return download(archivo);
+
+    }
+
+    @GetMapping("enviosXfechas")
+    public ResponseEntity<Resource> enviosXfechas(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
+            @CurrentUser DataSession ds
+    ) {
+        String archivo = service.enviosXfechas(inicio, fin, ds);
+        return download(archivo);
+    }
+
+    @GetMapping("enviosXoficina")
+    public ResponseEntity<Resource> enviosXoficina(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
+            @CurrentUser DataSession ds
+    ) {
+        String archivo = service.enviosXoficina(inicio, fin, ds);
+        return download(archivo);
+    }
+
+    @GetMapping("enviosFinalizados")
+    public ResponseEntity<Resource> enviosFinalizados(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
+            @CurrentUser DataSession ds
+    ) {
+        String archivo = service.enviosFinalizados(inicio, fin, ds);
+        return download(archivo);
+    }
+
+    @GetMapping("auditoria")
+    public ResponseEntity<Resource> auditoria(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
+            @RequestParam Long idOficina,
+            @CurrentUser DataSession ds
+
+    ) {
+        String archivo = service.auditoria(inicio, fin, idOficina, ds);
+        return download(archivo);
+    }
+
+
+    private ResponseEntity<Resource> download(String archivo) {
+        try {
+            Resource resource = new UrlResource("file", archivo);
+            try {
+                System.out.println(resource.getFile().getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            
+            if (!resource.exists()) {
+                throw new MyFileNotFoundException("Archivo no encontrado " + archivo);
+            }
+
             String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            
+
+            String actualFileName = archivo.substring(archivo.lastIndexOf('/') + 1);
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo.getNombreOriginal()+ "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, actualFileName)
                     .body(resource);
 
         } catch (MalformedURLException ex) {
-            throw new MyFileNotFoundException("Archivo no encontrado " , ex);
+            throw new MyFileNotFoundException("Archivo no encontrado ", ex);
         }
     }
-    
-    @PostMapping("/reportes/paquetesXusuario")
-    public ResponseEntity<Resource> paquetesXusuario(@RequestBody Persona p){
-        Archivo archivo = service.paquetesXusuario(p.getId());
-        try {
-            
-           Path path = Paths.get(archivo.getDirectorio())
-                .toAbsolutePath().normalize();
 
-           Path filePath = path.resolve(archivo.getNombreServidor()).normalize();
-           
-           Resource resource = new UrlResource(filePath.toUri());
-           
-            if (!resource.exists()) {
-                throw new MyFileNotFoundException("Archivo no encontrado " + archivo.getNombreOriginal());
-            }
-            
-            String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            
 
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo.getNombreOriginal()+ "\"")
-                    .body(resource);
+    // reporte de envios para cada oficina mensual johana manda las fechas
 
-        } catch (MalformedURLException ex) {
-            throw new MyFileNotFoundException("Archivo no encontrado " , ex);
-        }
-    }
-    
-    @PostMapping("/reportes/enviosXfechas")
-    public ResponseEntity<Resource> enviosXfechas(@RequestBody RangoFechas r){
-        Archivo archivo = service.enviosXfechas(r.fecha_ini,r.fecha_fin);
-        try {
-            
-           Path path = Paths.get(archivo.getDirectorio())
-                .toAbsolutePath().normalize();
+    // reporte de envios finalizados en rango de fecha
 
-           Path filePath = path.resolve(archivo.getNombreServidor()).normalize();
-           
-           Resource resource = new UrlResource(filePath.toUri());
-           
-            if (!resource.exists()) {
-                throw new MyFileNotFoundException("Archivo no encontrado " + archivo.getNombreOriginal());
-            }
-            
-            String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo.getNombreOriginal()+ "\"")
-                    .body(resource);
-
-        } catch (MalformedURLException ex) {
-            throw new MyFileNotFoundException("Archivo no encontrado " , ex);
-        }
-    }
 }

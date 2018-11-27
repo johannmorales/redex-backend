@@ -1,9 +1,7 @@
 package org.redex.backend.controller.paquetes;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.List;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.security.CurrentUser;
 import org.redex.backend.security.DataSession;
@@ -13,17 +11,11 @@ import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
-import javax.xml.ws.Response;
+import javax.xml.crypto.Data;
 
 @RestController
 @RequestMapping("paquetes")
@@ -110,9 +102,15 @@ public class PaquetesController {
     }
     
     @PostMapping("/save")
-    public ResponseEntity<?> save(@RequestBody Paquete paquete){
-        service.save(paquete);
+    public ResponseEntity<?> save(@RequestBody Paquete paquete, @CurrentUser DataSession ds){
+        service.save(paquete, ds);
         return ResponseEntity.ok("Paquete guardado");
+    }
+
+    @GetMapping("/tracking")
+    public ResponseEntity<?> rastrear(@RequestParam String trackNumber){
+        ObjectNode s = service.estadoPaquete(trackNumber);
+        return ResponseEntity.ok(s);
     }
 
 }

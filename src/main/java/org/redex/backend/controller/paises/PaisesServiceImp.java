@@ -33,12 +33,18 @@ public class PaisesServiceImp implements PaisesService {
         return paisesRepository.crimsonList(request.getSearch(), request.createPagination());
     }
 
+
     @Override
     public Pais find(Long id) {
         Pais p = paisesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pais", "id", id));
-        
         return p;
     }
-    
+
+    @Override
+    @Transactional
+    public void save(Pais p) {
+        paisesRepository.save(p);
+    }
+
 }

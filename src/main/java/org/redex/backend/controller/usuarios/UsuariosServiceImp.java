@@ -189,8 +189,35 @@ public class UsuariosServiceImp implements UsuariosService {
     }
 
     @Transactional
-    public void crearUsuario(UsuariosPayload usuario) {
+    public void crearUsuario(UsuariosPayload paylaod) {
 
+        Persona p = new Persona();
+
+        p.setNombres(paylaod.getNombres());
+        p.setPaterno(paylaod.getaPaterno());
+        p.setMaterno(paylaod.getaMaterno());
+        p.setTipoDocumentoIdentidad(paylaod.getTipDoc());
+        p.setTelefono(paylaod.getTelefono());
+        p.setEmail(paylaod.getEmail());
+        p.setNumeroDocumentoIdentidad(paylaod.getDocId());
+        personaRepository.save(p);
+
+        Colaborador c = new Colaborador();
+
+        c.setPersona(p);
+        c.setOficina(paylaod.getOficina());
+        c.setEstado(EstadoEnum.ACTIVO);
+        colaboradoresRepository.save(c);
+
+        Oficina o = oficinasRepository.getOne(paylaod.getOficina().getId());
+
+        Usuario usuario = new Usuario();
+        usuario.setEstado(EstadoEnum.ACTIVO);
+        usuario.setColaborador(c);
+        usuario.setPassword("$2a$10$08lY1Bupapwa00DK9MP4K.3t7n/d7MCtARhPd9oMaxWHCtTh6KOnS");
+    usuario.setUsername(String.format("%s%s", o.getCodigo(), Long.toString(System.currentTimeMillis())));
+    usuario.setRol(paylaod.getRol());
+        usuariosRepository.save(usuario);
     }
 
     @Transactional

@@ -27,9 +27,9 @@ public class Grasp implements Algoritmo {
     private GestorAlgoritmo gestorAlgoritmo;
 
     @Override
-    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendados, List<VueloAgendado> vuelosTerminados, List<Oficina> oficinas) {
+    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosAgendadosTodos, List<VueloAgendado> vuelosAgendados, List<VueloAgendado> vuelosIniciados, List<VueloAgendado> vuelosTerminados, List<Oficina> oficinas) {
         Integer cantidadDias = 1;
-        gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, vuelosTerminados, oficinas);
+        gestorAlgoritmo = new GestorAlgoritmo(vuelosAgendados, vuelosAgendados,vuelosTerminados, oficinas);
 
         //if (paquete.getOficinaOrigen().getPais().getContinente() == paquete.getOficinaDestino().getPais().getContinente()) {
             tiempoMax = hC * 60;
@@ -110,6 +110,8 @@ public class Grasp implements Algoritmo {
 //        
 //        return vuelos;
 //    }
+
+
     public List<VueloAgendado> grasp(Oficina origen, Oficina destino, LocalDateTime start, LocalDateTime tRPaquete) {
         Oficina origenN;
         LocalDateTime startN;

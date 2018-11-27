@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+    <h1>Bienvenido </h1>
+    <thead>¡Hola,<span th:text="${nombre}">nombre</span>!</thead>
+    <p>Gracias por unirte! Aquí tienes la informacion de tu cuenta:</p>
+    <p>Username:<span th:text="${usuario.username}">username</span></p>
+    <p>Password:<span th:text="${usuario.password}">password</span></p>
+    <p>Cargo:<span th:text="${usuario.colaborador.cargo}">cargo</span></p>
+    <p>Oficina:<span th:text="${usuario.colaborador.oficina.pais.nombre}">oficina</span></p>
+</body>
+</html>

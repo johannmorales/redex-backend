@@ -1,24 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.redex.backend.controller.reportes;
 
-import org.redex.backend.model.general.Archivo;
+import org.redex.backend.security.DataSession;
 
-/**
- *
- * @author Oscar
- */
+import java.time.LocalDate;
+
 public interface ReportesService {
 
-    public Archivo paquetesXvuelo(Long id);
+    public String paquetesXvuelo(Long id, DataSession ds);
     
-    public Archivo enviosXfechas(String fI,String fF);
+    public String enviosXfechas(LocalDate inicio, LocalDate fin, DataSession ds);
     
-    public Archivo paquetesXusuario(Long id);
+    public String paquetesXusuario(Long id, DataSession ds);
     
-    public Archivo accionesXusuarioXoficinaXfecha();
-    
+    String enviosXoficina(LocalDate inicio, LocalDate fin, DataSession ds);
+
+    String enviosFinalizados(LocalDate inicio, LocalDate fin, DataSession ds);
+
+    String auditoria(LocalDate inicio, LocalDate fin, Long idOficina, DataSession ds);
 }

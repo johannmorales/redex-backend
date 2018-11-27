@@ -59,6 +59,9 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     private LocalDateTime fechaIngreso;
 
     @Column
+    private String descripcion;
+
+    @Column
     private LocalDateTime fechaSalida;
 
     @Column(nullable = false, unique = true)
@@ -131,7 +134,7 @@ public class Paquete extends ModificacionAuditable implements Serializable {
         return String.format("%s -> %s (%s) [%s]",
                 getOficinaOrigen().getCodigo(),
                 getOficinaDestino().getCodigo(),
-                DateTimeFormatter.ofPattern("dd/MM HH:mm").format(this.getInstanteRegistro()),
+                DateTimeFormatter.ofPattern("dd/MM HH:mm").format(this.getFechaIngreso()),
                 esIntercontinental() ? "INTERCONTINENTAL" : "CONTINENTAL");
     }
 
@@ -185,5 +188,13 @@ public class Paquete extends ModificacionAuditable implements Serializable {
 
     public void setRutaGenerada(Boolean rutaGenerada) {
         this.rutaGenerada = rutaGenerada;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 }

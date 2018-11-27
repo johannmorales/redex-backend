@@ -15,7 +15,7 @@ public class Persona {
     private TipoDocumentoIdentidad tipoDocumentoIdentidad;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_pais", nullable = false)
+    @JoinColumn(name = "id_pais", nullable = true)
     private Pais pais;
 
     @Column(nullable = false)
@@ -32,6 +32,9 @@ public class Persona {
 
     @Column
     private String telefono;
+
+    @Column
+    private String direccion;
 
     @Column
     private String celular;
@@ -130,5 +133,13 @@ public class Persona {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 }

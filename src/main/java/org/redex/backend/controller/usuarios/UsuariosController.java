@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -71,8 +72,6 @@ public class UsuariosController {
         return ResponseEntity.ok(ApplicationResponse.of("Usuario activado"));
     }
 
-    // johana!!
-    // el metodo save lo llamas con localhost:5000/usuarios/save
     @PostMapping("/save")
     public void carga(@RequestBody UsuariosPayload payload) {
         service.crearUsuario(payload);
@@ -80,6 +79,7 @@ public class UsuariosController {
 
     @GetMapping("/yo")
     public ObjectNode yo(@CurrentUser DataSession ds) {
+        ObjectUtil.printAttr(ds);
         return JsonHelper.createJson(ds, JsonNodeFactory.instance, new String[]{
             "colaborador.oficina.codigo",
             "persona.nombreCorto",

@@ -1,10 +1,16 @@
 package org.redex.backend.controller.paquetes;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -12,13 +18,23 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
+import javax.xml.crypto.Data;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Row;
 import org.redex.backend.algorithm.AlgoritmoWrapper;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
+import org.redex.backend.controller.auditoria.AuditoriaService;
+import org.redex.backend.model.auditoria.AuditoriaTipoEnum;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
 import org.redex.backend.model.envios.PaqueteRuta;
@@ -45,6 +61,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 @Service
 @Transactional(readOnly = true)
@@ -76,6 +93,12 @@ public class PaquetesServiceImp implements PaquetesService {
     @Autowired
     PaqueteRutaRepository paqueteRutaRepository;
 
+    @Autowired
+    AuditoriaService auditoriaService;
+
+    @PersistenceUnit
+    private EntityManagerFactory emf;
+    
     @Override
     public List<Paquete> list() {
         return paquetesRepository.findAll();
@@ -153,11 +176,12 @@ public class PaquetesServiceImp implements PaquetesService {
         System.out.println(datos.get(0).substring(0, 4));
 
         p.setCodigoRastreo(datos.get(0));
-        p.setEstado(PaqueteEstadoEnum.REGISTRADO);
+        p.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         p.setFechaIngreso(ZonedDateTime.of(date, ZoneId.of("UTC")).toLocalDateTime());
         p.setOficinaDestino(oficinas.get(datos.get(3)));
         p.setOficinaOrigen(oficinas.get(datos.get(0).substring(0, 4)));
         Persona pO = personas.get(datos.get(12));
+
         if (pO == null) {
             pO = new Persona();
             pO.setNombres(datos.get(4));
@@ -194,9 +218,10 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Override
     @Transactional
-    public void save(Paquete paquete) {
+    public void save(Paquete paquete, DataSession ds) {
+        auditoriaService. auditar(AuditoriaTipoEnum.REGISTRO_PAQUETES, ds);
         paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
-        paquete.setEstado(PaqueteEstadoEnum.REGISTRADO);
+        paquete.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());
 
         Oficina oo = oficinasRepository.findById(paquete.getOficinaOrigen().getId())
@@ -215,20 +240,21 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Override
     public Page<Paquete> crimsonList(CrimsonTableRequest request, DataSession ds) {
-        return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
-
-//        switch (ds.getRol().getCodigo()){
-//            case ADMINISTRADOR:
-//            case GERENTE_GENERAL:
-//                return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
-//            case EMPLEADO:
-//            case JEFE_OFICINA:
-//                return paquetesRepository.crimsonListByOficina(request.getSearch(), ds.getOficina(), request.createPagination());
-//            default:
-//                return null;
-//        }
+        
+        switch (ds.getRol().getCodigo()){
+            case ADMINISTRADOR:
+            case GERENTE_GENERAL:
+                return paquetesRepository.crimsonList(request.getSearch(), request.createPagination());
+            case EMPLEADO:
+            case JEFE_OFICINA:
+                return paquetesRepository.crimsonListByOficina(request.getSearch(), ds.getOficina(), request.createPagination());
+            default:
+                return null;
+        }
     }
 
+    
+    
     public void generarRuta(Paquete p) {
 
         List<Oficina> oficinas = oficinasRepository.findAll();
@@ -245,7 +271,7 @@ public class PaquetesServiceImp implements PaquetesService {
         List<VueloAgendado> vuelosTerminados = vuelosAgendadosRepository.findAllTerminados(fechaInicio, fechaFin);
 
         Evolutivo e = new Evolutivo();
-        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelosTerminados, oficinas);
+        List<VueloAgendado> va = e.run(p, vuelosAgendados, vuelosAgendados,vuelosAgendados, vuelosTerminados, oficinas);
 
         int aux = 0;
         for (VueloAgendado vva : va) {
@@ -264,5 +290,101 @@ public class PaquetesServiceImp implements PaquetesService {
         p.setFechaSalida(va.get(aux - 1).getFechaFin());
         paquetesRepository.save(p);
     }
-
+    
+    @Override
+    public ObjectNode estadoPaquete(String trackNum){
+        
+        EntityManager em = emf.createEntityManager();
+        TrackReport response = new TrackReport();
+        
+        String q2 = "Select estado from paquete where codigo_rastreo='"+ trackNum+"'";
+        List<Object[]> paquete = (List<Object[]>)em.createNativeQuery(q2)
+                              .getResultList();
+        Iterator it2 = paquete.iterator();
+        
+        if (!it2.hasNext()){
+            ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
+            "status"
+             });
+            return trackingJson;
+        }
+        String eActual = "";
+        while(it2.hasNext()){
+            eActual = (String)it2.next();
+        }
+        
+        String q = "SELECT pr.orden,pr.estado, va.fecha_inicio, va.fecha_fin, pa.nombre as nI ,pa.latitud as laI, pa.longitud as loI, pa2.nombre as nF, pa.latitud as laF,pa.longitud as loF " +
+            "FROM redex.paquete_ruta pr, paquete p, vuelo_agendado va, vuelo v, " +
+            "oficina o, pais pa, oficina o2, pais pa2 " +
+            "where p.codigo_rastreo ='"+trackNum+"' " +
+            "and p.id = pr.id_paquete and pr.id_vuelo_agendado = va.id and " +
+            "va.id_vuelo= v.id and v.id_oficina_origen = o.id and o.id_pais = pa.id " +
+            "and v.id_oficina_destino= o2.id and o2.id_pais =pa2.id";
+        
+        
+        
+        
+        List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
+                              .getResultList();
+        
+        
+        Iterator it = arr_cust.iterator();
+        if (!it.hasNext()){
+            response.setStatus(0);
+            ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
+            "status"
+             });
+            return trackingJson;
+        }
+        List<PackageRoute> tr = new ArrayList<PackageRoute>();
+        int firstActive = -1;
+        int cont = 0;
+        while (it.hasNext()) {
+            Object[] obj = (Object[])it.next();
+            PackageRoute tAux = new PackageRoute();
+            tAux.setOrden((int)obj[0]);
+            tAux.setEstado((String)obj[1]);
+            Date date = new Date(((Timestamp)obj[2]).getTime());
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+            String strDate = dateFormat.format(date);
+            tAux.setFechaInicio(strDate);
+            Date dated = new Date(((Timestamp)obj[3]).getTime());
+            String strDateF = dateFormat.format(dated);
+            tAux.setFechaFin(strDateF);
+            tAux.setPaisI((String)obj[4]);
+            tAux.setLatI(((BigDecimal)obj[5]));
+            tAux.setLonI(((BigDecimal)obj[6]));
+            tAux.setPaisF((String)obj[7]);
+            tAux.setLatF(((BigDecimal)obj[8]));
+            tAux.setLonF(((BigDecimal)obj[9]));
+            if(firstActive == -1 && tAux.getEstado().equals("ACTIVO")){
+                firstActive = cont;
+            }
+            tr.add(tAux);
+            cont++;
+        }
+        response.setPlan(tr);
+        PackageRoute actual = tr.get(firstActive);
+        response.setStatus(1);
+        response.setEstado(eActual);
+        response.setDestino(actual.getPaisF());
+        response.setOrigen(actual.getPaisI());
+        if(eActual.equals("EN_VUELO")){
+            response.setLocalizacion(eActual);
+        } else {
+            response.setLocalizacion(actual.getPaisI());
+        }
+        
+        ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
+            "status",
+            "estado",
+            "origen",
+            "destino",
+            "localizacion",
+            "plan.*"
+            
+        });
+        
+        return trackingJson;
+    }
 }

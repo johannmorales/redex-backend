@@ -19,7 +19,8 @@ public interface OficinasRepository extends JpaRepository<Oficina, Long> {
     @Query("UPDATE Oficina o set o.capacidadActual = o.capacidadActual + 1 where o.id = :#{#oficina.id}")
     void incrementarCapacidadActual(@Param("oficina") Oficina oficina);
 
-    public List<Oficina> findAllByEstado(EstadoEnum estado);
+    @Query("select o from Oficina o join fetch o.pais p where o.estado = :e")
+    public List<Oficina> findAllByEstado(@Param("e")EstadoEnum estado);
 
     @Query("select o from Oficina o join o.pais p where p.nombre like %:q%")
     List<Oficina> customSearch(@Param(value = "q") String q);

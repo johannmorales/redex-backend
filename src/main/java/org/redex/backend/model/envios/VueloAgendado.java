@@ -172,11 +172,13 @@ public class VueloAgendado implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s %s -> %s %s",
+        return String.format("%s %s -> %s %s  (%d/%d))",
                 getOficinaOrigen().getCodigo(),
                 DateTimeFormatter.ofPattern("dd/MM HH:mm").format(getFechaInicio()),
                 getOficinaDestino().getCodigo(),
-                DateTimeFormatter.ofPattern("dd/MM HH:mm").format(getFechaFin()));
+                DateTimeFormatter.ofPattern("dd/MM HH:mm").format(getFechaFin()),
+                capacidadActual,
+                capacidadMaxima);
     }
 
     public String getFechaInicioString() {

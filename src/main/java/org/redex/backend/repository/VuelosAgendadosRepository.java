@@ -3,7 +3,9 @@ package org.redex.backend.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -43,7 +45,35 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             + "  order by va.id desc")
     Page<VueloAgendado> crimsonList(@Param("q") String q, Pageable pageable);
 
-    @Query(" " +
+
+    @Query(""
+            + "select va from VueloAgendado va "
+            + "  join va.vuelo v "
+            + "  join v.oficinaOrigen oo "
+            + "  join v.oficinaDestino od "
+            + "  join oo.pais oop "
+            + "  join od.pais odp "
+            + "where "
+            + "  ( "
+            + "    oop.nombre like %:q% or "
+            + "    oop.codigo like %:q% or "
+            + "    odp.nombre like %:q% or "
+            + "    odp.codigo like %:q% or "
+            + "    concat(oo.codigo, ' ',od.codigo) like %:q% or "
+            + "    concat(oo.codigo, ' a ',od.codigo) like %:q% or "
+            + "    concat(oop.codigo, ' ',odp.codigo) like %:q% or "
+            + "    concat(oop.codigo, ' a ',odp.codigo) like %:q% or "
+            + "    concat(oop.nombre, ' ',odp.nombre) like %:q% or "
+            + "    concat(oop.nombre, ' a ',odp.nombre) like %:q% or "
+            + "    oo.codigo like %:q% or "
+            + "    od.codigo like %:q% "
+            + "  ) and " +
+            "    ( oo = :oficina or od = :oficina )"
+            + "  order by va.id desc")
+    Page<VueloAgendado> crimsonListLimitado(@Param("q") String search, Pageable pageable, @Param("oficina") Oficina oficina);
+
+
+    @Query("" +
             " select sva from VueloAgendado sva " +
             "   join fetch sva.vuelo v" +
             "   join fetch v.oficinaOrigen oo " +
@@ -76,5 +106,10 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             + " join fetch v.oficinaOrigen oo "
             + " join fetch v.oficinaDestino od ")
     List<VueloAgendado> findAll();
+
+    @Modifying(clearAutomatically = true)
+    @Query(" delete from VueloAgendado va where capacidadActual = 0 and fecha_fin < :fecha ")
+    void deleteAllBeforeFecha(@Param("fecha") LocalDateTime fecha);
+
 
 }

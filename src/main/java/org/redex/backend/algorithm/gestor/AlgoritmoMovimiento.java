@@ -3,6 +3,7 @@ package org.redex.backend.algorithm.gestor;
 import java.time.LocalDateTime;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
 
@@ -96,9 +97,9 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
     public Integer getVariacion() {
         switch (tipo) {
             case VUELO_ENTRADA:
-                return vueloAgendado.getCapacidadActual();
+                return cantidad;
             case VUELO_SALIDA:
-                return vueloAgendado.getCapacidadActual() * -1;
+                return cantidad * -1;
             case PAQUETES_SALIDA:
                 return cantidad * -1;
             default:
