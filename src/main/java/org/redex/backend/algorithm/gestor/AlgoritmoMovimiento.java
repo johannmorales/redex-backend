@@ -1,6 +1,8 @@
 package org.redex.backend.algorithm.gestor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -17,8 +19,6 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
 
     private Tipo tipo;
 
-    private Integer cantidad;
-
     private LocalDateTime momento;
 
     private AlgoritmoMovimiento(Tipo tipo, VueloAgendado va) {
@@ -28,17 +28,14 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
             case VUELO_ENTRADA:
                 this.oficina = va.getOficinaDestino();
                 this.momento = va.getFechaFin();
-                this.cantidad = va.getCapacidadActual();
                 break;
             case VUELO_SALIDA:
                 this.oficina = va.getOficinaOrigen();
                 this.momento = va.getFechaInicio();
-                this.cantidad= va.getCapacidadActual();
                 break;
             case PAQUETES_SALIDA:
                 this.oficina = va.getOficinaDestino();
                 this.momento = va.getFechaFin();
-                this.cantidad = va.getCantidadSalida();
                 break;
             default:
                 throw new AssertionError();
@@ -97,13 +94,18 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
     public Integer getVariacion() {
         switch (tipo) {
             case VUELO_ENTRADA:
-                return cantidad;
+                return vueloAgendado.getCapacidadActual();
             case VUELO_SALIDA:
-                return cantidad * -1;
+                return vueloAgendado.getCapacidadActual() * -1;
             case PAQUETES_SALIDA:
-                return cantidad * -1;
+                return vueloAgendado.getCantidadSalida() * -1;
             default:
                 throw new AssertionError();
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[[ %s ]] ==> [%s] ::: %s (%d)", this.momento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), this.oficina.getCodigo(), this.tipo.name(), this.getVariacion());
     }
 }

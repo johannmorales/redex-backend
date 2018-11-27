@@ -50,10 +50,11 @@ public class GestorVuelosAgendados {
             LocalDateTime inicio = LocalDateTime.of(dia, vuelo.getHoraInicio());
             LocalDateTime fin = LocalDateTime.of(dia, vuelo.getHoraFin());
 
-            if (vuelo.getHoraFin().isBefore(vuelo.getHoraInicio())) {
+            if (vuelo.getHoraFin().isBefore(vuelo.getHoraInicio()) || vuelo.getHoraFin().equals(vuelo.getHoraInicio())) {
                 inicio = LocalDateTime.of(dia, vuelo.getHoraInicio());
                 fin = LocalDateTime.of(dia.plusDays(1L), vuelo.getHoraFin());
             }
+
             VueloAgendado sva = new VueloAgendado();
             sva.setFechaInicio(inicio);
             sva.setFechaFin(fin);
@@ -63,6 +64,13 @@ public class GestorVuelosAgendados {
             sva.setVuelo(vuelo);
             this.agregarVueloAgendado(sva);
         }
+
+        this.vuelosAgendadosPorInicio.values()
+                .stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList())
+                .forEach((va) -> Assert.isTrue(va.getFechaFin().isAfter(va.getFechaInicio()) || va.getFechaFin().equals(va.getFechaInicio())));
+
         this.finGeneracionVuelosAgendados = dia.plusDays(1L);
     }
 
@@ -84,7 +92,7 @@ public class GestorVuelosAgendados {
         return vuelosAgendadosPorInicio.tailMap(inicio).values()
                 .stream()
                 .flatMap(Collection::stream)
-                .filter(va -> va.getFechaFin().isBefore(fin))
+                .filter(va -> va.getFechaFin().isBefore(fin) )
                 .collect(Collectors.toList());
     }
 

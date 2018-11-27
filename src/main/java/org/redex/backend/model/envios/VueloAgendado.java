@@ -22,7 +22,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "vuelo_agendado")
-public class VueloAgendado implements Serializable {
+public class VueloAgendado implements Serializable, Comparable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -221,4 +221,8 @@ public class VueloAgendado implements Serializable {
         this.cantidadSalida = cantidadSalida;
     }
 
+    @Override
+    public int compareTo(Object o) {
+        return 0;
+    }
 }
