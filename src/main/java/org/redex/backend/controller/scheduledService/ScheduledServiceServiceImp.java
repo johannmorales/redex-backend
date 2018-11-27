@@ -43,16 +43,16 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
     public void salidaVuelos() {
 
         List<VueloAgendado> vuelos = vuelosRepository.findAll();
-
+        List<VueloAgendado> vueloCreado= vuelos.stream().filter(vuelo -> vuelo.getEstado()
+                .equals(VueloAgendadoEstadoEnum.ACTIVO)).collect(Collectors.toList());
         Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
 
         LocalDateTime actualTime = LocalDateTime.now();
 
-        for (VueloAgendado vA : vuelos) {
-            if ((vA.getEstado().equals(VueloAgendadoEstadoEnum.CREADO))
-                    && (vA.getFechaInicio().isBefore(actualTime))) {
+        for (VueloAgendado vA : vueloCreado) {
+            if ((vA.getFechaInicio().isBefore(actualTime))) {
                 vA.setEstado(VueloAgendadoEstadoEnum.ACTIVO);
                 Oficina o = oficinas.get(vA.getOficinaOrigen().getCodigo());
                 List<PaqueteRuta> pR = paqueteRutasRepository.findAllByVueloAgendado(vA);
@@ -68,21 +68,22 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                 oficinasRepository.save(o);
             }
         }
-
+        
     }
 
     @Transactional
     public void llegadaVuelos() {
 
         List<VueloAgendado> vuelos = vuelosRepository.findAll();
+        List<VueloAgendado> vueloCreado= vuelos.stream().filter(vuelo -> vuelo.getEstado()
+                .equals(VueloAgendadoEstadoEnum.ACTIVO)).collect(Collectors.toList());
         Map<String, Oficina> oficinas = oficinasRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(oficina -> oficina.getCodigo(), oficina -> oficina));
         LocalDateTime actualTime = LocalDateTime.now();
 
-        for (VueloAgendado vA : vuelos) {
-            if (!(vA.getEstado().equals(VueloAgendadoEstadoEnum.FINALIZADO))
-                    && (vA.getFechaInicio().isAfter(actualTime))) {
+        for (VueloAgendado vA : vueloCreado) {
+            if (vA.getFechaInicio().isAfter(actualTime)) {
                 vA.setEstado(VueloAgendadoEstadoEnum.FINALIZADO);
                 Oficina o = oficinas.get(vA.getOficinaDestino());
                 List<PaqueteRuta> pR = paqueteRutasRepository.findAllByVueloAgendado(vA);
