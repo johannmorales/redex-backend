@@ -17,6 +17,6 @@ public class ScheduledServiceController {
         service.generarRutas();
         service.salidaVuelos();
         
-        System.out.println("hola");
+        System.out.println("Servicio terminado");
     }
 }

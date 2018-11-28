@@ -44,6 +44,7 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
     PaqueteRutaRepository paqueteRutasRepository;
 
     @Transactional
+    @Override
     public void salidaVuelos() {
 
         List<VueloAgendado> vuelos = vuelosRepository.findAll();
@@ -85,6 +86,7 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
     }
 
     @Transactional
+    @Override
     public void llegadaVuelos() {
 
         List<VueloAgendado> vuelos = vuelosRepository.findAll();
@@ -141,6 +143,7 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
     }
     
     @Transactional
+    @Override
     public void generarRutas(){
         List<Paquete> paquetes = paquetesRepository.findAll();
         List<Paquete> paquetesAlmacen =  paquetes.stream()
