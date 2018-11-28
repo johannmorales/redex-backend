@@ -106,8 +106,8 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             "   join fetch v.oficinaOrigen oo " +
             "   join fetch v.oficinaDestino od " +
             " where " +
-            "   sva.fechaInicio > = :inicio and " +
-            "   sva.fechaInicio < = :fin and " +
+            "   sva.fechaInicio >= :inicio and " +
+            "   sva.fechaInicio <= :fin and " +
             "   sva.capacidadActual < sva.capacidadMaxima " +
             " order by sva.fechaInicio asc "
     )
@@ -119,8 +119,8 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             "   join fetch v.oficinaOrigen oo " +
             "   join fetch v.oficinaDestino od " +
             " where " +
-            "   sva.fechaFin > = :inicio and " +
-            "   sva.fechaFin < = :fin and " +
+            "   sva.fechaFin >= :inicio and " +
+            "   sva.fechaFin <= :fin and " +
             "   sva.capacidadActual < sva.capacidadMaxima " +
             " order by sva.fechaInicio asc "
     )
