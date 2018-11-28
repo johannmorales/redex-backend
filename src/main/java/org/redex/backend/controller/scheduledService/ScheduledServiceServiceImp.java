@@ -204,6 +204,7 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                     px.setOrden(newOrden);
                     px.setEstado(RutaEstadoEnum.ACTIVO);
                     paqueteRutasRepository.save(px);
+                    newOrden++;
                 }
                 
             }
