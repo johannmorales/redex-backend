@@ -3,9 +3,11 @@ package org.redex.backend.controller.scheduledService;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.redex.backend.algorithm.evolutivo.Evolutivo;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PaqueteEstadoEnum;
 import org.redex.backend.model.envios.PaqueteRuta;
@@ -134,6 +136,77 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
             }
         } else {
             System.out.println("no hay vuelos");
+        }
+        
+    }
+    
+    @Transactional
+    public void generarRutas(){
+        List<Paquete> paquetes = paquetesRepository.findAll();
+        List<Paquete> paquetesAlmacen =  paquetes.stream()
+                .filter(paquete -> (paquete.getEstado().equals(PaqueteEstadoEnum.EN_ALMACEN)))
+                .collect(Collectors.toList());
+        
+        List<Oficina> oficinas = oficinasRepository.findAll();
+        if (!paquetesAlmacen.isEmpty()){
+            for (Paquete p : paquetesAlmacen){
+                List<PaqueteRuta> pR1 = paqueteRutasRepository.findAllByPaquete(p);
+                int termino = 0;
+                PaqueteRuta eActual = null;
+                if (!pR1.isEmpty()){
+                    for (PaqueteRuta pAux : pR1) {
+                        if (!pAux.getEstado().equals(RutaEstadoEnum.FINALIZADO)) {
+                            eActual = pAux;
+                            break;
+                        } else {
+                            termino++;
+                        }
+                    }
+                }
+                
+                
+                if (eActual == null){
+                   Oficina oActual = p.getOficinaOrigen();
+                } else{
+                   Oficina oActual = eActual.getVueloAgendado().getOficinaOrigen();
+                   
+                }
+                LocalDateTime diferencia;
+                if(p.esIntercontinental()){
+                   diferencia = p.getFechaIngreso().plusDays(2);
+                } else {
+                   diferencia = p.getFechaIngreso().plusDays(1); 
+                }
+                List<VueloAgendado> vuelos = vuelosRepository.findAll();
+       
+                LocalDateTime actualTime = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
+                List<VueloAgendado> vuelosRecientes = vuelosRepository.findAllAlgoritmo(actualTime, diferencia);
+                List<VueloAgendado> vuelosLlegan = vuelosRepository.findAllLlegan(actualTime, diferencia);
+                List<VueloAgendado> vuelosParten = vuelosRepository.findAllParten(actualTime, diferencia);
+                Evolutivo e = new Evolutivo();
+                List<VueloAgendado> vuelosPaquete = 
+                        e.run(p, new ArrayList<VueloAgendado>(), vuelosRecientes, vuelosParten, vuelosLlegan, oficinas);
+                
+                if (!pR1.isEmpty()){
+                    for(int i = termino;i<pR1.size();i++){
+                        paqueteRutasRepository.delete(pR1.get(i));
+                    }
+                }
+                int newOrden;
+                if (!pR1.isEmpty()){
+                    newOrden = termino;
+                }else {
+                    newOrden = 0;
+                }
+                for (VueloAgendado va : vuelosPaquete){
+                    PaqueteRuta px = new PaqueteRuta();
+                    px.setVueloAgendado(va);
+                    px.setOrden(newOrden);
+                    px.setEstado(RutaEstadoEnum.ACTIVO);
+                    paqueteRutasRepository.save(px);
+                }
+                
+            }
         }
         
     }

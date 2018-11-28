@@ -14,7 +14,7 @@ public class ScheduledServiceController {
     public void despachoVuelo(){
         
         service.llegadaVuelos();
-        //generarRutas();
+        service.generarRutas();
         service.salidaVuelos();
         
         System.out.println("hola");
