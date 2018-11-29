@@ -74,6 +74,15 @@ public class Paquete extends ModificacionAuditable implements Serializable {
     @Transient
     private Boolean rutaGenerada;
 
+    @Column
+    private Boolean notiRegistro;
+
+    @Column
+    private Boolean notiAbordados;
+
+    @Column
+    private Boolean notiLlegada;
+
     public Long getId() {
         return id;
     }
@@ -196,5 +205,29 @@ public class Paquete extends ModificacionAuditable implements Serializable {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public Boolean getNotiRegistro() {
+        return notiRegistro;
+    }
+
+    public void setNotiRegistro(Boolean notiRegistros) {
+        this.notiRegistro = notiRegistros;
+    }
+
+    public Boolean getNotiAbordados() {
+        return notiAbordados;
+    }
+
+    public void setNotiAbordados(Boolean notiAbordados) {
+        this.notiAbordados = notiAbordados;
+    }
+
+    public Boolean getNotiLlegada() {
+        return notiLlegada;
+    }
+
+    public void setNotiLlegada(Boolean notiLlegada) {
+        this.notiLlegada = notiLlegada;
     }
 }

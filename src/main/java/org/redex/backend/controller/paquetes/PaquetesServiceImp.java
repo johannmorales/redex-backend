@@ -54,6 +54,8 @@ import org.redex.backend.repository.VuelosAgendadosRepository;
 import org.redex.backend.repository.VuelosRepository;
 import org.redex.backend.security.DataSession;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
+import org.redex.backend.zelper.email.MailClient;
+import org.redex.backend.zelper.email.MailEnum;
 import org.redex.backend.zelper.exception.ResourceNotFoundException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +63,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.context.Context;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 @Service
@@ -95,6 +98,9 @@ public class PaquetesServiceImp implements PaquetesService {
 
     @Autowired
     AuditoriaService auditoriaService;
+
+    @Autowired
+    MailClient mailClient;
 
     @PersistenceUnit
     private EntityManagerFactory emf;
@@ -220,6 +226,32 @@ public class PaquetesServiceImp implements PaquetesService {
     @Transactional
     public void save(Paquete paquete, DataSession ds) {
         auditoriaService. auditar(AuditoriaTipoEnum.REGISTRO_PAQUETES, ds);
+
+        Persona personaOrigen = personaRepository.getOne(paquete.getPersonaOrigen().getId());
+        Persona personaDestino = personaRepository.getOne(paquete.getPersonaDestino().getId());
+
+        if(personaOrigen.getEmail() != null){
+            mailClient.prepareAndSend(personaOrigen.getEmail(), MailEnum.REGISTRO_REMITENTE, new Context());
+        }
+
+        if(personaDestino.getEmail() != null){
+            mailClient.prepareAndSend(personaDestino.getEmail(), MailEnum.REGISTRO_DESTINATARIO, new Context());
+        }
+
+
+
+        if(paquete.getNotiAbordados() == null){
+            paquete.setNotiAbordados(false);
+        }
+
+        if(paquete.getNotiLlegada() == null){
+            paquete.setNotiLlegada(false);
+        }
+
+        if(paquete.getNotiRegistro() == null){
+            paquete.setNotiRegistro(false);
+        }
+
         paquete.setCodigoRastreo(String.format("%09d", System.currentTimeMillis()));
         paquete.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
         paquete.setFechaIngreso(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime());

@@ -43,7 +43,7 @@ public class UsuariosController {
             "colaborador.persona.nombreCompleto",
             "colaborador.persona.email",
             "colaborador.persona.numeroDocumentoIdentidad",
-            "colaboµrador.persona.tipoDocumentoIdentidad.id",
+            "colaborador.persona.tipoDocumentoIdentidad.id",
             "colaborador.persona.tipoDocumentoIdentidad.simbolo",
             "colaborador.persona.tipoDocumentoIdentidad.nombre",
             "colaborador.email",
@@ -67,13 +67,13 @@ public class UsuariosController {
     }
 
     @PostMapping("{id}/activar")
-    public ResponseEntity<?> acrivar(@PathVariable Long id) {
+    public ResponseEntity<?> activar(@PathVariable Long id) {
         service.activar(id);
         return ResponseEntity.ok(ApplicationResponse.of("Usuario activado"));
     }
 
     @PostMapping("actualizarpassword")
-    public ResponseEntity<?> acrivar(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> actualizarPassword(@RequestBody Usuario usuario) {
         service.actualizarPassword(usuario);
         return ResponseEntity.ok(ApplicationResponse.of("Usuario activado"));
     }
