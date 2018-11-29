@@ -227,19 +227,6 @@ public class PaquetesServiceImp implements PaquetesService {
     public void save(Paquete paquete, DataSession ds) {
         auditoriaService. auditar(AuditoriaTipoEnum.REGISTRO_PAQUETES, ds);
 
-        Persona personaOrigen = personaRepository.getOne(paquete.getPersonaOrigen().getId());
-        Persona personaDestino = personaRepository.getOne(paquete.getPersonaDestino().getId());
-
-        if(personaOrigen.getEmail() != null){
-            mailClient.prepareAndSend(personaOrigen.getEmail(), MailEnum.REGISTRO_REMITENTE, new Context());
-        }
-
-        if(personaDestino.getEmail() != null){
-            mailClient.prepareAndSend(personaDestino.getEmail(), MailEnum.REGISTRO_DESTINATARIO, new Context());
-        }
-
-
-
         if(paquete.getNotiAbordados() == null){
             paquete.setNotiAbordados(false);
         }
@@ -268,6 +255,26 @@ public class PaquetesServiceImp implements PaquetesService {
         paquetesRepository.save(paquete);
 
         this.generarRuta(paquete);
+
+        Persona personaOrigen = personaRepository.getOne(paquete.getPersonaOrigen().getId());
+        Persona personaDestino = personaRepository.getOne(paquete.getPersonaDestino().getId());
+
+        if(personaOrigen.getEmail() != null && paquete.getNotiRegistro()){
+            Context miPaquete = new Context();
+            miPaquete.setVariable("miPaquete",paquete);
+            miPaquete.setVariable("destinatario",personaDestino.getNombreCorto());
+            miPaquete.setVariable("fechaIngreso",paquete.getFechaIngresoString());
+            mailClient.prepareAndSend(personaOrigen.getEmail(), MailEnum.REGISTRO_REMITENTE,miPaquete);
+        }
+
+        if(personaDestino.getEmail() != null && paquete.getNotiRegistro()){
+            Context miPaquete = new Context();
+            miPaquete.setVariable("miPaquete",paquete);
+            miPaquete.setVariable("remitente",personaOrigen.getNombreCorto());
+            miPaquete.setVariable("fechaIngreso",paquete.getFechaIngresoString());
+            mailClient.prepareAndSend(personaDestino.getEmail(), MailEnum.REGISTRO_DESTINATARIO, miPaquete);
+        }
+
     }
 
     @Override
