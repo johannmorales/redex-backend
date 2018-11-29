@@ -2,8 +2,15 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head></head>
 <body>
-    <h1>Estimado cliente su paquete a sido registrado con exito</h1>
-    <p>  </p>
+    <h3>Estimado cliente su paquete ha sido registrado con exito.</h3>
+    <p>Ha registrado el siguiente paquete para que el cliente <span th:text="${destinatario}">nombre</span> lo recoja en los próximos dias</p>
+    <p>Código del paquete:<span th:text="${miPaquete.codigoRastreo}">codigoPaquete</span></p>
+    <p>Fecha de registro:<span th:text="${fechaIngreso}">fechaRegistro</span></p>
+    <p>Pais Origen:<span th:text="${miPaquete.oficinaOrigen.pais.nombre}"></span></p>
+    <p>Pais Destino:<span th:text="${miPaquete.oficinaDestino.pais.nombre}"></span></p>
+    <p>Descripción:<span th="${miPaquete.descripcion}">descripcion</span></p>
+    <p>Cuando el paquete llegue a su destino se le pedirá al destinatario que se acerque a la oficina de su ciudad para que lo recoja.</p>
+    <p>Gracias por su tiempo.</p>
 
 
 </body>
