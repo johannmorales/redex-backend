@@ -389,9 +389,15 @@ public class PaquetesServiceImp implements PaquetesService {
             tAux.setPaisF((String)obj[7]);
             tAux.setLatF(((BigDecimal)obj[8]));
             tAux.setLonF(((BigDecimal)obj[9]));
+            tAux.setTitle((String)obj[1]);
+            tAux.setSubtitle(strDate + " - " +strDateF);
             if(firstActive == -1 && tAux.getEstado().equals("ACTIVO")){
                 firstActive = cont;
+                tAux.setActive("true");
+            }else{
+                tAux.setActive("false");
             }
+            tAux.setIsLocation("false");
             tr.add(tAux);
             cont++;
         }

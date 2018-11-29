@@ -99,7 +99,33 @@ public interface VuelosAgendadosRepository extends JpaRepository<VueloAgendado, 
             " order by sva.fechaInicio asc "
     )
     List<VueloAgendado> findAllAlgoritmo(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
-
+    
+    @Query(" " +
+            " select sva from VueloAgendado sva " +
+            "   join fetch sva.vuelo v" +
+            "   join fetch v.oficinaOrigen oo " +
+            "   join fetch v.oficinaDestino od " +
+            " where " +
+            "   sva.fechaInicio >= :inicio and " +
+            "   sva.fechaInicio <= :fin and " +
+            "   sva.capacidadActual < sva.capacidadMaxima " +
+            " order by sva.fechaInicio asc "
+    )
+    List<VueloAgendado> findAllParten(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
+    
+    @Query(" " +
+            " select sva from VueloAgendado sva " +
+            "   join fetch sva.vuelo v" +
+            "   join fetch v.oficinaOrigen oo " +
+            "   join fetch v.oficinaDestino od " +
+            " where " +
+            "   sva.fechaFin >= :inicio and " +
+            "   sva.fechaFin <= :fin and " +
+            "   sva.capacidadActual < sva.capacidadMaxima " +
+            " order by sva.fechaInicio asc "
+    )
+    List<VueloAgendado> findAllLlegan(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
+    
     @Override
     @Query(" select va from VueloAgendado va "
             + " join fetch va.vuelo v"

@@ -14,6 +14,62 @@ import java.math.BigDecimal;
 public class PackageRoute {
 
     /**
+     * @return the title
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * @param title the title to set
+     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * @return the subtitle
+     */
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    /**
+     * @param subtitle the subtitle to set
+     */
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    /**
+     * @return the active
+     */
+    public String getActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(String active) {
+        this.active = active;
+    }
+
+    /**
+     * @return the isLocation
+     */
+    public String getIsLocation() {
+        return isLocation;
+    }
+
+    /**
+     * @param isLocation the isLocation to set
+     */
+    public void setIsLocation(String isLocation) {
+        this.isLocation = isLocation;
+    }
+
+    /**
      * @return the latF
      */
     public BigDecimal getLatF() {
@@ -166,4 +222,9 @@ public class PackageRoute {
     private String paisF;
     private BigDecimal latF;
     private BigDecimal lonF;
+    
+    private String title;
+    private String subtitle;
+    private String active;
+    private String isLocation;
 }

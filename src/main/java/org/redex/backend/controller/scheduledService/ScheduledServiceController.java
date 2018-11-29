@@ -10,13 +10,13 @@ public class ScheduledServiceController {
     @Autowired
     ScheduledServiceService service;
     
-    @Scheduled(fixedRate=10000)
+    @Scheduled(fixedRate=100000)
     public void despachoVuelo(){
         
         service.llegadaVuelos();
-        //generarRutas();
+        service.generarRutas();
         service.salidaVuelos();
         
-        System.out.println("hola");
+        System.out.println("Servicio terminado");
     }
 }

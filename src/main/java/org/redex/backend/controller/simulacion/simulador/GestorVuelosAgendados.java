@@ -101,6 +101,10 @@ public class GestorVuelosAgendados {
     }
 
     public List<VueloAgendado> allLleganEnVentana(Ventana ventana) {
+        if(ventana.getInicio() != null && ventana.getInicio().equals(ventana.getFin())){
+            return new ArrayList<>();
+        }
+        
         SortedMap<LocalDateTime, List<VueloAgendado>> submap;
 
         if (ventana.getInicio() != null) {
