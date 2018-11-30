@@ -45,6 +45,16 @@ public class Movimiento implements Comparable<Movimiento> {
         return mov;
     }
 
+    public static Movimiento fromSalidaPaquetes(VueloAgendado va) {
+        Movimiento mov = new Movimiento();
+        mov.cantidad = va.getCantidadSalida();
+        mov.momento = va.getFechaFin();
+        mov.oficina = va.getOficinaDestino();
+        mov.tipo = Tipo.SALIDA;
+        return mov;
+    }
+
+
     public static Movimiento fromInicioVuelo(VueloAgendado va) {
         Movimiento mov = new Movimiento();
         mov.cantidad = va.getCapacidadActual();

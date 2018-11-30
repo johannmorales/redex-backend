@@ -28,8 +28,8 @@ public interface OficinasRepository extends JpaRepository<Oficina, Long> {
     @Query("select o from Oficina o join o.pais p where o.codigo like %:q% or p.codigo like %:q% or p.nombre like %:q%")
     Page<Oficina> customPaginatedSearch(@Param(value = "q") String q, Pageable pageable);
 
-    public Oficina findByPais(Pais pais);
+    Oficina findByPais(Pais pais);
 
-    public Oficina findByCodigo(String codigo);
+    Oficina findByCodigo(String codigo);
 
 }

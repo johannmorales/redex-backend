@@ -1,8 +1,11 @@
 package org.redex.backend.controller.simulacion.simulador;
 
+import com.google.common.collect.TreeMultimap;
 import io.jsonwebtoken.lang.Assert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.Algoritmo;
+import org.redex.backend.algorithm.gestor.AlgoritmoMovimiento;
 import org.redex.backend.controller.simulacion.Ventana;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +26,7 @@ public class GestorVuelosAgendados {
     private List<Vuelo> vuelos;
     private TreeMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorInicio;
     private TreeMap<LocalDateTime, List<VueloAgendado>> vuelosAgendadosPorFin;
+    private TreeMap<LocalDateTime, List<AlgoritmoMovimiento>> algoritmoMovimiento;
 
     public GestorVuelosAgendados() {
         this.inicializar();
@@ -32,6 +36,7 @@ public class GestorVuelosAgendados {
         this.finGeneracionVuelosAgendados = null;
         this.vuelosAgendadosPorInicio = new TreeMap<>();
         this.vuelosAgendadosPorFin = new TreeMap<>();
+        this.algoritmoMovimiento = new TreeMap<>();
         this.vuelos = new ArrayList<>();
     }
 
@@ -63,6 +68,10 @@ public class GestorVuelosAgendados {
             sva.setCapacidadMaxima(vuelo.getCapacidad());
             sva.setVuelo(vuelo);
             this.agregarVueloAgendado(sva);
+
+            AlgoritmoMovimiento movSalida = AlgoritmoMovimiento.crearSalidaPaquetes(sva);
+            AlgoritmoMovimiento movPartida = AlgoritmoMovimiento.crearSalidaVuelo(sva);
+            AlgoritmoMovimiento movLlegada = AlgoritmoMovimiento.crearEntradaVuelo(sva);
         }
 
         this.vuelosAgendadosPorInicio.values()
@@ -88,11 +97,31 @@ public class GestorVuelosAgendados {
         this.vuelosAgendadosPorFin.get(sva.getFechaFin()).add(sva);
     }
 
+    public void agregarMovimientoAlgoritmo(AlgoritmoMovimiento algoritmoMovimiento) {
+        if (!this.algoritmoMovimiento.containsKey(algoritmoMovimiento.getMomento())) {
+            this.algoritmoMovimiento.put(algoritmoMovimiento.getMomento(), new ArrayList<>());
+        }
+
+        this.algoritmoMovimiento.get(algoritmoMovimiento.getMomento()).add(algoritmoMovimiento);
+    }
+
+    public List<AlgoritmoMovimiento> allMovimientoAlgoritmo(LocalDateTime inicio, LocalDateTime fin) {
+        return algoritmoMovimiento.tailMap(inicio).values()
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(va -> va.getMomento().isBefore(fin))
+                .collect(Collectors.toList());
+    }
+
     public List<VueloAgendado> allAlgoritmo(LocalDateTime inicio, LocalDateTime fin) {
+        if (!vuelosAgendadosPorInicio.containsKey(inicio)) {
+            return new ArrayList<>();
+        }
+
         return vuelosAgendadosPorInicio.tailMap(inicio).values()
                 .stream()
                 .flatMap(Collection::stream)
-                .filter(va -> va.getFechaFin().isBefore(fin) )
+                .filter(va -> va.getFechaFin().isBefore(fin))
                 .collect(Collectors.toList());
     }
 
@@ -101,29 +130,40 @@ public class GestorVuelosAgendados {
     }
 
     public List<VueloAgendado> allLleganEnVentana(Ventana ventana) {
-        if(ventana.getInicio() != null && ventana.getInicio().equals(ventana.getFin())){
+        LocalDateTime inicio = ventana.getInicio();
+
+        if (inicio == null) {
+            inicio = vuelosAgendadosPorFin.firstKey();
+        } else {
+
+            if (inicio.isBefore(ventana.getInicio())) {
+                inicio = vuelosAgendadosPorFin.firstKey();
+            }
+
+            if (inicio.isAfter(vuelosAgendadosPorFin.lastKey())) {
+                return new ArrayList<>();
+            }
+        }
+
+        LocalDateTime fin = ventana.getFin();
+
+        if (fin.isAfter(vuelosAgendadosPorFin.lastKey())) {
+            fin = vuelosAgendadosPorFin.lastKey();
+        }
+
+        if (fin.isBefore(vuelosAgendadosPorFin.firstKey())) {
             return new ArrayList<>();
         }
-        
-        SortedMap<LocalDateTime, List<VueloAgendado>> submap;
 
-        if (ventana.getInicio() != null) {
-            submap = this.vuelosAgendadosPorFin.tailMap(ventana.getInicio());
-        } else {
-            submap = this.vuelosAgendadosPorFin;
-        }
-
-        List<VueloAgendado> vueloAgendados = submap.headMap(ventana.getFin()).values()
+        return vuelosAgendadosPorFin
+                .tailMap(inicio, true)
+                .headMap(fin)
+                .values()
                 .stream()
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(VueloAgendado::getFechaFin))
                 .collect(Collectors.toList());
 
-        for (VueloAgendado vueloAgendado : vueloAgendados) {
-            Assert.isTrue(vueloAgendado.getFechaFin().isBefore(ventana.getFin()));
-        }
-
-        return vueloAgendados;
     }
 
     public List<VueloAgendado> allPartenEnVentana(Ventana ventana) {

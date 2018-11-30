@@ -2,13 +2,16 @@ package org.redex.backend.controller.simulacion.simulador;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.jni.Local;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
+import org.redex.backend.algorithm.gestor.AlgoritmoMovimiento;
 import org.redex.backend.controller.simulacion.Ventana;
 import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
 import org.redex.backend.model.envios.Vuelo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -40,6 +43,10 @@ public class Simulador {
         this.oficinasList = new ArrayList<>();
     }
 
+    public List<AlgoritmoMovimiento> allMovimientoAlgoritmo(LocalDateTime inicio, LocalDateTime fin) {
+        return gestorVuelosAgendados.allMovimientoAlgoritmo(inicio, fin);
+    }
+
     private void procesarPaquete(Paquete paquete, int i, Long t1) {
         if (paquete.getRutaGenerada()) {
             return;
@@ -62,8 +69,6 @@ public class Simulador {
 
         List<VueloAgendado> vuelosTodos = gestorVuelosAgendados.allAlgoritmo(fechaInicio, fechaFin);
         List<VueloAgendado> vuelosCumplen = vuelosTodos.stream().filter(va -> va.getCapacidadActual() < va.getCapacidadMaxima()).collect(Collectors.toList());
-        List<VueloAgendado> vuelosParten = gestorVuelosAgendados.allPartenEnVentana(ventanaPaquete);
-        List<VueloAgendado> vuelosLlegan = gestorVuelosAgendados.allLleganEnVentana(ventanaPaquete);
 
 //
 //        logger.info("\t\t VUELOS TODOS: {}", ventanaPaquete);
@@ -96,7 +101,7 @@ public class Simulador {
 
             if (i % 500 == 0) {
                 Long t2 = System.currentTimeMillis();
-                Long duracion = (t2-t1);
+                Long duracion = (t2 - t1);
 
                 logger.info("Fecha actual [{}] [{}] ({} ms)", paquete.getFechaIngreso(), i, duracion);
                 t1 = t2;
@@ -110,7 +115,7 @@ public class Simulador {
 
             this.simular(paquete.getFechaIngreso());
             Long t3 = System.currentTimeMillis();
-            List<VueloAgendado> ruta = e.run(paquete, vuelosTodos, vuelosCumplen, vuelosParten, vuelosLlegan, oficinasList);
+            List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, gestorVuelosAgendados.allMovimientoAlgoritmo(fechaInicio, fechaFin), oficinasList);
             Long t4 = System.currentTimeMillis();
 
             // logger.info("Algoritmo corrio en {} ms\n", t4-t3);
@@ -125,7 +130,6 @@ public class Simulador {
                 item.setCapacidadActual(item.getCapacidadActual() + 1);
 
             }
-
 
             //logger.info("RUTA: {} [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
         } catch (AvoidableException pex) {
@@ -174,6 +178,7 @@ public class Simulador {
         List<VueloAgendado> vasFin = gestorVuelosAgendados.allLleganEnVentana(Ventana.of(fechaActual, fechaIngreso));
         for (VueloAgendado vueloAgendado : vasFin) {
             movimientos.add(Movimiento.fromFinVuelo(vueloAgendado));
+            movimientos.add(Movimiento.fromSalidaPaquetes(vueloAgendado));
         }
 
         List<VueloAgendado> vasInicio = gestorVuelosAgendados.allPartenEnVentana(Ventana.of(fechaActual, fechaIngreso));
@@ -184,10 +189,6 @@ public class Simulador {
         Collections.sort(movimientos);
 
         for (Movimiento movimiento : movimientos) {
-//            logger.info("[{}] {} {} {}", movimiento.momento, movimiento.oficina.getCodigo(), movimiento.tipo.name(), movimiento.cantidad);
-            if (movimiento.oficina.getCodigo().equals("SPIM")) {
-                //   movimiento.log();
-            }
             movimiento.process();
         }
 

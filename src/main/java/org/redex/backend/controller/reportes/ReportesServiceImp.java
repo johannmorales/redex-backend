@@ -58,7 +58,6 @@ public class ReportesServiceImp implements ReportesService {
     @Autowired
     PaquetesRepository paquetesRepository;
 
-
     @Autowired
     AuditoriaViewRepository auditoriaViewRepository;
 
@@ -149,7 +148,7 @@ public class ReportesServiceImp implements ReportesService {
             ExcelHelper.replaceVal(sheet, 2, 1, String.format("%s - %s", personaSolicitante.getNombreCompleto(), personaSolicitante.getDocumento()));
             ExcelHelper.replaceVal(sheet, 3, 1, df.format(LocalDateTime.now()));
 
-            ExcelHelper.replaceVal(sheet, 5, 1, String.format("%s - %s", df.format(inicio.atStartOfDay()), fin.atTime(LocalTime.MAX)));
+            ExcelHelper.replaceVal(sheet, 5, 1, String.format("%s - %s", df.format(inicio.atStartOfDay()), df.format(fin.atStartOfDay())));
 
             List<Paquete> paquetes = paquetesRepository.findAllByRangoInicio(inicio.atStartOfDay(), fin.atTime(LocalTime.MAX));
 

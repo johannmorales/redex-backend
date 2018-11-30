@@ -11,10 +11,12 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.Algoritmo;
+import org.redex.backend.algorithm.gestor.AlgoritmoMovimiento;
 import org.redex.backend.algorithm.gestor.GestorAlgoritmo;
 import org.redex.backend.algorithm.PathNotFoundException;
 import org.redex.backend.controller.simulacion.simulador.AvoidableException;
 import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -23,7 +25,7 @@ public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
-    private int iteraciones = 10;
+    private int iteraciones = 5;
     private int populationSize = 5;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
@@ -36,16 +38,8 @@ public class Evolutivo implements Algoritmo {
 
     private GestorAlgoritmo gestorAlgoritmo;
 
-    @Override
-    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosTodos, List<VueloAgendado> vuelosCumplen, List<VueloAgendado> vuelosParten, List<VueloAgendado> vuelosLlegan, List<Oficina> oficinas) {
-
-        Long t1 = System.currentTimeMillis();
-
-//        logger.info("------");
-
-        gestorAlgoritmo = new GestorAlgoritmo(vuelosCumplen, vuelosParten, vuelosLlegan, oficinas);
-
-        Long t2 = System.currentTimeMillis();
+    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosCumplen, List<AlgoritmoMovimiento> movimientos, List<Oficina> oficinas){
+        gestorAlgoritmo = new GestorAlgoritmo(vuelosCumplen, movimientos, oficinas);
 
         TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
 
@@ -57,7 +51,6 @@ public class Evolutivo implements Algoritmo {
             population = TreeMultiset.create(byCost);
             population.addAll(survivors);
             population.addAll(mutants);
-            break;
         }
 
         Long t4 = System.currentTimeMillis();
@@ -72,6 +65,54 @@ public class Evolutivo implements Algoritmo {
         Cromosoma winner = population.firstEntry().getElement();
 
         return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosTodos, List<VueloAgendado> vuelosCumplen, List<VueloAgendado> vuelosParten, List<VueloAgendado> vuelosLlegan, List<Oficina> oficinas) {
+
+        Long t1 = System.currentTimeMillis();
+
+//        logger.info("------");
+
+        gestorAlgoritmo = new GestorAlgoritmo(vuelosCumplen, vuelosParten, vuelosLlegan, oficinas);
+
+        List<VueloAgendado> ruta = buildRandomPath(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso());
+
+        if(ruta == null){
+            throw new AvoidableException();
+        }
+
+        return ruta;
+//
+//
+//        Long t2 = System.currentTimeMillis();
+//
+//        TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
+//
+//        Long t3 = System.currentTimeMillis();
+//
+//        for (int i = 0; i < iteraciones; i++) {
+//            TreeMultiset<Cromosoma> survivors = fight(population);
+//            TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
+//            population = TreeMultiset.create(byCost);
+//            population.addAll(survivors);
+//            population.addAll(mutants);
+//            break;
+//        }
+//
+//        Long t4 = System.currentTimeMillis();
+//
+////        logger.info("gestor: {}", t2 - t1);
+////        logger.info("inital: {}", t3 - t2);
+////        logger.info("iterat: {}", t4 - t3);
+////        logger.info("------");
+////        logger.info("\n");
+////        logger.info("\n");
+//
+//        Cromosoma winner = population.firstEntry().getElement();
+//
+//        return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
     }
 
     private TreeMultiset<Cromosoma> initialize(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, Paquete paquete) {

@@ -2,16 +2,16 @@ package org.redex.backend.controller.simulacion;
 
 public class SimulacionReporteOficina {
 
-    private String oficina;
+    private String codigo;
 
     private Integer cantidad;
 
-    public String getOficina() {
-        return oficina;
+    public String getCodigo() {
+        return codigo;
     }
 
-    public void setOficina(String oficina) {
-        this.oficina = oficina;
+    public void setCodigo(String oficina) {
+        this.codigo = oficina;
     }
 
     public Integer getCantidad() {

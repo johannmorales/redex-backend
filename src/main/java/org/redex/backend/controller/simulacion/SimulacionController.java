@@ -141,7 +141,7 @@ public class SimulacionController {
         return ResponseEntity.ok(arr);
     }
 
-    @GetMapping("reporte")
+    @PostMapping("reporte")
     public ResponseEntity<Resource> reporte(@RequestBody SimulacionReporte payload) {
         String archivo = service.reporte(payload);
         return download(archivo);

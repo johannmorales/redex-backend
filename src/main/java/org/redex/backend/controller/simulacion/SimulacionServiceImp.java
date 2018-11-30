@@ -240,12 +240,14 @@ public class SimulacionServiceImp implements SimulacionService {
 
         sheet = workbook.getSheet("Oficinas");
         Integer cont = 1;
+
         for (SimulacionReporteOficina item : payload.getOficinas()) {
-            Oficina ofi = simulador.findOficina(item.getOficina());
+            Oficina ofi = simulador.findOficina(item.getCodigo());
             ExcelHelper.replaceVal(sheet, cont, 0, cont);
             ExcelHelper.replaceVal(sheet, cont, 1, ofi.getCodigo());
             ExcelHelper.replaceVal(sheet, cont, 2, ofi.getPais().getNombre());
             ExcelHelper.replaceVal(sheet, cont, 3, item.getCantidad());
+            cont++;
 
         }
 
