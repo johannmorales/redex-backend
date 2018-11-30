@@ -6,7 +6,9 @@ public enum MailEnum {
     REESTABLECER_CONTRASENA("restablecerContrasena", "Su contrasena ha sido reestablecida"),
 
     REGISTRO_REMITENTE("registroRemitente", "Su paquete ha sido registrado"),
-    REGISTRO_DESTINATARIO("registroDestinatario", "Su paquete ha sido registrado");
+    REGISTRO_DESTINATARIO("registroDestinatario", "Su paquete ha sido registrado"),
+    
+    NOTIFICACION_ENVIO("Notificación de envio","Su paquete ha sido embarcado en un vuelo");
 
     private String template;
 

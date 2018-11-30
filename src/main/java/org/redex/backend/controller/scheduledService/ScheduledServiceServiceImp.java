@@ -14,15 +14,20 @@ import org.redex.backend.model.envios.PaqueteRuta;
 import org.redex.backend.model.envios.RutaEstadoEnum;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.envios.VueloAgendadoEstadoEnum;
+import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.rrhh.Oficina;
 import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaqueteRutaRepository;
 import org.redex.backend.repository.PaquetesRepository;
+import org.redex.backend.repository.PersonaRepository;
 import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosAgendadosRepository;
+import org.redex.backend.zelper.email.MailClient;
+import org.redex.backend.zelper.email.MailEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,6 +47,12 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
 
     @Autowired
     PaqueteRutaRepository paqueteRutasRepository;
+    
+    @Autowired
+    PersonaRepository personaRepository;
+    
+    @Autowired
+    MailClient mailClient;
 
     @Transactional
     @Override
@@ -66,6 +77,9 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
             vA.setEstado(VueloAgendadoEstadoEnum.ACTIVO);
             Oficina o = oficinas.get(vA.getOficinaOrigen().getCodigo());
             List<PaqueteRuta> pR = paqueteRutasRepository.findAllByVueloAgendado(vA);
+            
+            
+                
             for (PaqueteRuta p : pR) {
                 p.setEstado(RutaEstadoEnum.ACTIVO);
                 Paquete px = p.getPaquete();
@@ -73,6 +87,25 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                 o.setCapacidadActual(o.getCapacidadActual() - 1);
                 paqueteRutasRepository.save(p);
                 paquetesRepository.save(px);
+                Persona personaOrigen = personaRepository.getOne(px.getPersonaOrigen().getId());
+                Persona personaDestino = personaRepository.getOne(px.getPersonaOrigen().getId());
+                
+                if(personaOrigen.getEmail() != null && px.getNotiRegistro()){
+                    Context miVuelo = new Context();
+                    miVuelo.setVariable("vuelo",vA.getVuelo());
+                    miVuelo.setVariable("fechaInicio",vA.getFechaInicio());
+                    miVuelo.setVariable("fechaFin",vA.getFechaFin());
+                    mailClient.prepareAndSend(personaOrigen.getEmail(), MailEnum.NOTIFICACION_ENVIO,miVuelo);
+                }
+
+                if(personaDestino.getEmail() != null && px.getNotiRegistro()){
+                    Context miVuelo = new Context();
+                    miVuelo.setVariable("vuelo",vA.getVuelo());
+                    miVuelo.setVariable("fechaInicio",vA.getFechaInicio());
+                    miVuelo.setVariable("fechaFin",vA.getFechaFin());
+                    mailClient.prepareAndSend(personaDestino.getEmail(), MailEnum.NOTIFICACION_ENVIO, miVuelo);
+                }
+                
             }
             vuelosRepository.save(vA);
             oficinasRepository.save(o);
