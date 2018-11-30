@@ -239,6 +239,7 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                     }
                     for (VueloAgendado va : vuelosPaquete){
                         PaqueteRuta px = new PaqueteRuta();
+                        px.setPaquete(p);
                         px.setVueloAgendado(va);
                         px.setOrden(newOrden);
                         px.setEstado(RutaEstadoEnum.ACTIVO);
