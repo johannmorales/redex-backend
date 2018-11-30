@@ -49,6 +49,19 @@ public interface PaquetesRepository extends JpaRepository<Paquete, Long> {
             "   paq.codigoRastreo = :cod ")
     Paquete findByCodigoRastreo(@Param("cod") String codigoRastreo);
 
+    @Query("" +
+            " select paq from Paquete paq " +
+            "   join fetch paq.oficinaOrigen oo " +
+            "   join fetch paq.oficinaDestino od " +
+            "   join fetch paq.personaOrigen " +
+            "   join fetch paq.personaDestino " +
+            " where " +
+            "   paq.idUserRegistro = :id " +
+            " order by paq.fechaIngreso desc")
+    List<Paquete> allByIdUserRegistro(@Param("id") Long idUserRegistro);
+
+
+
 
     @Query(""
             + " select paq from Paquete paq "

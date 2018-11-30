@@ -142,4 +142,12 @@ public class Persona {
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
+
+    public String getDocumento() {
+        if (tipoDocumentoIdentidad == null) {
+            return numeroDocumentoIdentidad;
+        } else {
+            return String.format("%s %s", tipoDocumentoIdentidad.getSimbolo(), numeroDocumentoIdentidad);
+        }
+    }
 }

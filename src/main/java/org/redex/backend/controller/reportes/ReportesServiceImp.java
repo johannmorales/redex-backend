@@ -1,9 +1,13 @@
 package org.redex.backend.controller.reportes;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,9 +31,13 @@ import org.redex.backend.model.AppConstants;
 import org.redex.backend.model.auditoria.AuditoriaTipoEnum;
 import org.redex.backend.model.auditoria.AuditoriaView;
 import org.redex.backend.model.envios.Paquete;
+import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.model.seguridad.Usuario;
 import org.redex.backend.repository.AuditoriaViewRepository;
 import org.redex.backend.repository.PaquetesRepository;
+import org.redex.backend.repository.PersonaRepository;
+import org.redex.backend.repository.UsuariosRepository;
 import org.redex.backend.security.CurrentUser;
 import org.redex.backend.security.DataSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +65,11 @@ public class ReportesServiceImp implements ReportesService {
     @Autowired
     AuditoriaService auditoriaService;
 
+    @Autowired
+    UsuariosRepository usuariosRepository;
+
+    @Autowired
+    PersonaRepository personaRepository;
 
     @Override
     public String paquetesXvuelo(Long id, DataSession ds) {
@@ -122,111 +135,104 @@ public class ReportesServiceImp implements ReportesService {
 
     @Override
     public String enviosXfechas(LocalDate inicio, LocalDate fin, DataSession ds) {
-        auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_ENVIOS_POR_FECHAS, ds);
+        try {
+            auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_ENVIOS_POR_FECHAS, ds);
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        Workbook workbook = new XSSFWorkbook();
-        CreationHelper createHelper = workbook.getCreationHelper();
-        Sheet sheet = workbook.createSheet("Reporte");
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-        headerFont.setFontHeightInPoints((short) 14);
-        headerFont.setColor(IndexedColors.RED.getIndex());
-        CellStyle headerCellStyle = workbook.createCellStyle();
-        headerCellStyle.setFont(headerFont);
-        Row headerRow = sheet.createRow(0);
+            InputStream formato = this.getClass().getResourceAsStream("/templates/excel/auditoria_paquetes.xlsx");
+            Workbook workbook = WorkbookFactory.create(formato);
+            Sheet sheet = workbook.getSheet("Reporte");
 
-        String[] columns = {
-                "Codigo",
-                "Fecha Ingreso",
-                "Oficina Origen",
-                "Oficina Destino"
-        };
+            Persona personaSolicitante = personaRepository.getOne(ds.getPersona().getId());
 
-        CellStyle dateCellStyle = workbook.createCellStyle();
+            ExcelHelper.replaceVal(sheet, 2, 1, String.format("%s - %s", personaSolicitante.getNombreCompleto(), personaSolicitante.getDocumento()));
+            ExcelHelper.replaceVal(sheet, 3, 1, df.format(LocalDateTime.now()));
 
-        dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MM-yyyy"));
+            ExcelHelper.replaceVal(sheet, 5, 1, String.format("%s - %s", df.format(inicio.atStartOfDay()), fin.atTime(LocalTime.MAX)));
 
-        List<Paquete> paquetes = paquetesRepository.findAllByRangoInicio(inicio.atStartOfDay(), fin.atTime(LocalTime.MAX));
+            List<Paquete> paquetes = paquetesRepository.findAllByRangoInicio(inicio.atStartOfDay(), fin.atTime(LocalTime.MAX));
 
-        int cont = 1;
+            int cont = 8;
 
-        for (Paquete paquete : paquetes) {
-            ExcelHelper.replaceVal(sheet, cont, 0, paquete.getCodigoRastreo());
-            ExcelHelper.replaceVal(sheet, cont, 1, paquete.getFechaIngresoString());
-            ExcelHelper.replaceVal(sheet, cont, 2, paquete.getOficinaOrigen().getCodigo());
-            ExcelHelper.replaceVal(sheet, cont, 3, paquete.getOficinaDestino().getCodigo());
-            cont++;
+            for (Paquete paquete : paquetes) {
+                Oficina oficinaOrigen = paquete.getOficinaOrigen();
+                Oficina oficinaDestino = paquete.getOficinaDestino();
+
+                ExcelHelper.replaceVal(sheet, cont, 0, dtf.format(paquete.getFechaIngreso()));
+                ExcelHelper.replaceVal(sheet, cont, 1, paquete.getCodigoRastreo());
+                ExcelHelper.replaceVal(sheet, cont, 2, oficinaOrigen.getCodigo());
+                ExcelHelper.replaceVal(sheet, cont, 3, oficinaOrigen.getPais().getNombre());
+                ExcelHelper.replaceVal(sheet, cont, 4, oficinaDestino.getCodigo());
+                ExcelHelper.replaceVal(sheet, cont, 5, oficinaDestino.getPais().getNombre());
+                ExcelHelper.replaceVal(sheet, cont, 6, paquete.getPersonaOrigen().getDocumento());
+                ExcelHelper.replaceVal(sheet, cont, 7, paquete.getPersonaOrigen().getNombreCompleto());
+                ExcelHelper.replaceVal(sheet, cont, 8, paquete.getPersonaDestino().getDocumento());
+                ExcelHelper.replaceVal(sheet, cont, 9, paquete.getPersonaDestino().getNombreCompleto());
+
+                cont++;
+            }
+
+            return write(workbook, "reporte_paquetes");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
         }
-
-        return write(workbook, "envios_fecha");
+        return null;
     }
 
 
-    //  El sistema debera poder generar un reporte de los envíos seleccionando un
-//  rango de fecha. El reporte tendrá los siguientes datos: El rango de fechas
-//  que se a defido para generar le reporte, el codigo del paquete, la fecha de
-//  llegada y el estado
     @Override
     public String paquetesXusuario(Long id, DataSession ds) {
-        auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_PAQUETES_POR_USUARIO, ds);
+        try {
+            auditoriaService.auditar(AuditoriaTipoEnum.REPORTE_PAQUETES_POR_USUARIO, ds);
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        Workbook workbook = new XSSFWorkbook();
-        CreationHelper createHelper = workbook.getCreationHelper();
-        Sheet sheet = workbook.createSheet("Reporte");
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-        headerFont.setFontHeightInPoints((short) 14);
-        headerFont.setColor(IndexedColors.RED.getIndex());
+            InputStream formato = this.getClass().getResourceAsStream("/templates/excel/auditoria_usuario.xlsx");
+            Workbook workbook = WorkbookFactory.create(formato);
+            Sheet sheet = workbook.getSheet("Reporte");
 
-        CellStyle headerCellStyle = workbook.createCellStyle();
-        headerCellStyle.setFont(headerFont);
-        Row headerRow = sheet.createRow(0);
+            Persona personaSolicitante = personaRepository.getOne(ds.getPersona().getId());
 
-        String[] columns = {"Codigo", "Estado", "Fecha Ingreso", "Fecha Llegada",
-                "Oficina Origen", "Oficina Destino"};
+            ExcelHelper.replaceVal(sheet, 2, 1, String.format("%s - %s", personaSolicitante.getNombreCompleto(), personaSolicitante.getDocumento()));
+            ExcelHelper.replaceVal(sheet, 3, 1, df.format(LocalDateTime.now()));
 
-        for (int i = 0; i < columns.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columns[i]);
-            cell.setCellStyle(headerCellStyle);
+            Usuario usuarioAuditado = usuariosRepository.getOne(id);
+            Persona personaAuditada = usuarioAuditado.getColaborador().getPersona();
+
+            ExcelHelper.replaceVal(sheet, 5, 1, String.format("%s - %s", personaAuditada.getNombreCompleto(), personaAuditada.getDocumento()));
+
+            List<Paquete> paquetes = paquetesRepository.allByIdUserRegistro(id);
+
+            int cont = 8;
+
+            for (Paquete paquete : paquetes) {
+                Oficina oficinaOrigen = paquete.getOficinaOrigen();
+                Oficina oficinaDestino = paquete.getOficinaDestino();
+
+                ExcelHelper.replaceVal(sheet, cont, 0, dtf.format(paquete.getFechaIngreso()));
+                ExcelHelper.replaceVal(sheet, cont, 1, paquete.getCodigoRastreo());
+                ExcelHelper.replaceVal(sheet, cont, 2, oficinaOrigen.getCodigo());
+                ExcelHelper.replaceVal(sheet, cont, 3, oficinaOrigen.getPais().getNombre());
+                ExcelHelper.replaceVal(sheet, cont, 4, oficinaDestino.getCodigo());
+                ExcelHelper.replaceVal(sheet, cont, 5, oficinaDestino.getPais().getNombre());
+                ExcelHelper.replaceVal(sheet, cont, 6, paquete.getPersonaOrigen().getDocumento());
+                ExcelHelper.replaceVal(sheet, cont, 7, paquete.getPersonaOrigen().getNombreCompleto());
+                ExcelHelper.replaceVal(sheet, cont, 8, paquete.getPersonaDestino().getDocumento());
+                ExcelHelper.replaceVal(sheet, cont, 9, paquete.getPersonaDestino().getNombreCompleto());
+
+                cont++;
+            }
+
+            return write(workbook, "paquetes_usuario");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
         }
-
-        CellStyle dateCellStyle = workbook.createCellStyle();
-
-        dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd-MM-yyyy"));
-
-        String q = "" +
-                " select p.codigo_rastreo, p.estado, p.fecha_ingreso, o.codigo as origen, o2.codigo as destino " +
-                " from paquete p " +
-                "   inner join oficina o on p.id_oficina_origen = o.id " +
-                "   inner join oficina o2 on p.id_oficina_destino = o2.id " +
-                " where " +
-                "   p.id_user_registro = :ID_USUARIO ";
-
-        List<Object[]> arr_cust = (List<Object[]>) em.createNativeQuery(q).setParameter("ID_USUARIO", id)
-                .getResultList();
-
-        Iterator it = arr_cust.iterator();
-
-        int cont = 1;
-
-        while (it.hasNext()) {
-            Object[] obj = (Object[]) it.next();
-            Row row = sheet.createRow(cont);
-            row.createCell(0).setCellValue(obj[0].toString());
-            row.createCell(1).setCellValue(obj[1].toString());
-            row.createCell(2).setCellValue(obj[2].toString());
-            row.createCell(4).setCellValue(obj[3].toString());
-            row.createCell(5).setCellValue(obj[4].toString());
-            //row.createCell(5).setCellValue(obj[5].toString());
-            cont++;
-        }
-
-        for (int i = 0; i < columns.length; i++) {
-//            sheet.autoSizeColumn(i);
-        }
-
-        return write(workbook, "paquetes_usuario");
+        return null;
     }
 
     @Override
