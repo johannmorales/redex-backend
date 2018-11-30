@@ -29,7 +29,7 @@ import org.redex.backend.model.auditoria.ModificacionAuditable;
 
 @Entity
 @Table(name = "paquete")
-public class Paquete extends ModificacionAuditable implements Serializable {
+public class Paquete extends ModificacionAuditable implements Serializable, Comparable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -229,5 +229,10 @@ public class Paquete extends ModificacionAuditable implements Serializable {
 
     public void setNotiLlegada(Boolean notiLlegada) {
         this.notiLlegada = notiLlegada;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return Integer.compare(this.hashCode(), o.hashCode());
     }
 }

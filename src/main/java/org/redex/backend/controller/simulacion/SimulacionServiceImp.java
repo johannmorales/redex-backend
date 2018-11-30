@@ -1,11 +1,15 @@
 package org.redex.backend.controller.simulacion;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.omg.CORBA.portable.ApplicationException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.redex.backend.controller.reportes.ReportesServiceImp;
 import org.redex.backend.controller.simulacion.simulador.GestorPaquetes;
 import org.redex.backend.controller.simulacion.simulador.GestorVuelosAgendados;
 import org.redex.backend.controller.simulacion.simulador.Simulador;
+import org.redex.backend.model.AppConstants;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.PlanVuelo;
 import org.redex.backend.model.envios.Vuelo;
@@ -16,25 +20,27 @@ import org.redex.backend.repository.OficinasRepository;
 import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.repository.PlanVueloRepository;
 import org.redex.backend.repository.VuelosRepository;
-import org.redex.backend.zelper.exception.AppException;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.file.excel.ExcelHelper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,8 +50,6 @@ import static java.lang.Character.isDigit;
 @Service
 @Transactional(readOnly = true)
 public class SimulacionServiceImp implements SimulacionService {
-
-    private final Logger logger = LogManager.getLogger(SimulacionServiceImp.class);
 
     @Autowired
     Simulador simulador;
@@ -203,6 +207,63 @@ public class SimulacionServiceImp implements SimulacionService {
 
         PlanVuelo pv = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
         simulador.setVuelos(pv.getVuelos());
+    }
+
+    @Override
+    public String reporte(SimulacionReporte payload) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/simulacion_reporte.xlsx");
+        Workbook workbook = new XSSFWorkbook();
+        try {
+            workbook = WorkbookFactory.create(formato);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        }
+
+        Sheet sheet = workbook.getSheet("Simulacion");
+
+        LocalDateTime fechaInicio = LocalDateTime.ofInstant(Instant.ofEpochMilli(payload.getFechaInicial()), ZoneId.systemDefault());
+
+        Integer d = payload.getDuracionTotal().intValue()/1000;
+
+
+        Oficina oficina = simulador.findOficina(payload.getAlmacenColapso());
+
+        ExcelHelper.replaceVal(sheet, 3, 1, dtf.format(fechaInicio));
+        ExcelHelper.replaceVal(sheet, 4, 1, String.format("%d d %02d h", d / 3600, (d % 3600) / 60));
+
+        ExcelHelper.replaceVal(sheet, 8, 1, String.format("%s %s", oficina.getCodigo(), oficina.getPais().getNombre()));
+        ExcelHelper.replaceVal(sheet, 9, 1, String.format("Aumentar la capacidad del almacen en %d", payload.getCantidadAumento()));
+
+        sheet = workbook.getSheet("Oficinas");
+        Integer cont = 1;
+        for (SimulacionReporteOficina item : payload.getOficinas()) {
+            Oficina ofi = simulador.findOficina(item.getOficina());
+            ExcelHelper.replaceVal(sheet, cont, 0, cont);
+            ExcelHelper.replaceVal(sheet, cont, 1, ofi.getCodigo());
+            ExcelHelper.replaceVal(sheet, cont, 2, ofi.getPais().getNombre());
+            ExcelHelper.replaceVal(sheet, cont, 3, item.getCantidad());
+
+        }
+
+        return write(workbook, "simulacion_reporte");
+    }
+
+    private String write(Workbook workbook, String prefifo) {
+        try {
+            String filename = String.format("%s%s_%s.xlsx", AppConstants.TMP_DIR, prefifo, System.currentTimeMillis());
+            FileOutputStream fileOut = new FileOutputStream(filename);
+            workbook.write(fileOut);
+            fileOut.close();
+            workbook.close();
+            return filename;
+        } catch (Exception e) {
+            java.util.logging.Logger.getLogger(ReportesServiceImp.class.getName()).log(Level.SEVERE, null, e);
+            return null;
+        }
     }
 
     private Paquete leePaquete(List<String> datos, Map<String, Oficina> oficinas) {

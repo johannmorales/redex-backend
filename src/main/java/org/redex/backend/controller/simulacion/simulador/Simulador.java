@@ -243,4 +243,8 @@ public class Simulador {
         return this.oficinas;
     }
 
+    public Oficina findOficina(String almacenColapso) {
+        return oficinas.get(almacenColapso);
+    }
+
 }

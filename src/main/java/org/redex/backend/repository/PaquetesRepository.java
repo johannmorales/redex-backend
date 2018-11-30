@@ -39,6 +39,16 @@ public interface PaquetesRepository extends JpaRepository<Paquete, Long> {
             " order by paq.id desc ")
     List<Paquete> findAllByRangoInicio(@Param("ini")LocalDateTime inicio, @Param("fin")LocalDateTime fin);
 
+    @Query("" +
+            " select paq from Paquete paq " +
+            "   join fetch paq.oficinaOrigen oo " +
+            "   join fetch paq.oficinaDestino od " +
+            "   join fetch paq.personaOrigen " +
+            "   join fetch paq.personaDestino " +
+            " where " +
+            "   paq.codigoRastreo = :cod ")
+    Paquete findByCodigoRastreo(@Param("cod") String codigoRastreo);
+
 
     @Query(""
             + " select paq from Paquete paq "

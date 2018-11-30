@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class AuditoriaView implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -26,10 +25,10 @@ public class AuditoriaView implements Serializable {
     private Oficina oficina;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_user_registro")
+    @JoinColumn(name = "id_usuario               ")
     private Usuario usuario;
 
-    @Column(name = "instante_registro")
+    @Column(name = "momento")
     private LocalDateTime momento;
 
     public Long getId() {

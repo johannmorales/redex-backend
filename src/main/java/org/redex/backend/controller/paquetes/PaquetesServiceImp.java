@@ -335,7 +335,13 @@ public class PaquetesServiceImp implements PaquetesService {
         
         EntityManager em = emf.createEntityManager();
         TrackReport response = new TrackReport();
-        
+        response.setCodigoRastreo(trackNum);
+        Paquete paqueteBD = paquetesRepository.findByCodigoRastreo(trackNum);
+
+        if(paqueteBD!=null){
+            response.setPersonaDestino(paqueteBD.getPersonaDestino().getNombreCorto());
+        }
+
         String q2 = "Select estado from paquete where codigo_rastreo='"+ trackNum+"'";
         List<Object[]> paquete = (List<Object[]>)em.createNativeQuery(q2)
                               .getResultList();
@@ -361,13 +367,11 @@ public class PaquetesServiceImp implements PaquetesService {
             "and v.id_oficina_destino= o2.id and o2.id_pais =pa2.id";
         
         
-        
-        
         List<Object[]> arr_cust = (List<Object[]>)em.createNativeQuery(q)
                               .getResultList();
-        
-        
+
         Iterator it = arr_cust.iterator();
+
         if (!it.hasNext()){
             response.setStatus(0);
             ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
@@ -421,11 +425,7 @@ public class PaquetesServiceImp implements PaquetesService {
         }
         
         ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
-            "status",
-            "estado",
-            "origen",
-            "destino",
-            "localizacion",
+            "*",
             "plan.*"
             
         });

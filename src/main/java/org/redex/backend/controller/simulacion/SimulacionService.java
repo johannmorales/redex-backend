@@ -13,4 +13,5 @@ public interface SimulacionService {
 
     void crear();
 
+    String reporte(SimulacionReporte payload);
 }

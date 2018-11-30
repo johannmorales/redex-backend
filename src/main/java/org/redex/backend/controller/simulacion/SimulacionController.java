@@ -9,14 +9,25 @@ import org.redex.backend.controller.simulacion.simulador.Simulador;
 import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
 import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.rrhh.Oficina;
+import org.redex.backend.security.CurrentUser;
+import org.redex.backend.security.DataSession;
+import org.redex.backend.zelper.exception.MyFileNotFoundException;
 import org.redex.backend.zelper.response.ApplicationResponse;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -128,6 +139,37 @@ public class SimulacionController {
         }
 
         return ResponseEntity.ok(arr);
+    }
+
+    @GetMapping("reporte")
+    public ResponseEntity<Resource> reporte(@RequestBody SimulacionReporte payload) {
+        String archivo = service.reporte(payload);
+        return download(archivo);
+    }
+
+    private ResponseEntity<Resource> download(String archivo) {
+        try {
+            Resource resource = new UrlResource("file", archivo);
+            try {
+                System.out.println(resource.getFile().getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (!resource.exists()) {
+                throw new MyFileNotFoundException("Archivo no encontrado " + archivo);
+            }
+
+            String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            String actualFileName = archivo.substring(archivo.lastIndexOf('/') + 1);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, actualFileName)
+                    .body(resource);
+
+        } catch (MalformedURLException ex) {
+            throw new MyFileNotFoundException("Archivo no encontrado ", ex);
+        }
     }
 
 }
