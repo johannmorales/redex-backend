@@ -141,7 +141,8 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                 System.out.println(vA.getCodigo());
                 System.out.println(vA.getFechaFin());
                 vA.setEstado(VueloAgendadoEstadoEnum.FINALIZADO);
-                Oficina o = oficinas.get(vA.getOficinaDestino());
+                Oficina o = oficinas.get(vA.getVuelo().getOficinaDestino().getCodigo());
+                
                 List<PaqueteRuta> pR = paqueteRutasRepository.findAllByVueloAgendado(vA);
                 if(!pR.isEmpty()){
                     for (PaqueteRuta p : pR) {
@@ -160,11 +161,12 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                         } else {
                             o.setCapacidadActual(o.getCapacidadActual() + 1);
                             px.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
+                            oficinasRepository.save(o);
                         }
                         paquetesRepository.save(px);
                     }
                     vuelosRepository.save(vA);
-                    oficinasRepository.save(o);
+                    
                 } else {
                     System.out.println("no hay paquetes");
                 }
@@ -220,28 +222,33 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                 List<VueloAgendado> vuelosLlegan = vuelosRepository.findAllLlegan(actualTime, diferencia);
                 List<VueloAgendado> vuelosParten = vuelosRepository.findAllParten(actualTime, diferencia);
                 Evolutivo e = new Evolutivo();
-                List<VueloAgendado> vuelosPaquete = 
+                try{
+                    List<VueloAgendado> vuelosPaquete = 
                         e.run(p, new ArrayList<VueloAgendado>(), vuelosRecientes, vuelosParten, vuelosLlegan, oficinas);
                 
-                if (!pR1.isEmpty()){
-                    for(int i = termino;i<pR1.size();i++){
-                        paqueteRutasRepository.delete(pR1.get(i));
+                    if (!pR1.isEmpty()){
+                        for(int i = termino;i<pR1.size();i++){
+                            paqueteRutasRepository.delete(pR1.get(i));
+                        }
                     }
+                    int newOrden;
+                    if (!pR1.isEmpty()){
+                        newOrden = termino;
+                    }else {
+                        newOrden = 0;
+                    }
+                    for (VueloAgendado va : vuelosPaquete){
+                        PaqueteRuta px = new PaqueteRuta();
+                        px.setVueloAgendado(va);
+                        px.setOrden(newOrden);
+                        px.setEstado(RutaEstadoEnum.ACTIVO);
+                        paqueteRutasRepository.save(px);
+                        newOrden++;
+                    }
+                } catch (Exception ex){
+                    System.out.println("NO se ha encontrado ruta");
                 }
-                int newOrden;
-                if (!pR1.isEmpty()){
-                    newOrden = termino;
-                }else {
-                    newOrden = 0;
-                }
-                for (VueloAgendado va : vuelosPaquete){
-                    PaqueteRuta px = new PaqueteRuta();
-                    px.setVueloAgendado(va);
-                    px.setOrden(newOrden);
-                    px.setEstado(RutaEstadoEnum.ACTIVO);
-                    paqueteRutasRepository.save(px);
-                    newOrden++;
-                }
+                
                 
             }
         }
