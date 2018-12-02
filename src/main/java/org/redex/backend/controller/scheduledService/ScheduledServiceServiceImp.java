@@ -74,41 +74,43 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
         if (!vuelosRecientes.isEmpty()){
             for (VueloAgendado vA : vuelosRecientes) {
             
-            vA.setEstado(VueloAgendadoEstadoEnum.ACTIVO);
-            Oficina o = oficinas.get(vA.getOficinaOrigen().getCodigo());
-            List<PaqueteRuta> pR = paqueteRutasRepository.findAllByVueloAgendado(vA);
-            
-            
-                
-            for (PaqueteRuta p : pR) {
-                p.setEstado(RutaEstadoEnum.ACTIVO);
-                Paquete px = p.getPaquete();
-                px.setEstado(PaqueteEstadoEnum.EN_VUELO);
-                o.setCapacidadActual(o.getCapacidadActual() - 1);
-                paqueteRutasRepository.save(p);
-                paquetesRepository.save(px);
-                Persona personaOrigen = personaRepository.getOne(px.getPersonaOrigen().getId());
-                Persona personaDestino = personaRepository.getOne(px.getPersonaOrigen().getId());
-                
-                if(personaOrigen.getEmail() != null && px.getNotiRegistro()){
-                    Context miVuelo = new Context();
-                    miVuelo.setVariable("vuelo",vA.getVuelo());
-                    miVuelo.setVariable("fechaInicio",vA.getFechaInicio());
-                    miVuelo.setVariable("fechaFin",vA.getFechaFin());
-                    mailClient.prepareAndSend(personaOrigen.getEmail(), MailEnum.NOTIFICACION_ENVIO,miVuelo);
-                }
+                vA.setEstado(VueloAgendadoEstadoEnum.ACTIVO);
+                Oficina o = oficinas.get(vA.getOficinaOrigen().getCodigo());
+                List<PaqueteRuta> pR = paqueteRutasRepository.findAllByVueloAgendado(vA);
 
-                if(personaDestino.getEmail() != null && px.getNotiRegistro()){
-                    Context miVuelo = new Context();
-                    miVuelo.setVariable("vuelo",vA.getVuelo());
-                    miVuelo.setVariable("fechaInicio",vA.getFechaInicio());
-                    miVuelo.setVariable("fechaFin",vA.getFechaFin());
-                    mailClient.prepareAndSend(personaDestino.getEmail(), MailEnum.NOTIFICACION_ENVIO, miVuelo);
-                }
+                //System.out.println(pR.size());
+
+                for (PaqueteRuta p : pR) {
+                    
+                    p.setEstado(RutaEstadoEnum.ACTIVO);
+                    Paquete px = p.getPaquete();
+                    px.setEstado(PaqueteEstadoEnum.EN_VUELO);
+                    o.setCapacidadActual(o.getCapacidadActual() - 1);
+                    paqueteRutasRepository.save(p);
+                    paquetesRepository.save(px);
+                    Persona personaOrigen = personaRepository.getOne(px.getPersonaOrigen().getId());
+                    Persona personaDestino = personaRepository.getOne(px.getPersonaOrigen().getId());
+                    System.out.println(vA.getVuelo().getOficinaOrigen().getPais().getNombre());
+                    
+                    if(personaOrigen.getEmail() != null && px.getNotiRegistro()){
+                        Context miVuelo = new Context();
+                        miVuelo.setVariable("miVuelo",p.getVueloAgendado());
+//                        miVuelo.setVariable("fechaInicio",vA.getFechaInicio());
+//                        miVuelo.setVariable("fechaFin",vA.getFechaFin());
+                        mailClient.prepareAndSend(personaOrigen.getEmail(), MailEnum.NOTIFICACION_ENVIO,miVuelo);
+                    }
+
+                    if(personaDestino.getEmail() != null && px.getNotiRegistro()){
+                        Context miVuelo = new Context();
+                        miVuelo.setVariable("miVuelo",p.getVueloAgendado());
+//                        miVuelo.setVariable("fechaInicio",vA.getFechaInicio());
+//                        miVuelo.setVariable("fechaFin",vA.getFechaFin());
+                        mailClient.prepareAndSend(personaDestino.getEmail(), MailEnum.NOTIFICACION_ENVIO, miVuelo);
+                    }
                 
-            }
-            vuelosRepository.save(vA);
-            oficinasRepository.save(o);
+                }
+                vuelosRepository.save(vA);
+                oficinasRepository.save(o);
 
             }
         } else {
