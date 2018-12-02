@@ -372,7 +372,7 @@ public class PaquetesServiceImp implements PaquetesService {
 
         Iterator it = arr_cust.iterator();
 
-        if (!it.hasNext()) {
+        if (arr_cust.isEmpty()) {
             response.setStatus(0);
             ObjectNode trackingJson = JsonHelper.createJson(response, JsonNodeFactory.instance, new String[]{
                     "status"
@@ -413,7 +413,12 @@ public class PaquetesServiceImp implements PaquetesService {
             cont++;
         }
         response.setPlan(tr);
-        PackageRoute actual = tr.get(firstActive);
+        PackageRoute actual;
+        if (firstActive == -1){
+            actual = tr.get(tr.size()-1);
+        } else{
+            actual = tr.get(firstActive);
+        }
         response.setStatus(1);
         response.setEstado(eActual);
         response.setDestino(actual.getPaisF());

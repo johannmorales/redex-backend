@@ -154,8 +154,11 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                         List<PaqueteRuta> pR1 = paqueteRutasRepository.findAllByPaquete(px);
                         int termino = 0;
                         for (PaqueteRuta pAux : pR1) {
-                            if (!pAux.getEstado().equals(RutaEstadoEnum.FINALIZADO)) {
+                            if (pAux.getEstado().equals(RutaEstadoEnum.FINALIZADO)) {
                                 termino = 1;
+                            }else{
+                                termino = 0;
+                                break;
                             }
                         }
                         if (termino == 1) {
