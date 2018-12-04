@@ -8,7 +8,11 @@ public enum MailEnum {
     REGISTRO_REMITENTE("registroRemitente", "Su paquete ha sido registrado"),
     REGISTRO_DESTINATARIO("registroDestinatario", "Su paquete ha sido registrado"),
     
-    NOTIFICACION_ENVIO("notificacionVuelo","Su paquete ha sido embarcado en un vuelo");
+    NOTIFICACION_ENVIO("notificacionVuelo","Su paquete ha sido embarcado en un vuelo"),
+    
+    NOTIFICACION_LLEGADA_REMITENTE("notificacionLlegadaRemitente","Su paquete fue recogido con exito"),
+    
+    NOTIFICACION_LLEGADA_DESTINATARIO("notificacionLlegadaDestinatario","Su paquete esta listo para ser recogido");
 
     private String template;
 

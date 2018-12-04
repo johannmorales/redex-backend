@@ -246,13 +246,17 @@ public class PaquetesServiceImp implements PaquetesService {
 
         Oficina oo = oficinasRepository.findById(paquete.getOficinaOrigen().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Paquete", "id", paquete.getOficinaOrigen().getId()));
+        oo.setCapacidadActual(oo.getCapacidadActual()+1);
 
         Oficina od = oficinasRepository.findById(paquete.getOficinaDestino().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Paquete", "id", paquete.getOficinaDestino().getId()));
+        
 
         paquete.setOficinaDestino(od);
         paquete.setOficinaOrigen(oo);
-
+        
+        oficinasRepository.save(oo);
+        
         paquetesRepository.save(paquete);
 
         this.generarRuta(paquete);

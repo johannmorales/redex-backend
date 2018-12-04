@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+    </head>
+<body>
+    <h3>Estimado cliente:</h3>
+    <p>El siguiente paquete fue entregado con exito</p>
+    <p>Código del paquete:<span th:text="${miPaquete.codigoRastreo}">codigoPaquete</span></p>
+    <p>Fecha de registro:<span th:text="${fechaFin}">fechaRegistro</span></p>
+    <p>Pais Origen:<span th:text="${miPaquete.oficinaOrigen.pais.nombre}"></span></p>
+    <p>Pais Destino:<span th:text="${miPaquete.oficinaDestino.pais.nombre}"></span></p>
+    <p>Descripción:<span th:text="${miPaquete.descripcion}">descripcion</span></p>
+    <p>Gracias por su preferencia</p>
+</body>
+</html>
