@@ -163,11 +163,18 @@ public class ScheduledServiceServiceImp implements ScheduledServiceService {
                         }
                         if (termino == 1) {
                             px.setEstado(PaqueteEstadoEnum.ENTREGADO);
-                            Context miPaquete = new Context();
-                            miPaquete.setVariable("miPaquete", px);
-                            miPaquete.setVariable("fechaFin", vA.getFechaFinString());
-                            mailClient.prepareAndSend(px.getPersonaDestino().getEmail(), MailEnum.NOTIFICACION_LLEGADA_DESTINATARIO, miPaquete);
-                            mailClient.prepareAndSend(px.getPersonaDestino().getEmail(), MailEnum.NOTIFICACION_LLEGADA_REMITENTE, miPaquete);
+                            if(px.getPersonaOrigen().getEmail()!= null && px.getNotiLlegada()){
+                                Context miPaquete = new Context();
+                                miPaquete.setVariable("miPaquete", px);
+                                miPaquete.setVariable("fechaFin", vA.getFechaFinString());
+                                mailClient.prepareAndSend(px.getPersonaOrigen().getEmail(), MailEnum.NOTIFICACION_LLEGADA_REMITENTE, miPaquete);
+                            }
+                            if(px.getPersonaDestino().getEmail() != null && px.getNotiLlegada()){
+                                Context miPaquete = new Context();
+                                miPaquete.setVariable("miPaquete", px);
+                                miPaquete.setVariable("fechaFin", vA.getFechaFinString());
+                                mailClient.prepareAndSend(px.getPersonaDestino().getEmail(), MailEnum.NOTIFICACION_LLEGADA_DESTINATARIO, miPaquete);
+                            }
                         } else {
                             o.setCapacidadActual(o.getCapacidadActual() + 1);
                             px.setEstado(PaqueteEstadoEnum.EN_ALMACEN);
