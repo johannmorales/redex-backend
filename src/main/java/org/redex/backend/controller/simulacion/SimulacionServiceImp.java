@@ -204,7 +204,7 @@ public class SimulacionServiceImp implements SimulacionService {
             oficina.setCapacidadActual(0);
         }
         simulador.setOficinas(oficinas);
-
+        //simulador.setTermino(0);
         PlanVuelo pv = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
         simulador.setVuelos(pv.getVuelos());
     }

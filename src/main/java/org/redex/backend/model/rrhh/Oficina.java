@@ -146,11 +146,14 @@ public class Oficina implements Serializable {
         this.capacidadActual += cant;
     }
 
-    public void checkIntegrity(LocalDateTime momento) {
+    public int checkIntegrity(LocalDateTime momento) {
         if (this.capacidadActual > this.capacidadMaxima) {
             logger.error("[{}] {} {}/{} ({}%) ", momento.format(DateTimeFormatter.ISO_DATE_TIME), codigo, capacidadActual, capacidadMaxima, (double) capacidadActual / (double) capacidadMaxima * 100);
+            //System.out.println("murio");
+            return 1;
         } else {
             logger.debug("[{}] {} {}/{} ({}%) ", momento.format(DateTimeFormatter.ISO_DATE_TIME), codigo, capacidadActual, capacidadMaxima, (double) capacidadActual / (double) capacidadMaxima * 100);
+            return 0;
         }
     }
 

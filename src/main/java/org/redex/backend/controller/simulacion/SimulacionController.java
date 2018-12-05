@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -130,10 +131,17 @@ public class SimulacionController {
 
     @PostMapping("window")
     public ResponseEntity<?> getWindow(@RequestBody Ventana v) {
+        System.out.println(v.getInicio());
+        System.out.println(v.getFin());
         List<SimulacionAccionWrapper> acciones = simulador.procesarVentana(v);
-
+        
+        int termino = simulador.getTermino();
+        
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-
+        System.out.println("Termino: "+ termino);
+        Termino t = new Termino();
+        t.setStatus(termino);
+        arr.add(JsonHelper.createJson(t,JsonNodeFactory.instance));
         for (SimulacionAccionWrapper accion : acciones) {
             arr.add(JsonHelper.createJson(accion, JsonNodeFactory.instance));
         }

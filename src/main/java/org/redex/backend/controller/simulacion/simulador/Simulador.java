@@ -24,6 +24,20 @@ import org.redex.backend.model.rrhh.Oficina;
 @Component
 public class Simulador {
 
+    /**
+     * @return the termino
+     */
+    public int getTermino() {
+        return termino;
+    }
+
+    /**
+     * @param termino the termino to set
+     */
+    public void setTermino(int termino) {
+        this.termino = termino;
+    }
+
     private static Logger logger = LogManager.getLogger(Simulador.class);
 
     @Autowired
@@ -37,6 +51,8 @@ public class Simulador {
     private List<Oficina> oficinasList;
 
     private LocalDateTime fechaActual;
+    
+    private static int termino;
 
     Simulador() {
         this.oficinas = new HashMap<>();
@@ -47,9 +63,9 @@ public class Simulador {
         return gestorVuelosAgendados.allMovimientoAlgoritmo(inicio, fin);
     }
 
-    private void procesarPaquete(Paquete paquete, int i, Long t1) {
+    private int procesarPaquete(Paquete paquete, int i, Long t1) {
         if (paquete.getRutaGenerada()) {
-            return;
+            return -1;
         }
 
 //        logger.info("\n");
@@ -110,31 +126,36 @@ public class Simulador {
             i++;
 
             paquete.getOficinaOrigen().agregarPaquete();
-            paquete.getOficinaOrigen().checkIntegrity(paquete.getFechaIngreso());
+            termino = paquete.getOficinaOrigen().checkIntegrity(paquete.getFechaIngreso());
+            //System.out.println("check " + termino);
+            if (termino == 0){
+                this.simular(paquete.getFechaIngreso());
+                Long t3 = System.currentTimeMillis();
+                List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, gestorVuelosAgendados.allMovimientoAlgoritmo(fechaInicio, fechaFin), oficinasList);
+                Long t4 = System.currentTimeMillis();
 
+                // logger.info("Algoritmo corrio en {} ms\n", t4-t3);
 
-            this.simular(paquete.getFechaIngreso());
-            Long t3 = System.currentTimeMillis();
-            List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, gestorVuelosAgendados.allMovimientoAlgoritmo(fechaInicio, fechaFin), oficinasList);
-            Long t4 = System.currentTimeMillis();
+                int cont = 0;
+                for (VueloAgendado item : ruta) {
+                    cont++;
+                    if (cont == ruta.size()) {
+                        item.setCantidadSalida(item.getCantidadSalida() + 1);
+                    }
 
-            // logger.info("Algoritmo corrio en {} ms\n", t4-t3);
+                    item.setCapacidadActual(item.getCapacidadActual() + 1);
 
-            int cont = 0;
-            for (VueloAgendado item : ruta) {
-                cont++;
-                if (cont == ruta.size()) {
-                    item.setCantidadSalida(item.getCantidadSalida() + 1);
                 }
-
-                item.setCapacidadActual(item.getCapacidadActual() + 1);
-
             }
+            return termino;
+
+            
 
             //logger.info("RUTA: {} [{}=>{}]", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
         } catch (AvoidableException pex) {
             //pex.printStackTrace();
             //logger.error("RUTA: {} [{}=>{}] NO HAY VUELO POSIBLE", paquete.getFechaIngreso(), paquete.getOficinaOrigen().getCodigo(), paquete.getOficinaDestino().getCodigo());
+            return -1;
         }
     }
 
@@ -150,7 +171,8 @@ public class Simulador {
         for (Paquete paquete : paquetes) {
             Long t3 = System.currentTimeMillis();
             try {
-                this.procesarPaquete(paquete, i, t1);
+                int termino = this.procesarPaquete(paquete, i, t1);
+                if (termino == 1) break;
             } catch (AvoidableException ex) {
                 continue;
             }
