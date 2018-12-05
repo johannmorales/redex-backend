@@ -128,25 +128,25 @@ public class Simulador {
             paquete.getOficinaOrigen().agregarPaquete();
             termino = paquete.getOficinaOrigen().checkIntegrity(paquete.getFechaIngreso());
             //System.out.println("check " + termino);
-            if (termino == 0){
-                this.simular(paquete.getFechaIngreso());
-                Long t3 = System.currentTimeMillis();
-                List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, gestorVuelosAgendados.allMovimientoAlgoritmo(fechaInicio, fechaFin), oficinasList);
-                Long t4 = System.currentTimeMillis();
+            
+            this.simular(paquete.getFechaIngreso());
+            Long t3 = System.currentTimeMillis();
+            List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, gestorVuelosAgendados.allMovimientoAlgoritmo(fechaInicio, fechaFin), oficinasList);
+            Long t4 = System.currentTimeMillis();
 
-                // logger.info("Algoritmo corrio en {} ms\n", t4-t3);
+            // logger.info("Algoritmo corrio en {} ms\n", t4-t3);
 
-                int cont = 0;
-                for (VueloAgendado item : ruta) {
-                    cont++;
-                    if (cont == ruta.size()) {
-                        item.setCantidadSalida(item.getCantidadSalida() + 1);
-                    }
-
-                    item.setCapacidadActual(item.getCapacidadActual() + 1);
-
+            int cont = 0;
+            for (VueloAgendado item : ruta) {
+                cont++;
+                if (cont == ruta.size()) {
+                    item.setCantidadSalida(item.getCantidadSalida() + 1);
                 }
+
+                item.setCapacidadActual(item.getCapacidadActual() + 1);
+
             }
+            
             return termino;
 
             

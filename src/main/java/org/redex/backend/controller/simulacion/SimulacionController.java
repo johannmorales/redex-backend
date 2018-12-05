@@ -145,8 +145,15 @@ public class SimulacionController {
         for (SimulacionAccionWrapper accion : acciones) {
             arr.add(JsonHelper.createJson(accion, JsonNodeFactory.instance));
         }
-
-        return ResponseEntity.ok(arr);
+        
+        ResponseWindow rW = new ResponseWindow();
+        rW.setStatus(termino);
+        rW.setListActions(acciones);
+        ObjectNode response = JsonHelper.createJson(rW, JsonNodeFactory.instance, new String[]{
+            "status",
+            "listActions.*"
+        });
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("reporte")
