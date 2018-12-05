@@ -2,6 +2,7 @@ package org.redex.backend.model.envios;
 
 import org.redex.backend.model.general.Persona;
 import org.redex.backend.model.rrhh.Oficina;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -24,6 +25,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Transient;
+
 import org.redex.backend.model.AppConstants;
 import org.redex.backend.model.auditoria.ModificacionAuditable;
 
@@ -234,5 +236,12 @@ public class Paquete extends ModificacionAuditable implements Serializable, Comp
     @Override
     public int compareTo(Object o) {
         return Integer.compare(this.hashCode(), o.hashCode());
+    }
+
+    public LocalDateTime getFechaMaximaEntrega() {
+        return this.getOficinaOrigen().getPais().getContinente() == this.getOficinaDestino().getPais().getContinente()
+                ? this.fechaIngreso.plusHours(24L)
+                : this.fechaIngreso.plusHours(48L);
+
     }
 }

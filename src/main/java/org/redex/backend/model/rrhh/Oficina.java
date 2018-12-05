@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redex.backend.controller.simulacion.simulador.DeadSimulationException;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.general.EstadoEnum;
 import org.redex.backend.model.general.Pais;
@@ -146,14 +147,12 @@ public class Oficina implements Serializable {
         this.capacidadActual += cant;
     }
 
-    public int checkIntegrity(LocalDateTime momento) {
+    public void checkIntegrity(LocalDateTime momento) {
         if (this.capacidadActual > this.capacidadMaxima) {
             logger.error("[{}] {} {}/{} ({}%) ", momento.format(DateTimeFormatter.ISO_DATE_TIME), codigo, capacidadActual, capacidadMaxima, (double) capacidadActual / (double) capacidadMaxima * 100);
-            //System.out.println("murio");
-            return 1;
+            throw new DeadSimulationException();
         } else {
             logger.debug("[{}] {} {}/{} ({}%) ", momento.format(DateTimeFormatter.ISO_DATE_TIME), codigo, capacidadActual, capacidadMaxima, (double) capacidadActual / (double) capacidadMaxima * 100);
-            return 0;
         }
     }
 

@@ -135,7 +135,7 @@ public class SimulacionController {
         System.out.println(v.getFin());
         List<SimulacionAccionWrapper> acciones = simulador.procesarVentana(v);
         
-        int termino = simulador.getTermino();
+        int termino = simulador.isTermino() ? 1 : 0;
         
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
         System.out.println("Termino: "+ termino);
