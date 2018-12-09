@@ -1,5 +1,7 @@
 package org.redex.backend.controller.simulacion;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -36,10 +38,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +49,8 @@ import static java.lang.Character.isDigit;
 @Service
 @Transactional(readOnly = true)
 public class SimulacionServiceImp implements SimulacionService {
+
+    public static Logger logger = LogManager.getLogger(SimulacionServiceImp.class);
 
     @Autowired
     Simulador simulador;
@@ -98,6 +99,7 @@ public class SimulacionServiceImp implements SimulacionService {
 
             }
 
+            logger.info("Paquetes agregados: {}", nuevosPaquetes.size());
             gestorPaquetes.agregarLista(nuevosPaquetes);
 
         } catch (IOException ex) {
@@ -252,6 +254,11 @@ public class SimulacionServiceImp implements SimulacionService {
         }
 
         return write(workbook, "simulacion_reporte");
+    }
+
+    @Override
+    public List<String> getVuelosResumidos() {
+        return simulador.getVuelos().stream().map(v -> String.format("%s-%s", v.getOficinaOrigen().getPais().getCodigoIso(), v.getOficinaDestino().getPais().getCodigoIso())).distinct().collect(Collectors.toList());
     }
 
     private String write(Workbook workbook, String prefifo) {

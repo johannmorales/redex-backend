@@ -25,6 +25,8 @@ public class Movimiento implements Comparable<Movimiento> {
 
     LocalDateTime momento;
 
+    VueloAgendado vueloAgendado;
+
     public Tipo tipo;
 
     public void process() {
@@ -42,6 +44,7 @@ public class Movimiento implements Comparable<Movimiento> {
         mov.momento = va.getFechaFin();
         mov.oficina = va.getOficinaDestino();
         mov.tipo = Tipo.ENTRADA;
+        mov.vueloAgendado = va;
         return mov;
     }
 
@@ -51,6 +54,7 @@ public class Movimiento implements Comparable<Movimiento> {
         mov.momento = va.getFechaFin();
         mov.oficina = va.getOficinaDestino();
         mov.tipo = Tipo.SALIDA;
+        mov.vueloAgendado = va;
         return mov;
     }
 
@@ -61,15 +65,16 @@ public class Movimiento implements Comparable<Movimiento> {
         mov.momento = va.getFechaInicio();
         mov.oficina = va.getOficinaOrigen();
         mov.tipo = Tipo.SALIDA;
+        mov.vueloAgendado = va;
         return mov;
     }
 
     public Integer tipoValue() {
         switch (this.tipo) {
             case SALIDA:
-                return 0;
-            case ENTRADA:
                 return 1;
+            case ENTRADA:
+                return 0;
         }
 
         return 0;
@@ -82,5 +87,10 @@ public class Movimiento implements Comparable<Movimiento> {
             return this.tipoValue().compareTo(o.tipoValue());
         }
         return momentComparison;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %d [%s]", oficina.getCodigo(), cantidad, tipo.name());
     }
 }

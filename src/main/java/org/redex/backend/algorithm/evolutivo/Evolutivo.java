@@ -25,7 +25,7 @@ public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
-    private int iteraciones = 5;
+    private int iteraciones = 1;
     private int populationSize = 5;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
@@ -43,8 +43,6 @@ public class Evolutivo implements Algoritmo {
 
         TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
 
-        Long t3 = System.currentTimeMillis();
-
         for (int i = 0; i < iteraciones; i++) {
             TreeMultiset<Cromosoma> survivors = fight(population);
             TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
@@ -52,15 +50,6 @@ public class Evolutivo implements Algoritmo {
             population.addAll(survivors);
             population.addAll(mutants);
         }
-
-        Long t4 = System.currentTimeMillis();
-
-//        logger.info("gestor: {}", t2 - t1);
-//        logger.info("inital: {}", t3 - t2);
-//        logger.info("iterat: {}", t4 - t3);
-//        logger.info("------");
-//        logger.info("\n");
-//        logger.info("\n");
 
         Cromosoma winner = population.firstEntry().getElement();
 

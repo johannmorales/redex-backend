@@ -2,6 +2,8 @@ package org.redex.backend.controller.simulacion.simulador;
 
 import com.google.common.collect.TreeMultimap;
 import org.redex.backend.controller.simulacion.Ventana;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.miscelanea.Assert;
 
 import java.util.ArrayList;
@@ -11,6 +13,8 @@ import java.util.NavigableMap;
 import java.util.stream.Collectors;
 
 public class SortedList<X extends Comparable, Y> {
+
+    public static Logger logger = LoggerFactory.getLogger(SortedList.class);
 
     private TreeMultimap<X, Y> inner;
 
@@ -41,7 +45,7 @@ public class SortedList<X extends Comparable, Y> {
         return key;
     }
 
-    private List<Y> extract(NavigableMap<X, Collection<Y>> map) {
+    private synchronized List<Y> extract(NavigableMap<X, Collection<Y>> map) {
         return map.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
@@ -55,24 +59,57 @@ public class SortedList<X extends Comparable, Y> {
         return inWindow((X) window.getInicio(), (X) window.getFin());
     }
 
-    public List<Y> inWindow(X start, X end) {
+    public synchronized List<Y> inWindow(X start, X end) {
         Assert.isNotNull(inner, "Not initialized");
+
+        if (inner.isEmpty()) return new ArrayList<>();
+
+        if (inner.asMap().firstKey().compareTo(end) > 0) {
+            return new ArrayList<>();
+        }
+        if (inner.asMap().lastKey().compareTo(start) <= 0) {
+            return new ArrayList<>();
+        }
+
         X startKey = cleanKey(start);
         X endKey = cleanKey(end);
 
+
         if (startKey.equals(endKey)) {
-            if(!inner.containsKey(startKey)){
+            if (!inner.containsKey(startKey)) {
                 return new ArrayList<>();
             }
             return inner.asMap().get(startKey).stream().collect(Collectors.toList());
         } else {
             return extract(inner.asMap().tailMap(startKey, false).headMap(endKey, true));
-
         }
     }
 
     public void add(X key, Y obj) {
         Assert.isNotNull(inner, "Not initialized");
         inner.put(key, obj);
+    }
+
+    public void deleteBeforeOrEqual(X fechaLimite) {
+        if (inner.isEmpty()) {
+            return;
+        }
+
+        if (inner.asMap().firstKey().compareTo(fechaLimite) > 0) {
+            return;
+        }
+
+        List<X> toBeDeleted = new ArrayList<>();
+
+        for (X x : this.inner.asMap().keySet()) {
+            if (x.compareTo(fechaLimite) <= 0) {
+                toBeDeleted.add(x);
+            }
+        }
+
+        for (X x : toBeDeleted) {
+            inner.removeAll(x);
+        }
+
     }
 }

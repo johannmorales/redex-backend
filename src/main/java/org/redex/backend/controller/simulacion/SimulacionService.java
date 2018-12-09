@@ -3,6 +3,8 @@ package org.redex.backend.controller.simulacion;
 import org.redex.backend.zelper.response.CargaDatosResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface SimulacionService {
 
     CargaDatosResponse cargaPaquetes(MultipartFile file);
@@ -14,4 +16,6 @@ public interface SimulacionService {
     void crear();
 
     String reporte(SimulacionReporte payload);
+
+    List<String> getVuelosResumidos();
 }

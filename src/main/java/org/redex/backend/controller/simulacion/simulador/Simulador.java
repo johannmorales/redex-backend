@@ -9,12 +9,15 @@ import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
 import org.redex.backend.model.envios.Vuelo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
+import pe.albatross.zelpers.miscelanea.Assert;
 
 @Component
 public class Simulador {
@@ -50,8 +53,7 @@ public class Simulador {
         LocalDateTime fechaFin = paquete.getFechaMaximaEntrega();
         Ventana ventanaPaquete = Ventana.of(fechaInicio, fechaFin);
 
-        List<VueloAgendado> vuelosTodos = gestorVuelosAgendados.allPartenEnVentana(ventanaPaquete);
-        List<VueloAgendado> vuelosCumplen = vuelosTodos.stream().filter(va -> va.getCapacidadActual() + 5 < va.getCapacidadMaxima()).collect(Collectors.toList());
+        List<VueloAgendado> vuelosCumplen = gestorVuelosAgendados.allAlgoritmo(ventanaPaquete);
         List<AlgoritmoMovimiento> movimientos = gestorVuelosAgendados.allMovimientoAlgoritmo(ventanaPaquete);
 
         Evolutivo e = new Evolutivo();
@@ -79,6 +81,7 @@ public class Simulador {
     }
 
     private List<SimulacionAccionWrapper> acciones(Ventana ventana) {
+        List<VueloAgendado> vuelosAgendados = gestorVuelosAgendados.allPartenEnVentana(ventana);
 
         List<SimulacionAccionWrapper> acciones = new ArrayList<>();
 
@@ -102,7 +105,6 @@ public class Simulador {
             i++;
         }
 
-        List<VueloAgendado> vuelosAgendados = gestorVuelosAgendados.allPartenEnVentana(ventana);
 
         for (VueloAgendado vuelosAgendado : vuelosAgendados) {
             acciones.add(SimulacionAccionWrapper.of(vuelosAgendado));
@@ -118,13 +120,20 @@ public class Simulador {
 
         List<VueloAgendado> vasFin = gestorVuelosAgendados.allLleganEnVentana(Ventana.of(fechaActual, fechaLimite));
         for (VueloAgendado vueloAgendado : vasFin) {
-            movimientos.add(Movimiento.fromFinVuelo(vueloAgendado));
-            movimientos.add(Movimiento.fromSalidaPaquetes(vueloAgendado));
+
+            if (vueloAgendado.getCapacidadActual() > 0) {
+                movimientos.add(Movimiento.fromFinVuelo(vueloAgendado));
+            }
+            if (vueloAgendado.getCantidadSalida() > 0) {
+                movimientos.add(Movimiento.fromSalidaPaquetes(vueloAgendado));
+            }
         }
 
         List<VueloAgendado> vasInicio = gestorVuelosAgendados.allPartenEnVentana(Ventana.of(fechaActual, fechaLimite));
         for (VueloAgendado vueloAgendado : vasInicio) {
-            movimientos.add(Movimiento.fromInicioVuelo(vueloAgendado));
+            if (vueloAgendado.getCapacidadActual() > 0) {
+                movimientos.add(Movimiento.fromInicioVuelo(vueloAgendado));
+            }
         }
 
         Collections.sort(movimientos);
@@ -132,6 +141,8 @@ public class Simulador {
         for (Movimiento movimiento : movimientos) {
             movimiento.process();
         }
+
+        gestorVuelosAgendados.limpiarHasta(fechaLimite);
 
         this.fechaActual = fechaLimite;
     }

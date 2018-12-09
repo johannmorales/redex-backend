@@ -48,7 +48,7 @@ public class GestorVuelosAgendados {
     }
 
     public void crearVuelosAgendadosNecesarios(Ventana ventana) {
-        LocalDate inicio = ventana.getInicio().toLocalDate();
+        LocalDate inicio = ventana.getInicio().toLocalDate().minusDays(1L);
         LocalDate fin = ventana.getFin().toLocalDate().plusDays(4L);
 
         if (this.finGeneracionVuelosAgendados != null) {
@@ -126,6 +126,14 @@ public class GestorVuelosAgendados {
         return vuelosAgendadosPorInicio.inWindow(ventana);
     }
 
+    public List<VueloAgendado> allAlgoritmo(Ventana ventana) {
+        return vuelosAgendadosPorInicio.inWindow(ventana)
+                .stream()
+                .filter(va -> va.getCapacidadActual() < va.getCapacidadMaxima())
+                .filter(va -> va.getFechaFin().isBefore(ventana.getFin()) || va.getFechaFin().equals(ventana.getFin()))
+                .collect(Collectors.toList());
+    }
+
 
     public void setVuelos(List<Vuelo> nuevosVuelos) {
         this.vuelos = nuevosVuelos;
@@ -133,5 +141,10 @@ public class GestorVuelosAgendados {
 
     public List<Vuelo> getVuelos() {
         return vuelos;
+    }
+
+    public void limpiarHasta(LocalDateTime fechaLimite) {
+        this.vuelosAgendadosPorFin.deleteBeforeOrEqual(fechaLimite);
+        this.vuelosAgendadosPorInicio.deleteBeforeOrEqual(fechaLimite);
     }
 }

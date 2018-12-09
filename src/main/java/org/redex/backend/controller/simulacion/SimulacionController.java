@@ -129,23 +129,30 @@ public class SimulacionController {
     }
 
 
+    @GetMapping("vuelosResumidos")
+    public ArrayNode vuelosResumidos() {
+        List<String> vuelos = service.getVuelosResumidos();
+        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        for (String vuelo : vuelos) {
+            arr.add(vuelo);
+        }
+        return arr;
+    }
+
+
     @PostMapping("window")
     public ResponseEntity<?> getWindow(@RequestBody Ventana v) {
-        System.out.println(v.getInicio());
-        System.out.println(v.getFin());
+        logger.info("Procesando ventana [{}] - [{}]", v.getInicio(), v.getInicio());
+        Long t1 = System.currentTimeMillis();
         List<SimulacionAccionWrapper> acciones = simulador.procesarVentana(v);
         
         int termino = simulador.isTermino() ? 1 : 0;
         
-        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-        System.out.println("Termino: "+ termino);
+        logger.info("Termino? {}", simulador.isTermino());
+
         Termino t = new Termino();
         t.setStatus(termino);
-        arr.add(JsonHelper.createJson(t,JsonNodeFactory.instance));
-        for (SimulacionAccionWrapper accion : acciones) {
-            arr.add(JsonHelper.createJson(accion, JsonNodeFactory.instance));
-        }
-        
+
         ResponseWindow rW = new ResponseWindow();
         rW.setStatus(termino);
         rW.setListActions(acciones);
@@ -153,6 +160,10 @@ public class SimulacionController {
             "status",
             "listActions.*"
         });
+
+        Long t2 = System.currentTimeMillis();
+
+        logger.info("Ventana devuelta en {} s", (t2-t1)/1000);
         return ResponseEntity.ok(response);
     }
 
