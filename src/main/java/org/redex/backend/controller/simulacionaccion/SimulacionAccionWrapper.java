@@ -111,23 +111,4 @@ public class SimulacionAccionWrapper {
         return w;
     }
 
-    public static SimulacionAccionWrapper of(SimulacionAccion a){
-        SimulacionAccionWrapper w = new SimulacionAccionWrapper();
-        w.setTipo(a.getTipo().name());
-        w.setOficinaLlegada(a.getOficinaDestino().getPais().getCodigoIso());
-        if(a.getOficinaOrigen() != null){
-            w.setOficinaSalida(a.getOficinaOrigen().getPais().getCodigoIso());
-        }
-        if(a.getFechaFin() != null){
-            w.setFechaLlegada((Long) a.getFechaFin().toInstant(ZoneOffset.UTC).toEpochMilli());
-        }
-        if(a.getFechaInicio() != null){
-            w.setFechaSalida((Long) a.getFechaInicio().toInstant(ZoneOffset.UTC).toEpochMilli());
-        }
-        w.setCantidad(a.getCantidad());
-        if (a.getCantidadSalida() != null){
-            w.setCantidadSalida(a.getCantidadSalida());
-        }
-        return w;
-    }
 }

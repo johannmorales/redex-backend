@@ -159,4 +159,9 @@ public class Oficina implements Serializable {
     public void quitarPaquetes(Integer cantidad) {
         this.capacidadActual -= cantidad;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((Oficina) obj).getCodigo().equals(codigo);
+    }
 }

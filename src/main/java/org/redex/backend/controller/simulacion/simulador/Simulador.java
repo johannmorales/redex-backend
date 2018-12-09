@@ -18,6 +18,7 @@ import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 @Component
 public class Simulador {
@@ -77,8 +78,14 @@ public class Simulador {
         }
 
 
+        this.simular(ventana.getFin());
+        gestorVuelosAgendados.limpiarHasta(ventana.getFin());
+
         for (VueloAgendado vuelosAgendado : vuelosAgendados) {
-            acciones.add(SimulacionAccionWrapper.of(vuelosAgendado));
+            logger.info("Vuelo agendado: {}", vuelosAgendado);
+            SimulacionAccionWrapper saw = SimulacionAccionWrapper.of(vuelosAgendado);
+            acciones.add(saw);
+            ObjectUtil.printAttr(saw);
         }
 
         Collections.sort(acciones, Comparator.comparing(SimulacionAccionWrapper::getFechaSalida));
@@ -86,7 +93,7 @@ public class Simulador {
         return acciones;
     }
 
-    private void procesarPaquete(Paquete paquete, int i, Long t1) {
+    private List<VueloAgendado> procesarPaquete(Paquete paquete, int i, Long t1) {
         LocalDateTime fechaInicio = paquete.getFechaIngreso();
         LocalDateTime fechaFin = paquete.getFechaMaximaEntrega();
 
@@ -104,7 +111,7 @@ public class Simulador {
         }
 
         if(fechaActual != null && paquete.getFechaIngreso().isAfter(fechaActual)){
-            this.simular(paquete.getFechaIngreso());
+            return this.simular(paquete.getFechaIngreso());
         }
 
         List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, movimientos, oficinasList);
@@ -119,9 +126,10 @@ public class Simulador {
             item.setCapacidadActual(item.getCapacidadActual() + 1);
         }
 
+        return new ArrayList<>();
     }
 
-    private void simular(LocalDateTime fechaLimite) {
+    private List<VueloAgendado> simular(LocalDateTime fechaLimite) {
         List<Movimiento> movimientos = new ArrayList<>();
 
         List<VueloAgendado> vasFin = gestorVuelosAgendados.allLleganEnVentana(Ventana.of(fechaActual, fechaLimite));
@@ -147,6 +155,7 @@ public class Simulador {
             movimiento.process();
         }
 
+
         gestorVuelosAgendados.limpiarHasta(fechaLimite);
 
         for (Oficina oficina : oficinasList) {
@@ -155,6 +164,8 @@ public class Simulador {
         }
 
         this.fechaActual = fechaLimite;
+
+        return vasInicio;
     }
 
 

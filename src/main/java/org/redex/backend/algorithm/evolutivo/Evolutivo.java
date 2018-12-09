@@ -15,18 +15,21 @@ import org.redex.backend.algorithm.gestor.AlgoritmoMovimiento;
 import org.redex.backend.algorithm.gestor.GestorAlgoritmo;
 import org.redex.backend.algorithm.PathNotFoundException;
 import org.redex.backend.controller.simulacion.simulador.AvoidableException;
+import org.redex.backend.controller.simulacion.simulador.DeadSimulationException;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import sun.tools.asm.CatchData;
 
 public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
-    private int iteraciones = 2;
-    private int populationSize = 5;
+    private int iteraciones = 20;
+    private int populationSize = 20;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
 
@@ -38,7 +41,7 @@ public class Evolutivo implements Algoritmo {
 
     private GestorAlgoritmo gestorAlgoritmo;
 
-    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosCumplen, List<AlgoritmoMovimiento> movimientos, List<Oficina> oficinas){
+    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosCumplen, List<AlgoritmoMovimiento> movimientos, List<Oficina> oficinas) {
         gestorAlgoritmo = new GestorAlgoritmo(vuelosCumplen, movimientos, oficinas);
 
         TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
@@ -53,8 +56,48 @@ public class Evolutivo implements Algoritmo {
 
         Cromosoma winner = population.firstEntry().getElement();
 
-        return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
+        List<VueloAgendado> ruta = winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
 
+        //checkIntegrity(ruta, paquete);
+
+        return ruta;
+
+    }
+
+    private void checkIntegrity(List<VueloAgendado> ruta, Paquete paquete) {
+        try {
+            VueloAgendado last = ruta.get(ruta.size() - 1);
+            Assert.isTrue(paquete.getOficinaDestino() == last.getOficinaDestino(), "Paquete no llega al destino, ofina errada");
+            Assert.isTrue(paquete.getFechaMaximaEntrega().isAfter(last.getFechaFin()) || paquete.getFechaMaximaEntrega().isEqual(last.getFechaFin()), "Paquete no llega al destino, tiempo");
+
+            Oficina curr = null;
+            LocalDateTime now = null;
+
+            for (VueloAgendado vueloAgendado : ruta) {
+                Assert.isTrue(curr == null || vueloAgendado.getOficinaOrigen() == curr, "Oficinas no consecutivas lugar");
+                Assert.isTrue(now == null || now.isBefore(vueloAgendado.getFechaInicio()) || now.isEqual(vueloAgendado.getFechaInicio()), "Oficinas no consecutivas tiempo");
+                curr = vueloAgendado.getOficinaDestino();
+                now = vueloAgendado.getFechaFin();
+            }
+        } catch (Exception ex){
+            ex.printStackTrace();
+            logger.error("RUTA ERROR {}", paquete);
+
+            VueloAgendado last = ruta.get(ruta.size() - 1);
+
+            logger.error("Ultima oficnia {} {}", paquete.getOficinaDestino(), last.getOficinaDestino());
+
+            Oficina curr = null;
+
+
+            for (VueloAgendado vueloAgendado : ruta) {
+                logger.error("AHORA ESTOYEN  {}", curr);
+                logger.error("RUTA ERROR {}", vueloAgendado);
+                curr = vueloAgendado.getOficinaDestino();
+            }
+
+            throw  new DeadSimulationException();
+        }
     }
 
     @Override
@@ -68,7 +111,7 @@ public class Evolutivo implements Algoritmo {
 
         List<VueloAgendado> ruta = buildRandomPath(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso());
 
-        if(ruta == null){
+        if (ruta == null) {
             throw new AvoidableException();
         }
 

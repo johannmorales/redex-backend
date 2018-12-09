@@ -67,9 +67,6 @@ public class SortedList<X extends Comparable, Y> {
         if (inner.asMap().firstKey().compareTo(end) > 0) {
             return new ArrayList<>();
         }
-        if (inner.asMap().lastKey().compareTo(start) <= 0) {
-            return new ArrayList<>();
-        }
 
         X startKey = cleanKey(start);
         X endKey = cleanKey(end);
