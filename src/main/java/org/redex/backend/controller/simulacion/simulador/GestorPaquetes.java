@@ -29,4 +29,8 @@ public class GestorPaquetes {
     public void inicializar() {
         this.paquetes = SortedList.create();
     }
+
+    public void limpiarHasta(LocalDateTime fin) {
+        paquetes.deleteBeforeOrEqual(fin);
+    }
 }

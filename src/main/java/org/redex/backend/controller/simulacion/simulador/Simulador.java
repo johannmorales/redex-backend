@@ -44,40 +44,10 @@ public class Simulador {
         this.termino = false;
     }
 
-    private void procesarPaquete(Paquete paquete, int i, Long t1) {
-        if (paquete.getRutaGenerada()) {
-            return;
-        }
-
-        LocalDateTime fechaInicio = paquete.getFechaIngreso();
-        LocalDateTime fechaFin = paquete.getFechaMaximaEntrega();
-        Ventana ventanaPaquete = Ventana.of(fechaInicio, fechaFin);
-
-        List<VueloAgendado> vuelosCumplen = gestorVuelosAgendados.allAlgoritmo(ventanaPaquete);
-        List<AlgoritmoMovimiento> movimientos = gestorVuelosAgendados.allMovimientoAlgoritmo(ventanaPaquete);
-
-        Evolutivo e = new Evolutivo();
-
-        if (i % 500 == 0) {
-            Long t2 = System.currentTimeMillis();
-            Long duracion = (t2 - t1);
-            logger.info("Fecha actual [{}] [{}] ({} ms)", paquete.getFechaIngreso(), i, duracion);
-        }
-
-        this.simular(paquete.getFechaIngreso());
-
-        List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, movimientos, oficinasList);
-
-        int cont = 0;
-
-        for (VueloAgendado item : ruta) {
-            cont++;
-            if (cont == ruta.size()) {
-                item.setCantidadSalida(item.getCantidadSalida() + 1);
-            }
-            item.setCapacidadActual(item.getCapacidadActual() + 1);
-        }
-
+    public List<SimulacionAccionWrapper> procesarVentana(Ventana ventana) {
+        this.gestorVuelosAgendados.crearVuelosAgendadosNecesarios(ventana);
+        List<SimulacionAccionWrapper> acciones = this.acciones(ventana);
+        return acciones;
     }
 
     private List<SimulacionAccionWrapper> acciones(Ventana ventana) {
@@ -86,6 +56,7 @@ public class Simulador {
         List<SimulacionAccionWrapper> acciones = new ArrayList<>();
 
         List<Paquete> paquetes = gestorPaquetes.allEntranVentana(ventana);
+        this.gestorPaquetes.limpiarHasta(ventana.getFin());
 
         Long t1 = System.currentTimeMillis();
         int i = 0;
@@ -115,12 +86,46 @@ public class Simulador {
         return acciones;
     }
 
+    private void procesarPaquete(Paquete paquete, int i, Long t1) {
+        LocalDateTime fechaInicio = paquete.getFechaIngreso();
+        LocalDateTime fechaFin = paquete.getFechaMaximaEntrega();
+
+        Ventana ventanaPaquete = Ventana.of(fechaInicio, fechaFin);
+
+        List<VueloAgendado> vuelosCumplen = gestorVuelosAgendados.allAlgoritmo(ventanaPaquete);
+        List<AlgoritmoMovimiento> movimientos = gestorVuelosAgendados.allMovimientoAlgoritmo(ventanaPaquete);
+
+        Evolutivo e = new Evolutivo();
+
+        if (i % 500 == 0) {
+            Long t2 = System.currentTimeMillis();
+            Long duracion = (t2 - t1);
+            logger.info("Fecha actual [{}] [{}] ({} ms)", paquete.getFechaIngreso(), i, duracion);
+        }
+
+        if(fechaActual != null && paquete.getFechaIngreso().isAfter(fechaActual)){
+            this.simular(paquete.getFechaIngreso());
+        }
+
+        List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, movimientos, oficinasList);
+
+        int cont = 0;
+
+        for (VueloAgendado item : ruta) {
+            cont++;
+            if (cont == ruta.size()) {
+                item.setCantidadSalida(item.getCantidadSalida() + 1);
+            }
+            item.setCapacidadActual(item.getCapacidadActual() + 1);
+        }
+
+    }
+
     private void simular(LocalDateTime fechaLimite) {
         List<Movimiento> movimientos = new ArrayList<>();
 
         List<VueloAgendado> vasFin = gestorVuelosAgendados.allLleganEnVentana(Ventana.of(fechaActual, fechaLimite));
         for (VueloAgendado vueloAgendado : vasFin) {
-
             if (vueloAgendado.getCapacidadActual() > 0) {
                 movimientos.add(Movimiento.fromFinVuelo(vueloAgendado));
             }
@@ -144,14 +149,14 @@ public class Simulador {
 
         gestorVuelosAgendados.limpiarHasta(fechaLimite);
 
+        for (Oficina oficina : oficinasList) {
+            Assert.isTrue(oficina.getCapacidadMaxima() >= oficina.getCapacidadActual(), "Capacidad actual mayor que maxima");
+            Assert.isTrue(oficina.getCapacidadActual() >= 0, "Capacidad actual menor que 0");
+        }
+
         this.fechaActual = fechaLimite;
     }
 
-    public List<SimulacionAccionWrapper> procesarVentana(Ventana ventana) {
-        this.gestorVuelosAgendados.crearVuelosAgendadosNecesarios(ventana);
-        List<SimulacionAccionWrapper> acciones = this.acciones(ventana);
-        return acciones;
-    }
 
     public List<Vuelo> getVuelos() {
         return this.gestorVuelosAgendados.getVuelos();

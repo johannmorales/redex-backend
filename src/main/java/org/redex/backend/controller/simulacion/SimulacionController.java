@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -142,7 +143,9 @@ public class SimulacionController {
 
     @PostMapping("window")
     public ResponseEntity<?> getWindow(@RequestBody Ventana v) {
-        logger.info("Procesando ventana [{}] - [{}]", v.getInicio(), v.getInicio());
+        v.setInicio(v.getInicio().atOffset(ZoneOffset.UTC).toLocalDateTime());
+        v.setFin(v.getFin().atOffset(ZoneOffset.UTC).toLocalDateTime());
+        logger.info("Procesando ventana [{}] - [{}]", v.getInicio(), v.getFin());
         Long t1 = System.currentTimeMillis();
         List<SimulacionAccionWrapper> acciones = simulador.procesarVentana(v);
         

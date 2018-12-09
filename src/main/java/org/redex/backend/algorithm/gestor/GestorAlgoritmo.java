@@ -3,6 +3,7 @@ package org.redex.backend.algorithm.gestor;
 import com.google.common.collect.TreeMultimap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redex.backend.controller.simulacion.simulador.SortedSumList;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
 
@@ -16,19 +17,23 @@ public class GestorAlgoritmo {
 
     private List<Oficina> oficinas;
 
-    private Map<Oficina, TreeMap<LocalDateTime, Integer>> variacionCapacidadAlmacen;
 
-    private Map<Oficina, TreeMultimap<LocalDateTime,VueloAgendado>> vuelosAgendadosPorOrigen2;
+    private Map<Oficina, SortedSumList<LocalDateTime, Integer>> aumentosCapacidad;
+    private Map<Oficina, SortedSumList<LocalDateTime, Integer>> disminucionCapacidad;
+
+    private Map<Oficina, TreeMultimap<LocalDateTime, VueloAgendado>> vuelosAgendadosPorOrigen2;
 
     public GestorAlgoritmo(List<VueloAgendado> vuelosCumplen, List<VueloAgendado> vuelosParten, List<VueloAgendado> vuelosLlegan, List<Oficina> oficinas) {
         this.vuelosAgendadosPorOrigen2 = new HashMap<>();
-        this.variacionCapacidadAlmacen = new HashMap<>();
+        this.aumentosCapacidad = new HashMap<>();
+        this.disminucionCapacidad = new HashMap<>();
 
         this.oficinas = oficinas;
 
         for (Oficina oficina : this.oficinas) {
             vuelosAgendadosPorOrigen2.put(oficina, TreeMultimap.create());
-            variacionCapacidadAlmacen.put(oficina, new TreeMap<>());
+            aumentosCapacidad.put(oficina, SortedSumList.create());
+            disminucionCapacidad.put(oficina, SortedSumList.create());
         }
 
         Long t1 = System.currentTimeMillis();
@@ -43,30 +48,30 @@ public class GestorAlgoritmo {
 
         Long t3 = System.currentTimeMillis();
 
-        logger.info("\tvariacion en capacidades: {}", t2-t1);
-        logger.info("\tagregando vuelos posible: {}", t3-t2);
+        logger.info("\tvariacion en capacidades: {}", t2 - t1);
+        logger.info("\tagregando vuelos posible: {}", t3 - t2);
 
     }
 
     public GestorAlgoritmo(List<VueloAgendado> vuelosCumplen, List<AlgoritmoMovimiento> movimientos, List<Oficina> oficinas) {
         this.vuelosAgendadosPorOrigen2 = new HashMap<>();
-        this.variacionCapacidadAlmacen = new HashMap<>();
+        this.disminucionCapacidad = new HashMap<>();
+        this.aumentosCapacidad = new HashMap<>();
 
         this.oficinas = oficinas;
 
         for (Oficina oficina : this.oficinas) {
             vuelosAgendadosPorOrigen2.put(oficina, TreeMultimap.create());
-            variacionCapacidadAlmacen.put(oficina, new TreeMap<>());
+            aumentosCapacidad.put(oficina, SortedSumList.create());
+            disminucionCapacidad.put(oficina, SortedSumList.create());
         }
 
         for (AlgoritmoMovimiento movimiento : movimientos) {
-            TreeMap<LocalDateTime, Integer> variaciones = this.variacionCapacidadAlmacen.get(movimiento.getOficina());
-            if (variaciones.containsKey(movimiento.getMomento())) {
-                Integer actual = variaciones.get(movimiento.getMomento());
-                variaciones.replace(movimiento.getMomento(), actual + movimiento.getVariacion());
+            Oficina oficina = movimiento.getOficina();
+            if (movimiento.getVariacion() < 0) {
+                disminucionCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion() * -1);
             } else {
-                Integer last = this.obtenerCapacidadEnMomento(movimiento.getOficina(), movimiento.getMomento());
-                variaciones.put(movimiento.getMomento(), last + movimiento.getVariacion());
+                aumentosCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion());
             }
         }
 
@@ -83,15 +88,7 @@ public class GestorAlgoritmo {
     }
 
     public Integer obtenerCapacidadEnMomento(Oficina oficina, LocalDateTime momento) {
-        TreeMap<LocalDateTime, Integer> variaciones = variacionCapacidadAlmacen.get(oficina);
-        NavigableMap<LocalDateTime, Integer> limitado = variaciones.headMap(momento, true);
-
-        if (limitado.isEmpty()) {
-            return 0;
-        }
-
-        return limitado.lastEntry().getValue();
-
+        return aumentosCapacidad.get(oficina).get(momento) - disminucionCapacidad.get(oficina).getLastBefore(momento);
     }
 
     private void addMovimiento(TreeMap<LocalDateTime, List<AlgoritmoMovimiento>> movimientos, AlgoritmoMovimiento mov) {
@@ -124,14 +121,11 @@ public class GestorAlgoritmo {
 
         for (Map.Entry<LocalDateTime, List<AlgoritmoMovimiento>> entry : movimientos.entrySet()) {
             for (AlgoritmoMovimiento movimiento : entry.getValue()) {
-                TreeMap<LocalDateTime, Integer> variaciones = this.variacionCapacidadAlmacen.get(movimiento.getOficina());
-
-                if (variaciones.containsKey(movimiento.getMomento())) {
-                    Integer actual = variaciones.get(movimiento.getMomento());
-                    variaciones.replace(movimiento.getMomento(), actual + movimiento.getVariacion());
+                Oficina oficina = movimiento.getOficina();
+                if (movimiento.getVariacion() < 0) {
+                    disminucionCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion() * -1);
                 } else {
-                    Integer last = this.obtenerCapacidadEnMomento(movimiento.getOficina(), movimiento.getMomento());
-                    variaciones.put(movimiento.getMomento(), last + movimiento.getVariacion());
+                    aumentosCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion());
                 }
             }
         }

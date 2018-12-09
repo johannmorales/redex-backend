@@ -25,7 +25,7 @@ public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
-    private int iteraciones = 1;
+    private int iteraciones = 2;
     private int populationSize = 5;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
@@ -324,18 +324,6 @@ public class Evolutivo implements Algoritmo {
 
             costo += va.getPorcentajeUsado() * K1 + almacenPorcentaje * almacenPorcentaje * almacenPorcentaje * K2;
         }
-
-        VueloAgendado lastFlight = cromosome.getGenes().get(cromosome.getGenes().size() - 1).getVueloAgendado();
-
-        if (lastFlight.getOficinaDestino() != paquete.getOficinaDestino()) {
-            costo = costo + 1000000;
-        }
-
-        // LocalDateTime inicio = paquete.getFechaIngreso();
-        // LocalDateTime fin = cromosome.getGenes().get(cromosome.getGenes().size() - 1).getVueloAgendado().getFechaInicio();
-
-        //costo += ChronoUnit.MINUTES.between(inicio, fin);
-
 
         cromosome.setCosto(costo);
     }
