@@ -18,7 +18,7 @@ public class SortedSumList<X extends Comparable, Y extends Number> {
             if (inner.isEmpty()) {
                 inner.put(x, y);
             } else {
-                X lastKey = inner.floorKey(x);
+                X lastKey = inner.lastKey();
                 inner.put(x, (Y) (Integer) (inner.get(lastKey).intValue() + y.intValue()));
             }
         }

@@ -1,15 +1,15 @@
 package org.redex.backend.algorithm.gestor;
 
-import com.google.common.collect.TreeMultimap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redex.backend.controller.simulacion.simulador.SortedList;
+import org.redex.backend.controller.simulacion.simulador.SortedSimpleList;
 import org.redex.backend.controller.simulacion.simulador.SortedSumList;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GestorAlgoritmo {
 
@@ -17,11 +17,10 @@ public class GestorAlgoritmo {
 
     private List<Oficina> oficinas;
 
-
     private Map<Oficina, SortedSumList<LocalDateTime, Integer>> aumentosCapacidad;
     private Map<Oficina, SortedSumList<LocalDateTime, Integer>> disminucionCapacidad;
 
-    private Map<Oficina, TreeMultimap<LocalDateTime, VueloAgendado>> vuelosAgendadosPorOrigen2;
+    private Map<Oficina, SortedSimpleList<LocalDateTime, VueloAgendado>> vuelosAgendadosPorOrigen2;
 
     public GestorAlgoritmo(List<VueloAgendado> vuelosCumplen, List<VueloAgendado> vuelosParten, List<VueloAgendado> vuelosLlegan, List<Oficina> oficinas) {
         this.vuelosAgendadosPorOrigen2 = new HashMap<>();
@@ -31,7 +30,7 @@ public class GestorAlgoritmo {
         this.oficinas = oficinas;
 
         for (Oficina oficina : this.oficinas) {
-            vuelosAgendadosPorOrigen2.put(oficina, TreeMultimap.create());
+            vuelosAgendadosPorOrigen2.put(oficina, SortedSimpleList.create());
             aumentosCapacidad.put(oficina, SortedSumList.create());
             disminucionCapacidad.put(oficina, SortedSumList.create());
         }
@@ -61,12 +60,14 @@ public class GestorAlgoritmo {
         this.oficinas = oficinas;
 
         for (Oficina oficina : this.oficinas) {
-            vuelosAgendadosPorOrigen2.put(oficina, TreeMultimap.create());
+            vuelosAgendadosPorOrigen2.put(oficina, SortedSimpleList.create());
             aumentosCapacidad.put(oficina, SortedSumList.create());
             disminucionCapacidad.put(oficina, SortedSumList.create());
         }
 
+        Long t1 = System.currentTimeMillis();
         for (AlgoritmoMovimiento movimiento : movimientos) {
+            if(movimiento.getVariacion() == 0) continue;
             Oficina oficina = movimiento.getOficina();
             if (movimiento.getVariacion() < 0) {
                 disminucionCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion() * -1);
@@ -75,16 +76,20 @@ public class GestorAlgoritmo {
             }
         }
 
+        Long t2 = System.currentTimeMillis();
         for (VueloAgendado planeado : vuelosCumplen) {
             this.agregarVueloAgendado(planeado);
         }
 
+        Long t3 = System.currentTimeMillis();
+
+//        logger.info("\tvariacion en capacidades: {}", t2 - t1);
+//        logger.info("\tagregando vuelos posible: {}", t3 - t2);
     }
 
 
     public List<VueloAgendado> obtenerValidos(Oficina oficina, LocalDateTime momento) {
-        NavigableMap<LocalDateTime, Collection<VueloAgendado>> map = vuelosAgendadosPorOrigen2.get(oficina).asMap().tailMap(momento, true);
-        return map.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        return vuelosAgendadosPorOrigen2.get(oficina).allAfter(momento);
     }
 
     public Integer obtenerCapacidadEnMomento(Oficina oficina, LocalDateTime momento) {
@@ -136,7 +141,7 @@ public class GestorAlgoritmo {
     private void agregarVueloAgendado(VueloAgendado va) {
         LocalDateTime momento = va.getFechaInicio();
         Oficina oficina = va.getOficinaOrigen();
-        vuelosAgendadosPorOrigen2.get(oficina).put(momento, va);
+        vuelosAgendadosPorOrigen2.get(oficina).add(momento, va);
     }
 
 }

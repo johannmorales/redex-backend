@@ -1,32 +1,37 @@
 package org.redex.backend.controller.simulacion.simulador;
 
-import com.google.common.collect.TreeMultimap;
-import io.jsonwebtoken.lang.Assert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.redex.backend.algorithm.Algoritmo;
 import org.redex.backend.algorithm.gestor.AlgoritmoMovimiento;
 import org.redex.backend.controller.simulacion.Ventana;
+import org.redex.backend.model.envios.Vuelo;
+import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
-
-import org.redex.backend.model.envios.Vuelo;
-import org.redex.backend.model.envios.VueloAgendado;
 
 @Component
 public class GestorVuelosAgendados {
+
+    @Autowired
+    Simulador simulador;
 
     private static final Logger logger = LogManager.getLogger(GestorVuelosAgendados.class);
 
     private LocalDate finGeneracionVuelosAgendados;
     private List<Vuelo> vuelos;
-    private SortedList<LocalDateTime, VueloAgendado> vuelosAgendadosPorInicio;
-    private SortedList<LocalDateTime, VueloAgendado> vuelosAgendadosPorFin;
-    private SortedList<LocalDateTime, AlgoritmoMovimiento> algoritmoMovimiento;
+    private SortedSimpleList<LocalDateTime, VueloAgendado> vuelosAgendadosPorInicio;
+    private SortedSimpleList<LocalDateTime, VueloAgendado> vuelosAgendadosPorFin;
+
+    private SortedSimpleList<LocalDateTime, AlgoritmoMovimiento> movimientos;
+
 
     public GestorVuelosAgendados() {
         this.inicializar();
@@ -34,17 +39,18 @@ public class GestorVuelosAgendados {
 
     public void inicializar() {
         this.finGeneracionVuelosAgendados = null;
-        this.vuelosAgendadosPorInicio =  SortedList.create();
-        this.vuelosAgendadosPorFin = SortedList.create();
-        this.algoritmoMovimiento = SortedList.create();
+        this.vuelosAgendadosPorInicio =  SortedSimpleList.create();
+        this.vuelosAgendadosPorFin = SortedSimpleList.create();
+        movimientos = SortedSimpleList.create();
         this.vuelos = new ArrayList<>();
     }
 
     public void reiniciar() {
         this.finGeneracionVuelosAgendados = null;
-        this.vuelosAgendadosPorInicio =  SortedList.create();
-        this.vuelosAgendadosPorFin = SortedList.create();
-        this.algoritmoMovimiento = SortedList.create();
+        this.vuelosAgendadosPorInicio =  SortedSimpleList.create();
+        this.vuelosAgendadosPorFin = SortedSimpleList.create();
+        movimientos = SortedSimpleList.create();
+
     }
 
     public void crearVuelosAgendadosNecesarios(Ventana ventana) {
@@ -110,15 +116,17 @@ public class GestorVuelosAgendados {
     }
 
     public void agregarMovimientoAlgoritmo(AlgoritmoMovimiento algoritmoMovimiento) {
-        this.algoritmoMovimiento.add(algoritmoMovimiento.getMomento(), algoritmoMovimiento);
+       movimientos.add(algoritmoMovimiento.getMomento(), algoritmoMovimiento);
     }
 
-    public List<AlgoritmoMovimiento> allMovimientoAlgoritmo(Ventana window) {
-        return this.algoritmoMovimiento.inWindow(window);
-    }
+
+   public List<AlgoritmoMovimiento> allMovimientoAlgoritmo(Ventana ventana){
+        return movimientos.inWindow(ventana);
+   }
+
 
     public List<VueloAgendado> allLleganEnVentana(Ventana ventana) {
-        return this.vuelosAgendadosPorFin.inWindow(ventana);
+        return vuelosAgendadosPorFin.inWindow(ventana);
 
     }
 
@@ -146,5 +154,6 @@ public class GestorVuelosAgendados {
     public void limpiarHasta(LocalDateTime fechaLimite) {
         this.vuelosAgendadosPorFin.deleteBeforeOrEqual(fechaLimite);
         this.vuelosAgendadosPorInicio.deleteBeforeOrEqual(fechaLimite);
+        this.movimientos.deleteBeforeOrEqual(fechaLimite);
     }
 }

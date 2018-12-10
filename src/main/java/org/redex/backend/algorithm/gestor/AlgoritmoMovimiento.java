@@ -25,15 +25,15 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
         this.tipo = tipo;
         this.vueloAgendado = va;
         switch (tipo) {
-            case VUELO_ENTRADA:
-                this.oficina = va.getOficinaDestino();
-                this.momento = va.getFechaFin();
-                break;
             case VUELO_SALIDA:
                 this.oficina = va.getOficinaOrigen();
                 this.momento = va.getFechaInicio();
                 break;
             case PAQUETES_SALIDA:
+                this.oficina = va.getOficinaDestino();
+                this.momento = va.getFechaFin();
+                break;
+            case VUELO_ENTRADA:
                 this.oficina = va.getOficinaDestino();
                 this.momento = va.getFechaFin();
                 break;

@@ -50,6 +50,8 @@ public class SortedList<X extends Comparable, Y> {
     }
 
     public List<Y> allAfter(X start) {
+        if (inner.isEmpty()) return new ArrayList<>();
+
         Assert.isNotNull(inner, "Not initialized");
         X key = cleanKey(start);
         return extract(inner.asMap().tailMap(key, false));
@@ -60,6 +62,7 @@ public class SortedList<X extends Comparable, Y> {
     }
 
     public synchronized List<Y> inWindow(X start, X end) {
+        Assert.isTrue(start == null || start.compareTo(end) <= 0, "Ventana invalida");
         Assert.isNotNull(inner, "Not initialized");
 
         if (inner.isEmpty()) return new ArrayList<>();
@@ -68,9 +71,12 @@ public class SortedList<X extends Comparable, Y> {
             return new ArrayList<>();
         }
 
+        if (start != null && start.compareTo(inner.asMap().lastKey()) > 0) {
+            return new ArrayList<>();
+        }
+
         X startKey = cleanKey(start);
         X endKey = cleanKey(end);
-
 
         if (startKey.equals(endKey)) {
             if (!inner.containsKey(startKey)) {

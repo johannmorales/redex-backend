@@ -204,11 +204,16 @@ public class SimulacionServiceImp implements SimulacionService {
         List<Oficina> oficinas = oficinasRepository.findAllByEstado(EstadoEnum.ACTIVO);
         for (Oficina oficina : oficinas) {
             oficina.setCapacidadActual(0);
+            oficina.setCapacidadMaxima(1000);
         }
         simulador.setOficinas(oficinas);
         //simulador.setTermino(0);
         PlanVuelo pv = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
-        simulador.setVuelos(pv.getVuelos());
+        List<Vuelo> vuelos = pv.getVuelos();
+        vuelos.forEach(v -> {
+            v.setCapacidad(300);
+        });
+        simulador.setVuelos(vuelos);
     }
 
     @Override

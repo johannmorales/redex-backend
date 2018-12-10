@@ -6,19 +6,16 @@ import org.redex.backend.algorithm.evolutivo.Evolutivo;
 import org.redex.backend.algorithm.gestor.AlgoritmoMovimiento;
 import org.redex.backend.controller.simulacion.Ventana;
 import org.redex.backend.controller.simulacionaccion.SimulacionAccionWrapper;
+import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.Vuelo;
+import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.rrhh.Oficina;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.miscelanea.Assert;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import org.redex.backend.model.envios.Paquete;
-import org.redex.backend.model.envios.VueloAgendado;
-import org.redex.backend.model.rrhh.Oficina;
-import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 @Component
 public class Simulador {
@@ -59,33 +56,32 @@ public class Simulador {
         List<Paquete> paquetes = gestorPaquetes.allEntranVentana(ventana);
         this.gestorPaquetes.limpiarHasta(ventana.getFin());
 
-        Long t1 = System.currentTimeMillis();
-        int i = 0;
+        Integer paquetesProcesados = 0;
+        Integer paquetesTotales = 0;
 
         for (Paquete paquete : paquetes) {
             try {
-                procesarPaquete(paquete, i, t1);
+                paquetesTotales++;
+                procesarPaquete(paquete);
                 paquete.getOficinaOrigen().agregarPaquete();
                 paquete.getOficinaOrigen().checkIntegrity(paquete.getFechaIngreso());
                 acciones.add(SimulacionAccionWrapper.of(paquete));
+                paquetesProcesados++;
             } catch (AvoidableException ex) {
                 continue;
             } catch (DeadSimulationException dex) {
                 this.termino = true;
                 break;
             }
-            i++;
         }
 
 
-        this.simular(ventana.getFin());
-        gestorVuelosAgendados.limpiarHasta(ventana.getFin());
+        logger.info("Paquetes procesados: {}", paquetesProcesados);
+        logger.info("Paquetes totales: {}", paquetesTotales);
 
         for (VueloAgendado vuelosAgendado : vuelosAgendados) {
-            logger.info("Vuelo agendado: {}", vuelosAgendado);
             SimulacionAccionWrapper saw = SimulacionAccionWrapper.of(vuelosAgendado);
             acciones.add(saw);
-            ObjectUtil.printAttr(saw);
         }
 
         Collections.sort(acciones, Comparator.comparing(SimulacionAccionWrapper::getFechaSalida));
@@ -93,7 +89,11 @@ public class Simulador {
         return acciones;
     }
 
-    private List<VueloAgendado> procesarPaquete(Paquete paquete, int i, Long t1) {
+    private void procesarPaquete(Paquete paquete) throws AvoidableException, DeadSimulationException {
+        if(fechaActual == null || paquete.getFechaIngreso().isAfter(fechaActual)){
+            simular(paquete.getFechaIngreso());
+        }
+
         LocalDateTime fechaInicio = paquete.getFechaIngreso();
         LocalDateTime fechaFin = paquete.getFechaMaximaEntrega();
 
@@ -103,16 +103,6 @@ public class Simulador {
         List<AlgoritmoMovimiento> movimientos = gestorVuelosAgendados.allMovimientoAlgoritmo(ventanaPaquete);
 
         Evolutivo e = new Evolutivo();
-
-        if (i % 500 == 0) {
-            Long t2 = System.currentTimeMillis();
-            Long duracion = (t2 - t1);
-            logger.info("Fecha actual [{}] [{}] ({} ms)", paquete.getFechaIngreso(), i, duracion);
-        }
-
-        if(fechaActual != null && paquete.getFechaIngreso().isAfter(fechaActual)){
-            return this.simular(paquete.getFechaIngreso());
-        }
 
         List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, movimientos, oficinasList);
 
@@ -126,7 +116,6 @@ public class Simulador {
             item.setCapacidadActual(item.getCapacidadActual() + 1);
         }
 
-        return new ArrayList<>();
     }
 
     private List<VueloAgendado> simular(LocalDateTime fechaLimite) {
@@ -152,7 +141,12 @@ public class Simulador {
         Collections.sort(movimientos);
 
         for (Movimiento movimiento : movimientos) {
+//            logger.info("");
+//            logger.info("PROCENSADO {} {} {}", movimiento, movimiento.vueloAgendado);
+//            logger.info("\tANTES: {} ", movimiento.oficina);
             movimiento.process();
+//            logger.info("\tDSPSS: {} ", movimiento.oficina);
+
         }
 
 
@@ -205,6 +199,10 @@ public class Simulador {
 
     public Map<String, Oficina> getOficinas() {
         return this.oficinas;
+    }
+
+    public List<Oficina> getOficinasList() {
+        return this.oficinasList;
     }
 
     public Oficina findOficina(String almacenColapso) {

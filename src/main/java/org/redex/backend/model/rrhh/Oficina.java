@@ -88,7 +88,7 @@ public class Oficina implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("Oficina %s", getCodigo());
+        return String.format("%s (%d/%d)", getCodigo(), capacidadActual, capacidadMaxima);
     }
 
     public Long getId() {
@@ -160,8 +160,4 @@ public class Oficina implements Serializable {
         this.capacidadActual -= cantidad;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return ((Oficina) obj).getCodigo().equals(codigo);
-    }
 }
