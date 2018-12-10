@@ -134,9 +134,10 @@ public class GestorVuelosAgendados {
         return vuelosAgendadosPorInicio.inWindow(ventana);
     }
 
-    public List<VueloAgendado> allAlgoritmo(Ventana ventana) {
+    public List<VueloAgendado> allAlgoritmo(Ventana ventana, Oficina oficina) {
         return vuelosAgendadosPorInicio.inWindow(ventana)
                 .stream()
+                .filter(va -> va.getOficinaOrigen() != oficina)
                 .filter(va -> va.getCapacidadActual() < va.getCapacidadMaxima())
                 .filter(va -> va.getFechaFin().isBefore(ventana.getFin()) || va.getFechaFin().equals(ventana.getFin()))
                 .collect(Collectors.toList());

@@ -66,15 +66,15 @@ public class GestorAlgoritmo {
         }
 
         Long t1 = System.currentTimeMillis();
-        for (AlgoritmoMovimiento movimiento : movimientos) {
-            if(movimiento.getVariacion() == 0) continue;
-            Oficina oficina = movimiento.getOficina();
-            if (movimiento.getVariacion() < 0) {
-                disminucionCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion() * -1);
-            } else {
-                aumentosCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion());
-            }
-        }
+//        for (AlgoritmoMovimiento movimiento : movimientos) {
+//            if(movimiento.getVariacion() == 0) continue;
+//            Oficina oficina = movimiento.getOficina();
+//            if (movimiento.getVariacion() < 0) {
+//                disminucionCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion() * -1);
+//            } else {
+//                aumentosCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion());
+//            }
+//        }
 
         Long t2 = System.currentTimeMillis();
         for (VueloAgendado planeado : vuelosCumplen) {

@@ -30,7 +30,7 @@ public class Evolutivo implements Algoritmo {
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
     private int iteraciones = 5;
-    private int populationSize = 1;
+    private int populationSize = 3;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
 
@@ -48,17 +48,25 @@ public class Evolutivo implements Algoritmo {
         Long t1 = System.currentTimeMillis();
         gestorAlgoritmo = new GestorAlgoritmo(vuelosCumplen, movimientos, oficinas);
         Long t2 = System.currentTimeMillis();
-        population = SortedSimpleList.create();
-        buildRandomIniitalPath(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), new ArrayList<>());
-        Long t3 = System.currentTimeMillis();
-//
+
+        TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
+
+                Cromosoma winner = population.firstEntry().getElement();
+
+
+        List<VueloAgendado> ruta = winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
+
+        return ruta;
+//        buildRandomIniitalPath(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), new ArrayList<>());
+//        Long t3 = System.currentTimeMillis();
+
 //        logger.error("CREANDO GESTOR: {}", t2-t1);
 //        logger.error("CREANDO PUEBLO: {}", t3-t2);
-//
-        if(population.isEmpty()){
-            throw new AvoidableException();
-        }
-        return population.first();
+
+//        if(population.isEmpty()){
+//            throw new AvoidableException();
+//        }
+//        return population.first();
 //
 //        for (int i = 0; i < iteraciones; i++) {
 //            TreeMultiset<Cromosoma> survivors = fight(population);
@@ -177,6 +185,9 @@ public class Evolutivo implements Algoritmo {
     private List<VueloAgendado> buildRandomPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current) {
         List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current);
         if (!posibles.isEmpty()) {
+            if(posibles.size() > 15){
+                posibles = posibles.subList(0,  15);
+            }
             Collections.shuffle(posibles);
             for (VueloAgendado va : posibles) {
                 List<VueloAgendado> vas = new ArrayList<>();

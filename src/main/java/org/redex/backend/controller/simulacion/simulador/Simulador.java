@@ -99,7 +99,7 @@ public class Simulador {
 
         Ventana ventanaPaquete = Ventana.of(fechaInicio, fechaFin);
 
-        List<VueloAgendado> vuelosCumplen = gestorVuelosAgendados.allAlgoritmo(ventanaPaquete);
+        List<VueloAgendado> vuelosCumplen = gestorVuelosAgendados.allAlgoritmo(ventanaPaquete, paquete.getOficinaDestino());
         List<AlgoritmoMovimiento> movimientos = gestorVuelosAgendados.allMovimientoAlgoritmo(ventanaPaquete);
 
         Evolutivo e = new Evolutivo();
