@@ -6,15 +6,6 @@ import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.simulacion.SimulacionAccion;
 
-/**
- * @param tipo: tipo de la accion
- * @param oficinaLlegada: codigo ISO del pais de la oficina de llegada
- * @param oficinaSalida: codigo ISO del pais de la oficina de salida
- * @param fechaSalida fecha de salida como numero de ms
- * @param fechaLlegada fecha de llegada como numero de ms
- * @param cantidad cantidad de paquetes de la accion
- * @param cantidadSalida cantidad de paquetes que salen al terminar el vuelo
- */
 public class SimulacionAccionWrapper implements Comparable<SimulacionAccionWrapper> {
 
     private String tipo;
@@ -117,9 +108,9 @@ public class SimulacionAccionWrapper implements Comparable<SimulacionAccionWrapp
     public int tipoValue(){
         switch (tipo){
             case "SALIDA":
-                return 1;
-            case "REGISTRO":
                 return 0;
+            case "REGISTRO":
+                return 1;
         }
         return 0;
     }

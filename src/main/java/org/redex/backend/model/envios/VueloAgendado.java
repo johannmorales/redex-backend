@@ -172,7 +172,7 @@ public class VueloAgendado implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s %s -> %s %s)",
+        return String.format("%s %s -> %s %s",
                 getOficinaOrigen().getCodigo(),
                 DateTimeFormatter.ofPattern("dd/MM HH:mm").format(getFechaInicio()),
                 getOficinaDestino().getCodigo(),

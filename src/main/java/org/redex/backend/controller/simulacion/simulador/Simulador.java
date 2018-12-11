@@ -39,6 +39,14 @@ public class Simulador {
 
     private boolean termino;
 
+    public String getFielName() {
+        return fielName;
+    }
+
+    public void setFielName(String fielName) {
+        this.fielName = fielName;
+    }
+
     private String fielName;
 
     Simulador() {
@@ -98,12 +106,19 @@ public class Simulador {
                 }
             }
 
-            this.simular(ventana.getFin());
+            if (!this.termino) {
+                this.simular(ventana.getFin());
+            }
 
             logger.info("Paquetes procesados: {}", paquetesProcesados);
             logger.info("Paquetes totales: {}", paquetesTotales);
 
             for (VueloAgendado vuelosAgendado : vuelosAgendados) {
+                if (this.termino) {
+                    if (vuelosAgendado.getFechaInicio().isAfter(fechaActual)) {
+                        continue;
+                    }
+                }
                 SimulacionAccionWrapper saw = SimulacionAccionWrapper.of(vuelosAgendado);
                 acciones.add(saw);
             }

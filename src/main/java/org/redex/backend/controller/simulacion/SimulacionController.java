@@ -30,6 +30,8 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -44,11 +46,6 @@ public class SimulacionController {
 
     @Autowired
     Simulador simulador;
-
-    @RequestMapping("/estado")
-    public void greeting(@RequestParam Long id) {
-
-    }
 
     @GetMapping("crear")
     public ResponseEntity<?> crear() {
@@ -79,7 +76,7 @@ public class SimulacionController {
     }
 
     @PostMapping("/oficinas/carga")
-    public CargaDatosResponse cargaOficinas( @RequestParam("file") MultipartFile file) {
+    public CargaDatosResponse cargaOficinas(@RequestParam("file") MultipartFile file) {
         return service.cargaOficinas(file);
     }
 
@@ -102,7 +99,7 @@ public class SimulacionController {
             });
             arr.add(oficinaNode);
         }
-        
+
         return arr;
     }
 
@@ -148,9 +145,9 @@ public class SimulacionController {
         logger.info("Procesando ventana [{}] - [{}]", v.getInicio(), v.getFin());
         Long t1 = System.currentTimeMillis();
         List<SimulacionAccionWrapper> acciones = simulador.procesarVentana(v);
-        
+
         int termino = simulador.isTermino() ? 1 : 0;
-        
+
         logger.info("Termino? {}", simulador.isTermino());
 
         Termino t = new Termino();
@@ -160,17 +157,18 @@ public class SimulacionController {
         rW.setStatus(termino);
         rW.setListActions(acciones);
         ObjectNode response = JsonHelper.createJson(rW, JsonNodeFactory.instance, new String[]{
-            "status",
-            "listActions.*"
+                "status",
+                "listActions.*"
         });
 
         Long t2 = System.currentTimeMillis();
         logger.info("Acciones procesadas: {}", acciones.size());
-        logger.info("Ventana devuelta en {} s", (t2-t1)/1000);
+        logger.info("Ventana devuelta en {} s", (t2 - t1) / 1000);
 
         logger.info("OFICINAS");
         logger.info("==================================================");
-        for(Oficina oficina : this.simulador.getOficinasList()){
+        Collections.sort(this.simulador.getOficinasList(), Comparator.comparing(Oficina::getCapacidadActual).reversed());
+        for (Oficina oficina : this.simulador.getOficinasList()) {
             logger.info("{}", oficina);
         }
         logger.info("=================================================");
@@ -183,7 +181,16 @@ public class SimulacionController {
         return download(archivo);
     }
 
+    @GetMapping("paquetesEntregados")
+    public ResponseEntity<Resource> reporte() {
+        return download(simulador.getFielName(), "text/plain");
+    }
+
     private ResponseEntity<Resource> download(String archivo) {
+        return download(archivo, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    private ResponseEntity<Resource> download(String archivo, String tipo) {
         try {
             Resource resource = new UrlResource("file", archivo);
             try {
@@ -195,7 +202,7 @@ public class SimulacionController {
                 throw new MyFileNotFoundException("Archivo no encontrado " + archivo);
             }
 
-            String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            String contentType = tipo;
 
             String actualFileName = archivo.substring(archivo.lastIndexOf('/') + 1);
             return ResponseEntity.ok()
