@@ -27,7 +27,7 @@ public class Evolutivo implements Algoritmo {
 
     private static int MAX_DEPTH = 3;
 
-    private int iteraciones = 20;
+    private int iteraciones = 10;
     private int populationSize = 10;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
