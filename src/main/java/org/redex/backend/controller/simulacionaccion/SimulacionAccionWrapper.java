@@ -15,7 +15,7 @@ import org.redex.backend.model.simulacion.SimulacionAccion;
  * @param cantidad cantidad de paquetes de la accion
  * @param cantidadSalida cantidad de paquetes que salen al terminar el vuelo
  */
-public class SimulacionAccionWrapper {
+public class SimulacionAccionWrapper implements Comparable<SimulacionAccionWrapper> {
 
     private String tipo;
     
@@ -113,4 +113,21 @@ public class SimulacionAccionWrapper {
         return w;
     }
 
+
+    public int tipoValue(){
+        switch (tipo){
+            case "SALIDA":
+                return 1;
+            case "REGISTRO":
+                return 0;
+        }
+        return 0;
+    }
+    @Override
+    public int compareTo(SimulacionAccionWrapper o) {
+        if(o.fechaSalida.equals(this.fechaSalida)){
+            return Integer.compare(this.tipoValue(), o.tipoValue());
+        }
+        return this.fechaSalida.compareTo(o.fechaSalida);
+    }
 }

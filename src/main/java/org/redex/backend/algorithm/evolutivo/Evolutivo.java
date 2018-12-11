@@ -8,22 +8,18 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.lowagie.text.Paragraph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.Algoritmo;
-import org.redex.backend.algorithm.gestor.AlgoritmoMovimiento;
 import org.redex.backend.algorithm.gestor.GestorAlgoritmo;
-import org.redex.backend.algorithm.PathNotFoundException;
 import org.redex.backend.controller.simulacion.simulador.AvoidableException;
 import org.redex.backend.controller.simulacion.simulador.DeadSimulationException;
 import org.redex.backend.controller.simulacion.simulador.SortedSimpleList;
+import org.redex.backend.controller.simulacion.simulador.SortedSumList;
 import org.redex.backend.model.envios.Paquete;
-import org.redex.backend.model.envios.Vuelo;
 import org.redex.backend.model.envios.VueloAgendado;
 import org.redex.backend.model.rrhh.Oficina;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 
 public class Evolutivo implements Algoritmo {
 
@@ -31,8 +27,8 @@ public class Evolutivo implements Algoritmo {
 
     private static int MAX_DEPTH = 3;
 
-    private int iteraciones = 5;
-    private int populationSize = 5;
+    private int iteraciones = 20;
+    private int populationSize = 10;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
 
@@ -46,114 +42,26 @@ public class Evolutivo implements Algoritmo {
 
     private SortedSimpleList<Double, List<VueloAgendado>> population;
 
-    public List<VueloAgendado> run(Paquete paquete, List<VueloAgendado> vuelosCumplen, List<AlgoritmoMovimiento> movimientos, List<Oficina> oficinas) {
-        Long t1 = System.currentTimeMillis();
-        gestorAlgoritmo = new GestorAlgoritmo(vuelosCumplen, movimientos, oficinas);
-        Long t2 = System.currentTimeMillis();
-
-        TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
-
-        if(population.isEmpty()){
-            throw new AvoidableException();
-        }
-        /*
-        for (int i = 0; i < iteraciones; i++) {
-            TreeMultiset<Cromosoma> survivors = fight(population);
-            TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
-            population = TreeMultiset.create(byCost);
-            population.addAll(survivors);
-            population.addAll(mutants);
-        }
-*/
-        Cromosoma winner = population.firstEntry().getElement();
-
-        List<VueloAgendado> ruta = winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
-
-        return ruta;
-//        buildRandomIniitalPath(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), new ArrayList<>());
-//        Long t3 = System.currentTimeMillis();
-
-//        logger.error("CREANDO GESTOR: {}", t2-t1);
-//        logger.error("CREANDO PUEBLO: {}", t3-t2);
-
-//        if(population.isEmpty()){
-//            throw new AvoidableException();
-//        }
-//        return population.first();
-//
-//        for (int i = 0; i < iteraciones; i++) {
-//            TreeMultiset<Cromosoma> survivors = fight(population);
-//            TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
-//            population = TreeMultiset.create(byCost);
-//            population.addAll(survivors);
-//            population.addAll(mutants);
-//        }
-//
-//        Cromosoma winner = population.firstEntry().getElement();
-//
-//        List<VueloAgendado> ruta = winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
-
-        //checkIntegrity(ruta, paquete);
-
-        //return ruta;
-
-    }
-
-    private void checkIntegrity(List<VueloAgendado> ruta, Paquete paquete) {
-        try {
-            VueloAgendado last = ruta.get(ruta.size() - 1);
-            Assert.isTrue(paquete.getOficinaDestino() == last.getOficinaDestino(), "Paquete no llega al destino, ofina errada");
-            Assert.isTrue(paquete.getFechaMaximaEntrega().isAfter(last.getFechaFin()) || paquete.getFechaMaximaEntrega().isEqual(last.getFechaFin()), "Paquete no llega al destino, tiempo");
-
-            Oficina curr = null;
-            LocalDateTime now = null;
-
-            for (VueloAgendado vueloAgendado : ruta) {
-                Assert.isTrue(curr == null || vueloAgendado.getOficinaOrigen() == curr, "Oficinas no consecutivas lugar");
-                Assert.isTrue(now == null || now.isBefore(vueloAgendado.getFechaInicio()) || now.isEqual(vueloAgendado.getFechaInicio()), "Oficinas no consecutivas tiempo");
-                curr = vueloAgendado.getOficinaDestino();
-                now = vueloAgendado.getFechaFin();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            logger.error("RUTA ERROR {}", paquete);
-
-            VueloAgendado last = ruta.get(ruta.size() - 1);
-
-            logger.error("Ultima oficnia {} {}", paquete.getOficinaDestino(), last.getOficinaDestino());
-
-            Oficina curr = null;
-
-
-            for (VueloAgendado vueloAgendado : ruta) {
-                logger.error("AHORA ESTOYEN  {}", curr);
-                logger.error("RUTA ERROR {}", vueloAgendado);
-                curr = vueloAgendado.getOficinaDestino();
-            }
-
-            throw new DeadSimulationException();
-        }
+    public List<VueloAgendado> run(
+            Paquete paquete,
+            List<VueloAgendado> vuelosCumplen,
+            HashMap<Oficina, SortedSumList<LocalDateTime, Integer>> movsPositivos,
+            HashMap<Oficina, SortedSumList<LocalDateTime, Integer>> movsNegativos,
+            List<Oficina> oficinas) {
+        gestorAlgoritmo = new GestorAlgoritmo(vuelosCumplen, movsPositivos, movsNegativos, oficinas);
+        return procesarAlgoritmo(paquete);
     }
 
     @Override
     public List<VueloAgendado> run(
-            Paquete paquete, List<VueloAgendado> vuelosTodos, List<VueloAgendado> vuelosCumplen, List<VueloAgendado> vuelosParten, List<VueloAgendado> vuelosLlegan, List<Oficina> oficinas) {
+            Paquete paquete,
+            List<VueloAgendado> vuelosTodos,
+            List<VueloAgendado> vuelosCumplen,
+            List<VueloAgendado> vuelosParten,
+            List<VueloAgendado> vuelosLlegan,
+            List<Oficina> oficinas) {
         gestorAlgoritmo = new GestorAlgoritmo(vuelosCumplen, vuelosParten, vuelosLlegan, oficinas);
-
-        TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
-
-        for (int i = 0; i < iteraciones; i++) {
-            TreeMultiset<Cromosoma> survivors = fight(population);
-            TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
-            population = TreeMultiset.create(byCost);
-            population.addAll(survivors);
-            population.addAll(mutants);
-            break;
-        }
-
-        Cromosoma winner = population.firstEntry().getElement();
-
-        return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
+        return procesarAlgoritmo(paquete);
     }
 
     private TreeMultiset<Cromosoma> initialize(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, Paquete paquete) {
@@ -167,7 +75,6 @@ public class Evolutivo implements Algoritmo {
                 List<VueloAgendado> list = buildRandomPath(ofiOrigen, ofiDestino, current, 0);
                 if (list != null) {
                     LinkedList<Gen> genes = list.stream().map(va -> new Gen(va)).collect(Collectors.toCollection(() -> new LinkedList<>()));
-
                     Cromosoma cromosome = new Cromosoma();
                     cromosome.setGenes(genes);
                     fitness(cromosome, paquete);
@@ -193,6 +100,27 @@ public class Evolutivo implements Algoritmo {
         return population;
     }
 
+    private List<VueloAgendado> procesarAlgoritmo(Paquete paquete) {
+        TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
+
+        if (population.isEmpty()) {
+            throw new AvoidableException();
+        }
+
+        for (int i = 0; i < iteraciones; i++) {
+            TreeMultiset<Cromosoma> survivors = fight(population);
+            TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
+            population = TreeMultiset.create(byCost);
+            population.addAll(survivors);
+            population.addAll(mutants);
+            break;
+        }
+
+        Cromosoma winner = population.firstEntry().getElement();
+
+        return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
+    }
+
     private List<VueloAgendado> buildRandomPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, Integer depth) {
         List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current);
         if (!posibles.isEmpty()) {
@@ -202,8 +130,8 @@ public class Evolutivo implements Algoritmo {
                 vas.add(va);
                 if (va.getOficinaDestino() == ofiDestino) {
                     return vas;
-                } else if(depth < MAX_DEPTH){
-                    List<VueloAgendado> vuelosRecursivos = buildRandomPath(va.getOficinaDestino(), ofiDestino, va.getFechaFin(), depth+1);
+                } else if (depth < MAX_DEPTH) {
+                    List<VueloAgendado> vuelosRecursivos = buildRandomPath(va.getOficinaDestino(), ofiDestino, va.getFechaFin(), depth + 1);
                     if (vuelosRecursivos == null) {
                         continue;
                     }
@@ -214,25 +142,6 @@ public class Evolutivo implements Algoritmo {
         }
         return null;
     }
-
-    private void buildRandomIniitalPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, List<VueloAgendado> currentList) {
-        if (this.population.size() >= this.populationSize) return;
-        List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current);
-        if (!posibles.isEmpty()) {
-            Collections.shuffle(posibles);
-            for (VueloAgendado va : posibles) {
-                List<VueloAgendado> vas = new ArrayList<>(currentList);
-                vas.add(va);
-                if (va.getOficinaDestino() == ofiDestino) {
-                    this.population.add(cost(vas), vas);
-                    continue;
-                } else {
-                    buildRandomIniitalPath(va.getOficinaDestino(), ofiDestino, va.getFechaFin(), vas);
-                }
-            }
-        }
-    }
-
 
     private List<VueloAgendado> buildRandomLimitedPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, LocalDateTime limit) {
         List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current)
@@ -311,7 +220,7 @@ public class Evolutivo implements Algoritmo {
 
                 if (index2 == genes.size() - 1) {
                     if (index1 == 0) {
-                        reemplazo = buildRandomPath(inicio.getOficinaOrigen(), fin.getOficinaDestino(), paquete.getFechaIngreso(),0);
+                        reemplazo = buildRandomPath(inicio.getOficinaOrigen(), fin.getOficinaDestino(), paquete.getFechaIngreso(), 0);
                     } else {
                         Integer indicePrevio = index1 - 1;
                         VueloAgendado vueloPrevio = genes.get(indicePrevio).getVueloAgendado();
@@ -391,25 +300,10 @@ public class Evolutivo implements Algoritmo {
             double almacenPorcentaje = capacidadFutura / (double) va.getOficinaDestino().getCapacidadMaxima();
             almacenPorcentaje += 2.0;
 
-            costo += va.getPorcentajeUsado() * K1 + almacenPorcentaje * almacenPorcentaje * almacenPorcentaje * K2;
+            costo += va.getPorcentajeUsado() * K1 + almacenPorcentaje * almacenPorcentaje * K2;
         }
 
         cromosome.setCosto(costo);
-    }
-
-    private Double cost(List<VueloAgendado> cromosome) {
-
-        double costo = 0;
-
-        for (VueloAgendado va : cromosome) {
-            Integer capacidadFutura = va.getOficinaDestino().getCapacidadActual() + gestorAlgoritmo.obtenerCapacidadEnMomento(va.getOficinaDestino(), va.getFechaFin());
-            double almacenPorcentaje = capacidadFutura / (double) va.getOficinaDestino().getCapacidadMaxima();
-            almacenPorcentaje += 2.0;
-
-            costo += va.getPorcentajeUsado() * K1 + almacenPorcentaje * almacenPorcentaje * almacenPorcentaje * K2;
-        }
-
-        return costo;
     }
 
 }

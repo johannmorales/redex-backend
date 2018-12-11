@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.redex.backend.config.SimulationConfig;
 import org.redex.backend.controller.reportes.ReportesServiceImp;
 import org.redex.backend.controller.simulacion.simulador.GestorPaquetes;
 import org.redex.backend.controller.simulacion.simulador.GestorVuelosAgendados;
@@ -72,6 +73,9 @@ public class SimulacionServiceImp implements SimulacionService {
 
     @Autowired
     VuelosRepository vuelosRepository;
+
+    @Autowired
+    SimulationConfig simulationConfig;
 
     @Override
     public CargaDatosResponse cargaPaquetes(MultipartFile file) {
@@ -204,14 +208,13 @@ public class SimulacionServiceImp implements SimulacionService {
         List<Oficina> oficinas = oficinasRepository.findAllByEstado(EstadoEnum.ACTIVO);
         for (Oficina oficina : oficinas) {
             oficina.setCapacidadActual(0);
-            oficina.setCapacidadMaxima(1000);
+            oficina.setCapacidadMaxima(simulationConfig.getCapacidadOficina());
         }
         simulador.setOficinas(oficinas);
-        //simulador.setTermino(0);
         PlanVuelo pv = planVueloRepository.findByEstado(EstadoEnum.ACTIVO);
         List<Vuelo> vuelos = pv.getVuelos();
         vuelos.forEach(v -> {
-            v.setCapacidad(300);
+            v.setCapacidad(simulationConfig.getCapacidadVuelo());
         });
         simulador.setVuelos(vuelos);
     }
@@ -304,7 +307,7 @@ public class SimulacionServiceImp implements SimulacionService {
         oficina.setCodigo(linea);
         oficina.setPais(mapPaises.get(linea));
         oficina.setCapacidadActual(0);
-        oficina.setCapacidadMaxima(1000);
+        oficina.setCapacidadMaxima(simulationConfig.getCapacidadOficina());
         oficina.setEstado(EstadoEnum.ACTIVO);
         return oficina;
     }
@@ -322,7 +325,7 @@ public class SimulacionServiceImp implements SimulacionService {
         vuelo.setOficinaDestino(oficinaDestino);
         vuelo.setHoraInicio(LocalTime.parse(horaIni, dateTimeFormatter).plusHours(oficinaOrigen.getPais().getHusoHorario()));
         vuelo.setHoraFin(LocalTime.parse(horaFin, dateTimeFormatter).plusHours(oficinaDestino.getPais().getHusoHorario()));
-        vuelo.setCapacidad(300);
+        vuelo.setCapacidad(simulationConfig.getCapacidadVuelo());
 
         return vuelo;
     }

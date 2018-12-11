@@ -2,6 +2,7 @@ package org.redex.backend.algorithm.gestor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redex.backend.algorithm.Algoritmo;
 import org.redex.backend.controller.simulacion.simulador.SortedList;
 import org.redex.backend.controller.simulacion.simulador.SortedSimpleList;
 import org.redex.backend.controller.simulacion.simulador.SortedSumList;
@@ -52,10 +53,14 @@ public class GestorAlgoritmo {
 
     }
 
-    public GestorAlgoritmo(List<VueloAgendado> vuelosCumplen, List<AlgoritmoMovimiento> movimientos, List<Oficina> oficinas) {
+    public GestorAlgoritmo(
+            List<VueloAgendado> vuelosCumplen,
+            HashMap<Oficina, SortedSumList<LocalDateTime, Integer>> movsPositivos,
+            HashMap<Oficina, SortedSumList<LocalDateTime, Integer>> movsNegativos,
+            List<Oficina> oficinas) {
         this.vuelosAgendadosPorOrigen2 = new HashMap<>();
-        this.disminucionCapacidad = new HashMap<>();
-        this.aumentosCapacidad = new HashMap<>();
+        this.disminucionCapacidad = movsNegativos;
+        this.aumentosCapacidad = movsPositivos;
 
         this.oficinas = oficinas;
 
@@ -65,26 +70,10 @@ public class GestorAlgoritmo {
             disminucionCapacidad.put(oficina, SortedSumList.create());
         }
 
-        Long t1 = System.currentTimeMillis();
-//        for (AlgoritmoMovimiento movimiento : movimientos) {
-//            if(movimiento.getVariacion() == 0) continue;
-//            Oficina oficina = movimiento.getOficina();
-//            if (movimiento.getVariacion() < 0) {
-//                disminucionCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion() * -1);
-//            } else {
-//                aumentosCapacidad.get(oficina).add(movimiento.getMomento(), movimiento.getVariacion());
-//            }
-//        }
-
-        Long t2 = System.currentTimeMillis();
         for (VueloAgendado planeado : vuelosCumplen) {
             this.agregarVueloAgendado(planeado);
         }
 
-        Long t3 = System.currentTimeMillis();
-
-//        logger.info("\tvariacion en capacidades: {}", t2 - t1);
-//        logger.info("\tagregando vuelos posible: {}", t3 - t2);
     }
 
 

@@ -56,9 +56,23 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
 
     @Override
     public int compareTo(AlgoritmoMovimiento o) {
+        if(o.getMomento().equals(momento) ){
+            return Integer.compare(this.orden(), o.orden());
+        }
+
         return momento.compareTo(o.getMomento());
     }
 
+    public int orden(){
+        switch (tipo){
+            case PAQUETES_SALIDA:
+            case VUELO_SALIDA:
+                return 1;
+            case VUELO_ENTRADA:
+                return 0;
+        }
+        return 0;
+    }
     public VueloAgendado getVueloAgendado() {
         return vueloAgendado;
     }
@@ -106,6 +120,7 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
 
     public void process(){
         oficina.setCapacidadActual(oficina.getCapacidadActual() + this.getVariacion());
+        oficina.checkIntegrity(momento);
     }
 
     @Override

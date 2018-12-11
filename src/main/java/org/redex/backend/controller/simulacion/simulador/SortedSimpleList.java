@@ -68,7 +68,7 @@ public class SortedSimpleList<X extends Comparable, Y> {
 
         Assert.isNotNull(inner, "Not initialized");
         X key = cleanKey(start);
-        return extract(inner.tailMap(key, false));
+        return extract(inner.tailMap(key, start.compareTo(key) < 0));
     }
 
     public List<Y> inWindow(Ventana window) {
