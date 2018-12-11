@@ -95,12 +95,14 @@ public class Simulador {
                     paquetesTotales++;
                     procesarPaquete(paquete, out);
                     paquete.getOficinaOrigen().agregarPaquete();
-                    paquete.getOficinaOrigen().checkIntegrity(paquete.getFechaIngreso());
+                    paquete.getOficinaOrigen().checkIntegrity(paquete.getFechaIngreso(), paquete);
                     acciones.add(SimulacionAccionWrapper.of(paquete));
                     paquetesProcesados++;
                 } catch (AvoidableException ex) {
                     continue;
                 } catch (DeadSimulationException dex) {
+                    acciones.add(SimulacionAccionWrapper.of(paquete));
+                    paquetesProcesados++;
                     this.termino = true;
                     break;
                 }

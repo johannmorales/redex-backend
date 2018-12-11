@@ -35,7 +35,7 @@ public class Movimiento implements Comparable<Movimiento> {
         } else {
             this.oficina.agregarPaquetes(cantidad);
         }
-        this.oficina.checkIntegrity(momento);
+        this.oficina.checkIntegrity(momento, this);
     }
 
     public static Movimiento fromFinVuelo(VueloAgendado va) {

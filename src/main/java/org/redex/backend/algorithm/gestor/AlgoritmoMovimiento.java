@@ -120,7 +120,7 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
 
     public void process(){
         oficina.setCapacidadActual(oficina.getCapacidadActual() + this.getVariacion());
-        oficina.checkIntegrity(momento);
+        oficina.checkIntegrity(momento, this);
     }
 
     @Override
