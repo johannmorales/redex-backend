@@ -237,13 +237,19 @@ public class SimulacionServiceImp implements SimulacionService {
 
         LocalDateTime fechaInicio = LocalDateTime.ofInstant(Instant.ofEpochMilli(payload.getFechaInicial()), ZoneId.systemDefault());
 
-        Integer d = payload.getDuracionTotal().intValue()/1000;
+        Integer diaEnMS = 24*60*60*1000;
+
+        Integer d = payload.getDuracionTotal().intValue();
+
+        Integer dias = d % diaEnMS;
+
+        Integer horas = (d - dias * diaEnMS) % (60 * 60 * 1000);
 
 
         Oficina oficina = simulador.findOficina(payload.getAlmacenColapso());
 
         ExcelHelper.replaceVal(sheet, 3, 1, dtf.format(fechaInicio));
-        ExcelHelper.replaceVal(sheet, 4, 1, String.format("%d d %02d h %02d m", d / (3600*24), (d % 3600*24) / 3600, (d % 3600) /60));
+        ExcelHelper.replaceVal(sheet, 4, 1, String.format("%d d %02d h", dias, horas));
 
         ExcelHelper.replaceVal(sheet, 8, 1, String.format("%s %s", oficina.getCodigo(), oficina.getPais().getNombre()));
         ExcelHelper.replaceVal(sheet, 9, 1, String.format("Aumentar la capacidad del almacen en %d", payload.getCantidadAumento()));

@@ -55,7 +55,9 @@ public class SimulacionController {
 
     @GetMapping("eliminar")
     public ResponseEntity<?> borrar() {
+        logger.info("ELIMINANDO SIMULACION.......");
         simulador.eliminar();
+        logger.info("SIMULACION ELIMINADA.......");
         return ResponseEntity.ok(ApplicationResponse.of("Simulacion eliminada"));
     }
 
