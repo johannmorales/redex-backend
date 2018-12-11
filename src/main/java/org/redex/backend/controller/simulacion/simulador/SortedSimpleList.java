@@ -76,6 +76,10 @@ public class SortedSimpleList<X extends Comparable, Y> {
     }
 
     public synchronized ArrayList<Y> inWindow(X start, X end) {
+        if(start != null && start.equals(end)){
+            return new ArrayList<>();
+        }
+
         Assert.isTrue(start == null || start.compareTo(end) <= 0, "Ventana invalida");
         Assert.isNotNull(inner, "Not initialized");
 
@@ -85,7 +89,7 @@ public class SortedSimpleList<X extends Comparable, Y> {
             return new ArrayList<>();
         }
 
-        if (start != null && start.compareTo(inner.lastKey()) > 0) {
+        if (start != null && start.compareTo(inner.lastKey()) >= 0) {
             return new ArrayList<>();
         }
 
@@ -98,7 +102,7 @@ public class SortedSimpleList<X extends Comparable, Y> {
             }
             return new ArrayList<>(inner.get(startKey));
         } else {
-            return extract(inner.tailMap(startKey, false).headMap(endKey, true));
+            return extract(inner.tailMap(startKey, start == null || start.compareTo(startKey) < 0).headMap(endKey, true));
         }
     }
 
@@ -174,7 +178,7 @@ public class SortedSimpleList<X extends Comparable, Y> {
             }
             simpleList.inner = new TreeMap(inner.tailMap(start, true).headMap(start, true));
         } else {
-            simpleList.inner = new TreeMap(inner.tailMap(startKey, false).headMap(endKey, true));
+            simpleList.inner = new TreeMap(inner.tailMap(startKey, false ).headMap(endKey, true));
         }
 
         return simpleList;

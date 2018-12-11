@@ -1,5 +1,6 @@
 package org.redex.backend.controller.simulacion.simulador;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redex.backend.algorithm.evolutivo.Evolutivo;
@@ -14,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.miscelanea.Assert;
 
+import javax.xml.soap.MessageFactory;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
 public class Simulador {
+    private static Logger loggerSimulador = LogManager.getLogger("SIMULADOR");
 
     private static Logger logger = LogManager.getLogger(Simulador.class);
 
@@ -75,6 +78,7 @@ public class Simulador {
             }
         }
 
+        this.simular(ventana.getFin());
 
         logger.info("Paquetes procesados: {}", paquetesProcesados);
         logger.info("Paquetes totales: {}", paquetesTotales);
@@ -90,10 +94,9 @@ public class Simulador {
     }
 
     private void procesarPaquete(Paquete paquete) throws AvoidableException, DeadSimulationException {
-        if(fechaActual == null || paquete.getFechaIngreso().isAfter(fechaActual)){
-            simular(paquete.getFechaIngreso());
-        }
+        Level level = Level.forName("SIMULATION", 1200);
 
+        simular(paquete.getFechaIngreso());
         LocalDateTime fechaInicio = paquete.getFechaIngreso();
         LocalDateTime fechaFin = paquete.getFechaMaximaEntrega();
 
@@ -105,6 +108,13 @@ public class Simulador {
         Evolutivo e = new Evolutivo();
 
         List<VueloAgendado> ruta = e.run(paquete, vuelosCumplen, movimientos, oficinasList);
+
+        loggerSimulador.info("{}", paquete);
+        for (VueloAgendado vueloAgendado : ruta) {
+            loggerSimulador.info("{}", ruta);
+        }
+
+        logger.log(level,"");
 
         int cont = 0;
 
@@ -118,48 +128,34 @@ public class Simulador {
 
     }
 
-    private List<VueloAgendado> simular(LocalDateTime fechaLimite) {
-        List<Movimiento> movimientos = new ArrayList<>();
-
-        List<VueloAgendado> vasFin = gestorVuelosAgendados.allLleganEnVentana(Ventana.of(fechaActual, fechaLimite));
-        for (VueloAgendado vueloAgendado : vasFin) {
-            if (vueloAgendado.getCapacidadActual() > 0) {
-                movimientos.add(Movimiento.fromFinVuelo(vueloAgendado));
-            }
-            if (vueloAgendado.getCantidadSalida() > 0) {
-                movimientos.add(Movimiento.fromSalidaPaquetes(vueloAgendado));
-            }
+    private void simular(LocalDateTime fechaLimite) {
+        if(fechaActual != null && (fechaLimite.isBefore(this.fechaActual) || fechaLimite.equals(this.fechaActual))){
+            return;
         }
 
-        List<VueloAgendado> vasInicio = gestorVuelosAgendados.allPartenEnVentana(Ventana.of(fechaActual, fechaLimite));
-        for (VueloAgendado vueloAgendado : vasInicio) {
-            if (vueloAgendado.getCapacidadActual() > 0) {
-                movimientos.add(Movimiento.fromInicioVuelo(vueloAgendado));
+        List<AlgoritmoMovimiento> movimientos = gestorVuelosAgendados.allMovimientoAlgoritmo(Ventana.of(fechaActual, fechaLimite));
+        for (AlgoritmoMovimiento movimiento : movimientos) {
+            if(fechaActual != null){
+                Assert.isTrue(movimiento.getMomento().isAfter(fechaActual), "Movimiento esta antes de la fecha Actual");
             }
-        }
-
-        Collections.sort(movimientos);
-
-        for (Movimiento movimiento : movimientos) {
-//            logger.info("");
-//            logger.info("PROCENSADO {} {} {}", movimiento, movimiento.vueloAgendado);
-//            logger.info("\tANTES: {} ", movimiento.oficina);
+            Assert.isTrue(movimiento.getMomento().isBefore(fechaLimite) || movimiento.getMomento().isEqual(fechaLimite), "Movimiento es despesu que al fecha flimite");
             movimiento.process();
-//            logger.info("\tDSPSS: {} ", movimiento.oficina);
-
         }
-
 
         gestorVuelosAgendados.limpiarHasta(fechaLimite);
 
+
         for (Oficina oficina : oficinasList) {
-            Assert.isTrue(oficina.getCapacidadMaxima() >= oficina.getCapacidadActual(), "Capacidad actual mayor que maxima");
-            Assert.isTrue(oficina.getCapacidadActual() >= 0, "Capacidad actual menor que 0");
+            if(!(oficina.getCapacidadMaxima() >= oficina.getCapacidadActual())){
+                logger.error("{} capacidad mayor que maxima", oficina);
+            }
+
+            if(!(oficina.getCapacidadActual() >= 0)){
+                logger.error("{} capacidad actual menor que 0", oficina);
+            }
         }
 
         this.fechaActual = fechaLimite;
-
-        return vasInicio;
     }
 
 

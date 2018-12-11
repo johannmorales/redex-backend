@@ -31,6 +31,8 @@ public class SimulacionAccionWrapper {
     
     private Integer cantidadSalida;
 
+    private VueloAgendado va;
+    
     public String getTipo() {
         return tipo;
     }

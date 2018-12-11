@@ -165,8 +165,15 @@ public class SimulacionController {
         });
 
         Long t2 = System.currentTimeMillis();
-
+        logger.info("Acciones procesadas: {}", acciones.size());
         logger.info("Ventana devuelta en {} s", (t2-t1)/1000);
+
+        logger.info("OFICINAS");
+        logger.info("==================================================");
+        for(Oficina oficina : this.simulador.getOficinasList()){
+            logger.info("{}", oficina);
+        }
+        logger.info("=================================================");
         return ResponseEntity.ok(response);
     }
 

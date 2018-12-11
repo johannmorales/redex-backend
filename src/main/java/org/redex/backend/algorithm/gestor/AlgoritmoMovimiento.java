@@ -104,6 +104,10 @@ public class AlgoritmoMovimiento implements Comparable<AlgoritmoMovimiento> {
         }
     }
 
+    public void process(){
+        oficina.setCapacidadActual(oficina.getCapacidadActual() + this.getVariacion());
+    }
+
     @Override
     public String toString() {
         return String.format("[[ %s ]] ==> [%s] ::: %s (%d)", this.momento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), this.oficina.getCodigo(), this.tipo.name(), this.getVariacion());

@@ -29,13 +29,15 @@ public class Evolutivo implements Algoritmo {
 
     private static final Logger logger = LogManager.getLogger(Evolutivo.class);
 
+    private static int MAX_DEPTH = 3;
+
     private int iteraciones = 5;
-    private int populationSize = 3;
+    private int populationSize = 5;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
 
-    private int K1 = 20;
-    private int K2 = 800;
+    private int K1 = 69;
+    private int K2 = 420;
 
     private static final Comparator<Cromosoma> byCost = Comparator.comparingDouble(Cromosoma::getCosto);
     private static final Supplier<TreeMultiset<Cromosoma>> supplier = () -> TreeMultiset.create(byCost);
@@ -51,8 +53,19 @@ public class Evolutivo implements Algoritmo {
 
         TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
 
-                Cromosoma winner = population.firstEntry().getElement();
-
+        if(population.isEmpty()){
+            throw new AvoidableException();
+        }
+        /*
+        for (int i = 0; i < iteraciones; i++) {
+            TreeMultiset<Cromosoma> survivors = fight(population);
+            TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
+            population = TreeMultiset.create(byCost);
+            population.addAll(survivors);
+            population.addAll(mutants);
+        }
+*/
+        Cromosoma winner = population.firstEntry().getElement();
 
         List<VueloAgendado> ruta = winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
 
@@ -151,17 +164,15 @@ public class Evolutivo implements Algoritmo {
 
         for (int i = 0; i < populationSize; i++) {
             Thread thread = new Thread(() -> {
-                List<VueloAgendado> list = buildRandomPath(ofiOrigen, ofiDestino, current);
-                if (list == null) {
-                    throw new AvoidableException();
+                List<VueloAgendado> list = buildRandomPath(ofiOrigen, ofiDestino, current, 0);
+                if (list != null) {
+                    LinkedList<Gen> genes = list.stream().map(va -> new Gen(va)).collect(Collectors.toCollection(() -> new LinkedList<>()));
+
+                    Cromosoma cromosome = new Cromosoma();
+                    cromosome.setGenes(genes);
+                    fitness(cromosome, paquete);
+                    syncList.add(cromosome);
                 }
-                LinkedList<Gen> genes = list.stream().map(va -> new Gen(va)).collect(Collectors.toCollection(() -> new LinkedList<>()));
-
-                Cromosoma cromosome = new Cromosoma();
-                cromosome.setGenes(genes);
-                fitness(cromosome, paquete);
-                syncList.add(cromosome);
-
             });
             threads.add(thread);
             thread.run();
@@ -182,20 +193,17 @@ public class Evolutivo implements Algoritmo {
         return population;
     }
 
-    private List<VueloAgendado> buildRandomPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current) {
+    private List<VueloAgendado> buildRandomPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, Integer depth) {
         List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current);
         if (!posibles.isEmpty()) {
-            if(posibles.size() > 15){
-                posibles = posibles.subList(0,  15);
-            }
             Collections.shuffle(posibles);
             for (VueloAgendado va : posibles) {
                 List<VueloAgendado> vas = new ArrayList<>();
                 vas.add(va);
                 if (va.getOficinaDestino() == ofiDestino) {
                     return vas;
-                } else {
-                    List<VueloAgendado> vuelosRecursivos = buildRandomPath(va.getOficinaDestino(), ofiDestino, va.getFechaFin());
+                } else if(depth < MAX_DEPTH){
+                    List<VueloAgendado> vuelosRecursivos = buildRandomPath(va.getOficinaDestino(), ofiDestino, va.getFechaFin(), depth+1);
                     if (vuelosRecursivos == null) {
                         continue;
                     }
@@ -303,11 +311,11 @@ public class Evolutivo implements Algoritmo {
 
                 if (index2 == genes.size() - 1) {
                     if (index1 == 0) {
-                        reemplazo = buildRandomPath(inicio.getOficinaOrigen(), fin.getOficinaDestino(), paquete.getFechaIngreso());
+                        reemplazo = buildRandomPath(inicio.getOficinaOrigen(), fin.getOficinaDestino(), paquete.getFechaIngreso(),0);
                     } else {
                         Integer indicePrevio = index1 - 1;
                         VueloAgendado vueloPrevio = genes.get(indicePrevio).getVueloAgendado();
-                        reemplazo = buildRandomPath(vueloPrevio.getOficinaDestino(), fin.getOficinaDestino(), vueloPrevio.getFechaFin());
+                        reemplazo = buildRandomPath(vueloPrevio.getOficinaDestino(), fin.getOficinaDestino(), vueloPrevio.getFechaFin(), 0);
                     }
                 } else {
                     if (index1 == 0) {

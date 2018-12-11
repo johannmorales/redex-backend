@@ -19,9 +19,6 @@ public class GestorPaquetes {
         }
     }
 
-    public void eliminarHasta(LocalDateTime hasta) {
-    }
-
     public List<Paquete> allEntranVentana(Ventana ventana) {
         return paquetes.inWindow(ventana);
     }

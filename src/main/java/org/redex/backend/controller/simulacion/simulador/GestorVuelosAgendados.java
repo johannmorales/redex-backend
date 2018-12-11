@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +28,6 @@ public class GestorVuelosAgendados {
     private List<Vuelo> vuelos;
     private SortedSimpleList<LocalDateTime, VueloAgendado> vuelosAgendadosPorInicio;
     private SortedSimpleList<LocalDateTime, VueloAgendado> vuelosAgendadosPorFin;
-
     private SortedSimpleList<LocalDateTime, AlgoritmoMovimiento> movimientos;
 
 
@@ -121,7 +119,7 @@ public class GestorVuelosAgendados {
 
 
    public List<AlgoritmoMovimiento> allMovimientoAlgoritmo(Ventana ventana){
-        return movimientos.inWindow(ventana);
+        return movimientos.inWindow(ventana).stream().filter(m -> m.getVariacion() != 0).collect(Collectors.toList());
    }
 
 
