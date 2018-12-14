@@ -64,6 +64,29 @@ public class Evolutivo implements Algoritmo {
         return procesarAlgoritmo(paquete);
     }
 
+
+    private List<VueloAgendado> procesarAlgoritmo(Paquete paquete) {
+        TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
+
+        if (population.isEmpty()) {
+            List<VueloAgendado> ruta = dfs(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso());
+            if(ruta == null) throw new AvoidableException();
+        }
+
+        for (int i = 0; i < iteraciones; i++) {
+            TreeMultiset<Cromosoma> survivors = fight(population);
+            TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
+            population = TreeMultiset.create(byCost);
+            population.addAll(survivors);
+            population.addAll(mutants);
+            break;
+        }
+
+        Cromosoma winner = population.firstEntry().getElement();
+
+        return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
+    }
+
     private TreeMultiset<Cromosoma> initialize(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, Paquete paquete) {
         TreeMultiset<Cromosoma> population = TreeMultiset.create(byCost);
 
@@ -100,26 +123,28 @@ public class Evolutivo implements Algoritmo {
         return population;
     }
 
-    private List<VueloAgendado> procesarAlgoritmo(Paquete paquete) {
-        TreeMultiset<Cromosoma> population = initialize(paquete.getOficinaOrigen(), paquete.getOficinaDestino(), paquete.getFechaIngreso(), paquete);
-
-        if (population.isEmpty()) {
-            throw new AvoidableException();
+    private List<VueloAgendado> dfs(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current) {
+        List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current);
+        if (!posibles.isEmpty()) {
+            Collections.shuffle(posibles);
+            for (VueloAgendado va : posibles) {
+                List<VueloAgendado> vas = new ArrayList<>();
+                vas.add(va);
+                if (va.getOficinaDestino() == ofiDestino) {
+                    return vas;
+                } else {
+                    List<VueloAgendado> vuelosRecursivos = dfs(va.getOficinaDestino(), ofiDestino, va.getFechaFin());
+                    if (vuelosRecursivos == null) {
+                        continue;
+                    }
+                    vas.addAll(vuelosRecursivos);
+                    return vas;
+                }
+            }
         }
-
-        for (int i = 0; i < iteraciones; i++) {
-            TreeMultiset<Cromosoma> survivors = fight(population);
-            TreeMultiset<Cromosoma> mutants = mutate(survivors, paquete);
-            population = TreeMultiset.create(byCost);
-            population.addAll(survivors);
-            population.addAll(mutants);
-            break;
-        }
-
-        Cromosoma winner = population.firstEntry().getElement();
-
-        return winner.getGenes().stream().map(Gen::getVueloAgendado).collect(Collectors.toList());
+        return null;
     }
+
 
     private List<VueloAgendado> buildRandomPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, Integer depth) {
         List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current);
