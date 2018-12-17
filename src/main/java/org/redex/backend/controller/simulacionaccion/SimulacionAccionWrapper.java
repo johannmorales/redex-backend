@@ -22,6 +22,8 @@ public class SimulacionAccionWrapper implements Comparable<SimulacionAccionWrapp
     
     private Integer cantidadSalida;
 
+    private Integer capacidadMaxima;
+
     private VueloAgendado va;
     
     public String getTipo() {
@@ -90,6 +92,7 @@ public class SimulacionAccionWrapper implements Comparable<SimulacionAccionWrapp
         w.setTipo("SALIDA");
         w.setOficinaLlegada(ava.getOficinaDestino().getPais().getCodigoIso());
         w.setOficinaSalida(ava.getOficinaOrigen().getPais().getCodigoIso());
+        w.capacidadMaxima = ava.getCapacidadMaxima();
         return w;
     }
 
@@ -120,5 +123,13 @@ public class SimulacionAccionWrapper implements Comparable<SimulacionAccionWrapp
             return Integer.compare(this.tipoValue(), o.tipoValue());
         }
         return this.fechaSalida.compareTo(o.fechaSalida);
+    }
+
+    public Integer getCapacidadMaxima() {
+        return capacidadMaxima;
+    }
+
+    public void setCapacidadMaxima(Integer capacidadMaxima) {
+        this.capacidadMaxima = capacidadMaxima;
     }
 }

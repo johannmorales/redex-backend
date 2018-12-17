@@ -27,8 +27,8 @@ public class Evolutivo implements Algoritmo {
 
     private static int MAX_DEPTH = 3;
 
-    private int iteraciones = 10;
-    private int populationSize = 10;
+    private int iteraciones = 5;
+    private int populationSize = 5;
     private double surviveRatio = 0.8;
     private double mutationRatio = 0.2;
 
@@ -79,7 +79,6 @@ public class Evolutivo implements Algoritmo {
             population = TreeMultiset.create(byCost);
             population.addAll(survivors);
             population.addAll(mutants);
-            break;
         }
 
         Cromosoma winner = population.firstEntry().getElement();
@@ -168,7 +167,7 @@ public class Evolutivo implements Algoritmo {
         return null;
     }
 
-    private List<VueloAgendado> buildRandomLimitedPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, LocalDateTime limit) {
+    private List<VueloAgendado> buildRandomLimitedPath(Oficina ofiOrigen, Oficina ofiDestino, LocalDateTime current, LocalDateTime limit, Integer depth) {
         List<VueloAgendado> posibles = gestorAlgoritmo.obtenerValidos(ofiOrigen, current)
                 .stream()
                 .filter(va -> va.getFechaFin().isBefore(limit) || va.getFechaFin().isEqual(limit))
@@ -184,8 +183,8 @@ public class Evolutivo implements Algoritmo {
 
                 if (va.getOficinaDestino() == ofiDestino) {
                     return vas;
-                } else {
-                    List<VueloAgendado> vuelosRecursivos = buildRandomLimitedPath(va.getOficinaDestino(), ofiDestino, va.getFechaFin(), limit);
+                } else if(depth < MAX_DEPTH){
+                    List<VueloAgendado> vuelosRecursivos = buildRandomLimitedPath(va.getOficinaDestino(), ofiDestino, va.getFechaFin(), limit, depth +1);
                     if (vuelosRecursivos == null) {
                         continue;
                     }
@@ -255,14 +254,14 @@ public class Evolutivo implements Algoritmo {
                     if (index1 == 0) {
                         Integer indiceSgte = index2 + 1;
                         VueloAgendado vueloSgte = genes.get(indiceSgte).getVueloAgendado();
-                        reemplazo = buildRandomLimitedPath(inicio.getOficinaOrigen(), vueloSgte.getOficinaOrigen(), paquete.getFechaIngreso(), vueloSgte.getFechaInicio());
+                        reemplazo = buildRandomLimitedPath(inicio.getOficinaOrigen(), vueloSgte.getOficinaOrigen(), paquete.getFechaIngreso(), vueloSgte.getFechaInicio(), 0);
                     } else {
                         Integer indicePrevio = index1 - 1;
                         Integer indiceSgte = index2 + 1;
                         VueloAgendado vueloPrevio = genes.get(indicePrevio).getVueloAgendado();
                         VueloAgendado vueloSgte = genes.get(indiceSgte).getVueloAgendado();
 
-                        reemplazo = buildRandomLimitedPath(vueloPrevio.getOficinaDestino(), vueloSgte.getOficinaOrigen(), vueloPrevio.getFechaFin(), vueloSgte.getFechaInicio());
+                        reemplazo = buildRandomLimitedPath(vueloPrevio.getOficinaDestino(), vueloSgte.getOficinaOrigen(), vueloPrevio.getFechaFin(), vueloSgte.getFechaInicio(), 0);
                     }
                 }
 
