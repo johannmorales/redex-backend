@@ -14,7 +14,7 @@ public class ScheduledServiceController {
     @Autowired
     ScheduledServiceService service;
 
-    //@Scheduled(cron = "3 * * * * *")
+    @Scheduled(cron = "3 * * * * *")
     public void despachoVuelo() {
         logger.info("Cron inicia...");
         service.llegadaVuelos();

@@ -25,7 +25,10 @@ public class VuelosAgendadosController {
     @GetMapping
     public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request, @CurrentUser DataSession ds) {
         Page<VueloAgendado> list = service.crimsonList(request, ds);
-
+        for(VueloAgendado va: list){
+            va.setFechaInicio(va.getFechaInicio().minusHours(5));
+            va.setFechaFin(va.getFechaFin().minusHours(5));
+        }
         return CrimsonTableResponse.of(list, new String[]{
             "id",
             "vuelo.id",

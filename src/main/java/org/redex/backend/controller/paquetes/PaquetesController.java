@@ -2,6 +2,7 @@ package org.redex.backend.controller.paquetes;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.security.CurrentUser;
 import org.redex.backend.security.DataSession;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 import javax.xml.crypto.Data;
+import org.redex.backend.model.envios.PaqueteRuta;
 
 @RestController
 @RequestMapping("paquetes")
@@ -27,6 +29,9 @@ public class PaquetesController {
     @GetMapping
     public ResponseEntity<?> list(CrimsonTableRequest request, @CurrentUser DataSession ds) {
         Page<Paquete> paquetes = service.crimsonList(request, ds);
+        for(Paquete p: paquetes){
+            p.setFechaIngreso(p.getFechaIngreso().minusHours(5));
+        }
         return ResponseEntity.ok(CrimsonTableResponse.of(paquetes, new String[]{
                 "id",
                 "personaOrigen.id",
@@ -56,6 +61,13 @@ public class PaquetesController {
     @GetMapping("/{id}")
     public ObjectNode find(@PathVariable Long id) {
         Paquete p = service.find(id);
+        p.setFechaIngreso(p.getFechaIngreso().minusHours(5));
+        List<PaqueteRuta> pr = p.getPaqueteRutas();
+        for (PaqueteRuta r : pr){
+            r.getVueloAgendado().setFechaInicio(r.getVueloAgendado().getFechaInicio().minusHours(5));
+            r.getVueloAgendado().setFechaFin(r.getVueloAgendado().getFechaFin().minusHours(5));
+        }
+        p.setPaqueteRutas(pr);
         return JsonHelper.createJson(p, JsonNodeFactory.instance, new String[]{
             "id",
             "personaOrigen.id",
