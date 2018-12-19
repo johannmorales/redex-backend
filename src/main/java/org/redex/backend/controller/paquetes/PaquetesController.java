@@ -29,8 +29,9 @@ public class PaquetesController {
     @GetMapping
     public ResponseEntity<?> list(CrimsonTableRequest request, @CurrentUser DataSession ds) {
         Page<Paquete> paquetes = service.crimsonList(request, ds);
+        
         for(Paquete p: paquetes){
-            p.setFechaIngreso(p.getFechaIngreso().minusHours(5));
+            p.setFechaIngreso(p.getFechaIngreso().minusHours(ds.getOficina().getPais().getHusoHorario()));
         }
         return ResponseEntity.ok(CrimsonTableResponse.of(paquetes, new String[]{
                 "id",
@@ -59,9 +60,9 @@ public class PaquetesController {
     }
 
     @GetMapping("/{id}")
-    public ObjectNode find(@PathVariable Long id) {
+    public ObjectNode find(@PathVariable Long id, @CurrentUser DataSession ds) {
         Paquete p = service.find(id);
-        p.setFechaIngreso(p.getFechaIngreso().minusHours(5));
+        p.setFechaIngreso(p.getFechaIngreso().minusHours(ds.getOficina().getPais().getHusoHorario()));
         List<PaqueteRuta> pr = p.getPaqueteRutas();
         for (PaqueteRuta r : pr){
             r.getVueloAgendado().setFechaInicio(r.getVueloAgendado().getFechaInicio().minusHours(5));
