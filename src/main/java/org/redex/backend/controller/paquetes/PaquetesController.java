@@ -3,6 +3,8 @@ package org.redex.backend.controller.paquetes;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.redex.backend.model.envios.Paquete;
 import org.redex.backend.security.CurrentUser;
 import org.redex.backend.security.DataSession;
@@ -18,6 +20,9 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 
 import javax.xml.crypto.Data;
 import org.redex.backend.model.envios.PaqueteRuta;
+import org.redex.backend.model.general.Pais;
+import org.redex.backend.repository.OficinasRepository;
+import org.redex.backend.repository.PaisesRepository;
 
 @RestController
 @RequestMapping("paquetes")
@@ -25,13 +30,22 @@ public class PaquetesController {
 
     @Autowired
     PaquetesService service;
+    
+    @Autowired
+    PaisesRepository paisesRepository;
 
+    @Autowired
+    OficinasRepository oficinasRepository;
+    
     @GetMapping
     public ResponseEntity<?> list(CrimsonTableRequest request, @CurrentUser DataSession ds) {
         Page<Paquete> paquetes = service.crimsonList(request, ds);
-        
+        Map<String, Pais> paises = paisesRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
+        Pais ps = paises.get(ds.getOficina().getCodigo());
         for(Paquete p: paquetes){
-            p.setFechaIngreso(p.getFechaIngreso().minusHours(ds.getOficina().getPais().getHusoHorario()));
+            p.setFechaIngreso(p.getFechaIngreso().minusHours(ps.getHusoHorario()));
         }
         return ResponseEntity.ok(CrimsonTableResponse.of(paquetes, new String[]{
                 "id",
@@ -62,11 +76,17 @@ public class PaquetesController {
     @GetMapping("/{id}")
     public ObjectNode find(@PathVariable Long id, @CurrentUser DataSession ds) {
         Paquete p = service.find(id);
-        p.setFechaIngreso(p.getFechaIngreso().minusHours(ds.getOficina().getPais().getHusoHorario()));
+        
+        Map<String, Pais> paises = paisesRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
+        Pais ps = paises.get(ds.getOficina().getCodigo());
+        
+        p.setFechaIngreso(p.getFechaIngreso().minusHours(ps.getHusoHorario()));
         List<PaqueteRuta> pr = p.getPaqueteRutas();
         for (PaqueteRuta r : pr){
-            r.getVueloAgendado().setFechaInicio(r.getVueloAgendado().getFechaInicio().minusHours(5));
-            r.getVueloAgendado().setFechaFin(r.getVueloAgendado().getFechaFin().minusHours(5));
+            r.getVueloAgendado().setFechaInicio(r.getVueloAgendado().getFechaInicio().minusHours(ps.getHusoHorario()));
+            r.getVueloAgendado().setFechaFin(r.getVueloAgendado().getFechaFin().minusHours(ps.getHusoHorario()));
         }
         p.setPaqueteRutas(pr);
         return JsonHelper.createJson(p, JsonNodeFactory.instance, new String[]{

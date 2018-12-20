@@ -1,7 +1,12 @@
 package org.redex.backend.controller.vuelosagendados;
 
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.redex.backend.model.envios.VueloAgendado;
+import org.redex.backend.model.general.Pais;
+import org.redex.backend.repository.OficinasRepository;
+import org.redex.backend.repository.PaisesRepository;
 import org.redex.backend.security.CurrentUser;
 import org.redex.backend.security.DataSession;
 import org.redex.backend.zelper.crimsontable.CrimsonTableRequest;
@@ -22,12 +27,23 @@ public class VuelosAgendadosController {
     @Autowired
     VuelosAgendadosService service;
 
+    @Autowired
+    PaisesRepository paisesRepository;
+
+    @Autowired
+    OficinasRepository oficinasRepository;
+    
     @GetMapping
     public CrimsonTableResponse crimsonList(@Valid CrimsonTableRequest request, @CurrentUser DataSession ds) {
         Page<VueloAgendado> list = service.crimsonList(request, ds);
+        Map<String, Pais> paises = paisesRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(pais -> pais.getCodigo(), pais -> pais));
+        Pais ps = paises.get(ds.getOficina().getCodigo());
+        
         for(VueloAgendado va: list){
-            va.setFechaInicio(va.getFechaInicio().minusHours(ds.getOficina().getPais().getHusoHorario()));
-            va.setFechaFin(va.getFechaFin().minusHours(ds.getOficina().getPais().getHusoHorario()));
+            va.setFechaInicio(va.getFechaInicio().minusHours(ps.getHusoHorario()));
+            va.setFechaFin(va.getFechaFin().minusHours(ps.getHusoHorario()));
         }
         return CrimsonTableResponse.of(list, new String[]{
             "id",
