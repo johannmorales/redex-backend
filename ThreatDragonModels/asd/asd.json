@@ -5,8 +5,18 @@
     "description": "asd"
   },
   "detail": {
-    "contributors": [],
-    "diagrams": [],
+    "contributors": [
+      {
+        "name": "Asd"
+      }
+    ],
+    "diagrams": [
+      {
+        "title": "asd",
+        "thumbnail": "./public/content/images/thumbnail.jpg",
+        "id": 0
+      }
+    ],
     "reviewer": "asd"
   }
 }
